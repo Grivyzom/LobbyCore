@@ -11,6 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +23,56 @@ public class ItemActionManager {
 
     private final MainClass plugin;
     private final Map<String, ActionItem> actionItems;
+    private boolean isVelocityMode = false;
 
     public ItemActionManager(MainClass plugin) {
         this.plugin = plugin;
         this.actionItems = new HashMap<>();
+        setupProxyMessaging();
         loadActionItems();
+    }
+
+    /**
+     * Configura el canal de mensajería para proxy (BungeeCord/Velocity)
+     */
+    private void setupProxyMessaging() {
+        // Detectar si estamos usando Velocity o BungeeCord
+        detectProxyType();
+
+        // Registrar canales según el proxy detectado
+        if (isVelocityMode) {
+            // Velocity prefiere el canal moderno, pero también soporta el legacy
+            plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "velocity:main");
+            plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord"); // Fallback
+            plugin.getLogger().info(ColorUtils.translate("&a✓ &fCanales Velocity configurados para cambio de servidores"));
+        } else {
+            // BungeeCord tradicional
+            plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+            plugin.getLogger().info(ColorUtils.translate("&a✓ &fCanal BungeeCord configurado para cambio de servidores"));
+        }
+    }
+
+    /**
+     * Detecta el tipo de proxy basado en configuración o propiedades del servidor
+     */
+    private void detectProxyType() {
+        // Verificar configuración manual
+        if (plugin.getConfigManager().getConfig().contains("proxy.type")) {
+            String proxyType = plugin.getConfigManager().getConfig().getString("proxy.type", "bungeecord").toLowerCase();
+            isVelocityMode = proxyType.equals("velocity");
+            plugin.getLogger().info(ColorUtils.translate("&e⚙ &fTipo de proxy configurado manualmente: &b" +
+                    (isVelocityMode ? "Velocity" : "BungeeCord")));
+            return;
+        }
+
+        // Auto-detección basada en propiedades del sistema o servidor
+        String serverBrand = Bukkit.getServer().getName().toLowerCase();
+        if (serverBrand.contains("velocity") || System.getProperty("velocity.version") != null) {
+            isVelocityMode = true;
+            plugin.getLogger().info(ColorUtils.translate("&a🔍 &fVelocity detectado automáticamente"));
+        } else {
+            plugin.getLogger().info(ColorUtils.translate("&a🔍 &fUsando modo BungeeCord (por defecto)"));
+        }
     }
 
     /**
@@ -250,6 +298,11 @@ public class ItemActionManager {
                     plugin.getLogger().warning("Sonido inválido: " + soundName);
                 }
 
+            } else if (processedAction.startsWith("[SERVER]")) {
+                // Conectar a otro servidor del proxy (BungeeCord/Velocity)
+                String serverName = processedAction.replace("[SERVER]", "").trim();
+                connectPlayerToServer(player, serverName);
+
             } else if (processedAction.startsWith("[TELEPORT]")) {
                 // Teletransportar a coordenadas específicas
                 String coords = processedAction.replace("[TELEPORT]", "").trim();
@@ -310,6 +363,50 @@ public class ItemActionManager {
     }
 
     /**
+     * Conecta un jugador a otro servidor del proxy (BungeeCord/Velocity)
+     * Compatible con ambos tipos de proxy
+     * @param player El jugador a conectar
+     * @param serverName El nombre del servidor de destino
+     */
+    private void connectPlayerToServer(Player player, String serverName) {
+        try {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(serverName);
+
+            // Intentar con el canal preferido según el proxy
+            String channel = isVelocityMode ? "velocity:main" : "BungeeCord";
+
+            try {
+                player.sendPluginMessage(plugin, channel, out.toByteArray());
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a🌐 &fConectando a &b" + player.getName() + " &fal servidor &e" + serverName +
+                                " &7(usando " + (isVelocityMode ? "Velocity" : "BungeeCord") + ")"
+                ));
+            } catch (Exception e) {
+                // Fallback al canal BungeeCord si Velocity falla
+                if (isVelocityMode) {
+                    plugin.getLogger().warning("Fallo conexión Velocity, intentando con BungeeCord...");
+                    player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+                    plugin.getLogger().info(ColorUtils.translate(
+                            "&a🌐 &fConectando a &b" + player.getName() + " &fal servidor &e" + serverName +
+                                    " &7(fallback a BungeeCord)"
+                    ));
+                } else {
+                    throw e; // Re-lanzar si ya era BungeeCord
+                }
+            }
+
+            // Mensaje opcional al jugador
+            ColorUtils.sendMessage(player, "&a🌐 &fConectando al servidor &e" + serverName + "&f...");
+
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error al conectar " + player.getName() + " al servidor " + serverName + ": " + e.getMessage());
+            ColorUtils.sendMessage(player, "&c❌ &fError al conectar al servidor &e" + serverName + "&f. Inténtalo de nuevo.");
+        }
+    }
+
+    /**
      * Reemplaza placeholders en una cadena
      */
     private String replacePlaceholders(Player player, String text) {
@@ -361,5 +458,12 @@ public class ItemActionManager {
     public void reload() {
         loadActionItems();
         plugin.getLogger().info(ColorUtils.translate("&a✓ &fGestor de items de acción recargado"));
+    }
+
+    /**
+     * Obtiene información del proxy detectado
+     */
+    public String getProxyInfo() {
+        return isVelocityMode ? "Velocity" : "BungeeCord";
     }
 }
