@@ -235,8 +235,8 @@ public class WelcomeMessageManager {
                 .replace("{WORLD}", player.getWorld().getName())
                 .replace("{ONLINE}", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .replace("{MAX_PLAYERS}", String.valueOf(Bukkit.getMaxPlayers()))
-                .replace("{SERVER}", Bukkit.getServerName())
-                .replace("{MOTD}", Bukkit.getMotd());
+                .replace("{SERVER}", Bukkit.getServer().getName())
+                .replace("{MOTD}", Bukkit.getServer().getMotd());
 
         // PlaceholderAPI si está disponible
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
