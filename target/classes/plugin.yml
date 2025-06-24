@@ -15,7 +15,7 @@ commands:
   lobbycore:
     description: Comando principal de LobbyCore
     aliases: [lc, lobby]
-    usage: /<command> [reload|test|info|welcome|version]
+    usage: /<command> [reload|test|info|welcome|version|fireworks]
     permission: lobbycore.use
 
 # Permisos del plugin
@@ -45,4 +45,12 @@ permissions:
 
   lobbycore.welcome.custom:
     description: Permite enviar mensajes personalizados
+    default: op
+
+  lobbycore.fireworks:
+    description: Permite gestionar fuegos artificiales
+    default: op
+
+  lobbycore.fireworks.test:
+    description: Permite probar fuegos artificiales
     default: op
