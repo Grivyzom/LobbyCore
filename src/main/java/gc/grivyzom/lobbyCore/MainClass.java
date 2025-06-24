@@ -3,6 +3,7 @@ package gc.grivyzom.lobbyCore;
 import gc.grivyzom.lobbyCore.commands.LobbyCommand;
 import gc.grivyzom.lobbyCore.config.ConfigManager;
 import gc.grivyzom.lobbyCore.listeners.PlayerJoinListener;
+import gc.grivyzom.lobbyCore.managers.FireworksManager;
 import gc.grivyzom.lobbyCore.managers.WelcomeMessageManager;
 import gc.grivyzom.lobbyCore.utils.ColorUtils;
 import org.bukkit.Bukkit;
@@ -13,6 +14,7 @@ public final class MainClass extends JavaPlugin {
     private static MainClass instance;
     private ConfigManager configManager;
     private WelcomeMessageManager welcomeMessageManager;
+    private FireworksManager fireworksManager;
 
     @Override
     public void onEnable() {
@@ -40,6 +42,10 @@ public final class MainClass extends JavaPlugin {
         // Inicializar gestor de mensajes de bienvenida
         welcomeMessageManager = new WelcomeMessageManager(this);
         getLogger().info(ColorUtils.translate("&a✓ &fGestor de mensajes de bienvenida inicializado"));
+
+        // Inicializar gestor de fuegos artificiales
+        fireworksManager = new FireworksManager(this);
+        getLogger().info(ColorUtils.translate("&a✓ &fGestor de fuegos artificiales inicializado"));
 
         // Registrar eventos
         registerEvents();
@@ -73,6 +79,7 @@ public final class MainClass extends JavaPlugin {
 
         // Limpiar instancias
         welcomeMessageManager = null;
+        fireworksManager = null;
         configManager = null;
         instance = null;
 
@@ -117,5 +124,9 @@ public final class MainClass extends JavaPlugin {
 
     public WelcomeMessageManager getWelcomeMessageManager() {
         return welcomeMessageManager;
+    }
+
+    public FireworksManager getFireworksManager() {
+        return fireworksManager;
     }
 }

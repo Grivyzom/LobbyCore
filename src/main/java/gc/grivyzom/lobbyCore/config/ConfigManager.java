@@ -121,6 +121,19 @@ public class ConfigManager {
         addDefault("vault.enabled", false);
         addDefault("vault.welcome-money", 100.0);
         addDefault("vault.welcome-money-message", "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!");
+
+        // Configuración de fuegos artificiales
+        addDefault("welcome.fireworks.enabled", true);
+        addDefault("welcome.fireworks.delay", 2);
+        addDefault("welcome.fireworks.amount", 3);
+        addDefault("welcome.fireworks.height", 5);
+        addDefault("welcome.fireworks.spread", 3);
+        addDefault("welcome.fireworks.types", Arrays.asList("BALL", "STAR", "BURST"));
+        addDefault("welcome.fireworks.colors", Arrays.asList("RED", "BLUE", "GREEN", "YELLOW", "PURPLE", "ORANGE"));
+        addDefault("welcome.fireworks.fade-colors", Arrays.asList("WHITE", "GRAY"));
+        addDefault("welcome.fireworks.flicker", true);
+        addDefault("welcome.fireworks.trail", true);
+        addDefault("welcome.fireworks.power", 1);
     }
 
     /**
@@ -286,6 +299,51 @@ public class ConfigManager {
 
     public String getWelcomeMoneyMessage() {
         return config.getString("vault.welcome-money-message", "¡Has recibido dinero!");
+    }
+
+    // Getters para fuegos artificiales
+    public boolean isFireworksEnabled() {
+        return config.getBoolean("welcome.fireworks.enabled", true);
+    }
+
+    public int getFireworksDelay() {
+        return config.getInt("welcome.fireworks.delay", 2);
+    }
+
+    public int getFireworksAmount() {
+        return config.getInt("welcome.fireworks.amount", 3);
+    }
+
+    public int getFireworksHeight() {
+        return config.getInt("welcome.fireworks.height", 5);
+    }
+
+    public int getFireworksSpread() {
+        return config.getInt("welcome.fireworks.spread", 3);
+    }
+
+    public List<String> getFireworksTypes() {
+        return config.getStringList("welcome.fireworks.types");
+    }
+
+    public List<String> getFireworksColors() {
+        return config.getStringList("welcome.fireworks.colors");
+    }
+
+    public List<String> getFireworksFadeColors() {
+        return config.getStringList("welcome.fireworks.fade-colors");
+    }
+
+    public boolean isFireworksFlicker() {
+        return config.getBoolean("welcome.fireworks.flicker", true);
+    }
+
+    public boolean isFireworksTrail() {
+        return config.getBoolean("welcome.fireworks.trail", true);
+    }
+
+    public int getFireworksPower() {
+        return config.getInt("welcome.fireworks.power", 1);
     }
 
     /**

@@ -149,6 +149,58 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
+     * Maneja el comando de fuegos artificiales
+     */
+    private void handleFireworks(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("lobbycore.admin")) {
+            ColorUtils.sendMessage((Player) sender, "&c❌ &fNo tienes permisos para usar este comando.");
+            return;
+        }
+
+        if (args.length < 2) {
+            ColorUtils.sendMessage((Player) sender,
+                    "&c❌ &fUso: /lobbycore fireworks <enable|disable|test|status>");
+            return;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "enable":
+                plugin.getFireworksManager().setFireworksEnabled(true);
+                ColorUtils.sendMessage((Player) sender,
+                        "&a✨ &f¡Fuegos artificiales habilitados!");
+                break;
+
+            case "disable":
+                plugin.getFireworksManager().setFireworksEnabled(false);
+                ColorUtils.sendMessage((Player) sender,
+                        "&c✨ &fFuegos artificiales deshabilitados.");
+                break;
+
+            case "test":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage("Este comando solo puede ser usado por jugadores.");
+                    return;
+                }
+
+                Player player = (Player) sender;
+                plugin.getFireworksManager().launchTestFireworks(player);
+                break;
+
+            case "status":
+                boolean enabled = plugin.getFireworksManager().isEnabled();
+                String status = enabled ? "&aHabilitados" : "&cDeshabilitados";
+                ColorUtils.sendMessage((Player) sender,
+                        "&7Estado de fuegos artificiales: " + status);
+                break;
+
+            default:
+                ColorUtils.sendMessage((Player) sender,
+                        "&c❌ &fUso: /lobbycore fireworks <enable|disable|test|status>");
+                break;
+        }
+    }
+
+    /**
      * Maneja el comando de bienvenida personalizada
      */
     private void handleWelcome(CommandSender sender, String[] args) {

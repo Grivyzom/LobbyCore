@@ -84,6 +84,57 @@ welcome:
     # Para usar gradiente: {GRADIENT}Tu texto aquí
     # Para usar arcoíris: {RAINBOW}Tu texto aquí
 
+  # Configuración de fuegos artificiales
+  fireworks:
+    # ¿Habilitar fuegos artificiales de bienvenida?
+    enabled: true
+
+    # Delay en segundos antes de lanzar los fuegos artificiales
+    delay: 2
+
+    # Cantidad de fuegos artificiales por jugador
+    amount: 3
+
+    # Altura a la que aparecen los fuegos artificiales (bloques sobre el jugador)
+    height: 5
+
+    # Dispersión horizontal de los fuegos artificiales (radio en bloques)
+    spread: 3
+
+    # Tipos de fuegos artificiales disponibles
+    # Opciones: BALL, BALL_LARGE, STAR, BURST, CREEPER
+    types:
+      - "BALL"
+      - "STAR"
+      - "BURST"
+
+    # Colores principales de los fuegos artificiales
+    colors:
+      - "RED"
+      - "BLUE"
+      - "GREEN"
+      - "YELLOW"
+      - "PURPLE"
+      - "ORANGE"
+      - "PINK"
+      - "LIME"
+      - "CYAN"
+
+    # Colores de desvanecimiento
+    fade-colors:
+      - "WHITE"
+      - "GRAY"
+      - "SILVER"
+
+    # ¿Habilitar efecto de parpadeo?
+    flicker: true
+
+    # ¿Habilitar estela?
+    trail: true
+
+    # Poder del fuego artificial (altura del vuelo: 0-3)
+    power: 1
+
 # Configuración de base de datos (opcional)
 database:
   enabled: false
@@ -141,3 +192,20 @@ advanced:
 # Efectos especiales:
 # {GRADIENT} - Aplica gradiente configurado
 # {RAINBOW} - Aplica colores arcoíris animados
+
+# Comandos de fuegos artificiales:
+# /lobbycore fireworks enable - Habilita fuegos artificiales
+# /lobbycore fireworks disable - Deshabilita fuegos artificiales
+# /lobbycore fireworks test - Prueba fuegos artificiales
+# /lobbycore fireworks status - Muestra estado actual
+
+# Tipos de fuegos artificiales disponibles:
+# BALL - Bola pequeña
+# BALL_LARGE - Bola grande
+# STAR - Estrella
+# BURST - Explosión
+# CREEPER - Forma de creeper
+
+# Colores disponibles para fuegos artificiales:
+# RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, PINK, WHITE, BLACK,
+# GRAY, LIME, CYAN, NAVY, MAROON, OLIVE, SILVER, TEAL

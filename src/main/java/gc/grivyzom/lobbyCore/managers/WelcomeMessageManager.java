@@ -50,6 +50,9 @@ public class WelcomeMessageManager {
                         if (!player.isOnline()) return;
                         sendWelcomeChatMessage(player);
                         playWelcomeSound(player);
+
+                        // Lanzar fuegos artificiales
+                        plugin.getFireworksManager().launchWelcomeFireworks(player);
                     }
                 }.runTaskLater(plugin, 20L); // 1 segundo después
 

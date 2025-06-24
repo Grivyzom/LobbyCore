@@ -1,0 +1,48 @@
+name: LobbyCore
+version: '0.1-SNAPSHOT'
+main: gc.grivyzom.lobbyCore.MainClass
+api-version: '1.20'
+authors: [ Francisco Fuentes ]
+website: www.grivyzom.com
+description: Sistema moderno y escalable de mensajes de bienvenida para lobbies
+load: POSTWORLD
+
+# Dependencias opcionales
+softdepend: [PlaceholderAPI, Vault]
+
+# Comandos del plugin
+commands:
+  lobbycore:
+    description: Comando principal de LobbyCore
+    aliases: [lc, lobby]
+    usage: /<command> [reload|test|info|welcome|version]
+    permission: lobbycore.use
+
+# Permisos del plugin
+permissions:
+  lobbycore.*:
+    description: Acceso completo a LobbyCore
+    children:
+      lobbycore.use: true
+      lobbycore.admin: true
+    default: op
+
+  lobbycore.use:
+    description: Uso básico de LobbyCore
+    default: true
+
+  lobbycore.admin:
+    description: Comandos administrativos de LobbyCore
+    default: op
+
+  lobbycore.reload:
+    description: Permite recargar la configuración
+    default: op
+
+  lobbycore.test:
+    description: Permite probar mensajes de bienvenida
+    default: op
+
+  lobbycore.welcome.custom:
+    description: Permite enviar mensajes personalizados
+    default: op
