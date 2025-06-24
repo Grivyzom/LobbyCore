@@ -1,0 +1,143 @@
+# ========================================
+#           LobbyCore Configuration
+#           Autor: Francisco Fuentes
+#           Web: www.grivyzom.com
+# ========================================
+
+# Configuración general de mensajes de bienvenida
+welcome:
+  # ¿Habilitar mensajes de bienvenida?
+  enabled: true
+
+  # Delay en segundos antes de enviar el mensaje (recomendado: 1-3)
+  delay: 1
+
+  # ¿Ocultar el mensaje de join por defecto de Minecraft?
+  hide-default-join: true
+
+  # Configuración del título de bienvenida
+  title:
+    enabled: true
+    # Puedes usar códigos de color legacy (&a, &b, etc.) o hexadecimales (&#FF6B6B)
+    title: "&#FF6B6B¡B&#FF8E53i&#FFB347e&#FFCC02n&#E4FF02v&#90FF02e&#02FF02n&#02FF90i&#02FFE4d&#02CCFF&#0247FFo&#6B02FF!"
+    subtitle: "&7¡Disfruta tu estadía en &b{SERVER}&7!"
+    # Configuración de tiempos (en ticks, 20 ticks = 1 segundo)
+    fade-in: 10    # Tiempo de aparición
+    stay: 40       # Tiempo que permanece
+    fade-out: 10   # Tiempo de desaparición
+
+  # Mensajes principales de bienvenida en el chat
+  messages:
+    - ""
+    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    - ""
+    - "  &f¡Hola &b{PLAYER}&f! Te damos la bienvenida a &a{SERVER}"
+    - ""
+    - "  &7┃ &fJugadores conectados: &a{ONLINE}&7/&a{MAX_PLAYERS}"
+    - "  &7┃ &fTu mundo actual: &e{WORLD}"
+    - "  &7┃ &fWeb: &bwww.grivyzom.com"
+    - "  &7┃ &fDiscord: &9discord.gg/tu-servidor"
+    - ""
+    - "  &a¡Esperamos que disfrutes tu estadía!"
+    - ""
+    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    - ""
+
+  # Mensajes basados en la hora del día
+  time-based:
+    enabled: true
+    morning: "&e☀ &fBuenos días &b{PLAYER}&f, que tengas un excelente día!"
+    afternoon: "&6🌅 &fBuenas tardes &b{PLAYER}&f, perfecta hora para jugar!"
+    evening: "&c🌆 &fBuenas tardes &b{PLAYER}&f, disfruta la tarde!"
+    night: "&9🌙 &fBuenas noches &b{PLAYER}&f, hora perfecta para relajarse!"
+
+  # Configuración para jugadores nuevos (primera vez)
+  first-time:
+    enabled: true
+    messages:
+      - ""
+      - "&a🎉 &f¡Es tu primera vez aquí! Te damos una cálida bienvenida."
+      - "&7💡 &fTip: Usa &e/help &fpara ver los comandos disponibles."
+      - "&7📋 &fAsegúrate de leer las reglas con &e/rules"
+      - "&7🎁 &f¡Has recibido un regalo de bienvenida!"
+      - ""
+
+  # Anuncio cuando un jugador nuevo se une
+  new-player:
+    announce: true
+    announcement: "&a🎊 &f¡Démosle la bienvenida a &b{PLAYER} &fque se une por primera vez!"
+
+  # Configuración de sonidos
+  sound:
+    enabled: true
+    # Sonidos disponibles: ENTITY_PLAYER_LEVELUP, BLOCK_NOTE_BLOCK_CHIME, UI_TOAST_CHALLENGE_COMPLETE, etc.
+    sound: "ENTITY_PLAYER_LEVELUP"
+    volume: 0.5  # 0.0 - 1.0
+    pitch: 1.0   # 0.5 - 2.0
+
+  # Efectos especiales para texto
+  effects:
+    gradient:
+      # Colores en formato hexadecimal (sin #)
+      start-color: "FF6B6B"  # Rojo coral
+      end-color: "4ECDC4"    # Turquesa
+    # Para usar gradiente: {GRADIENT}Tu texto aquí
+    # Para usar arcoíris: {RAINBOW}Tu texto aquí
+
+# Configuración de base de datos (opcional)
+database:
+  enabled: false
+  host: "localhost"
+  port: 3306
+  database: "lobbycore"
+  username: "root"
+  password: "password"
+  # Pool de conexiones
+  max-pool-size: 10
+  connection-timeout: 30000
+
+# Integración con Vault (economía)
+vault:
+  enabled: false
+  # Dinero que reciben los jugadores nuevos
+  welcome-money: 100.0
+  welcome-money-message: "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!"
+
+# Configuración avanzada
+advanced:
+  # ¿Registrar conexiones en consola?
+  log-joins: true
+
+  # ¿Usar PlaceholderAPI si está disponible?
+  use-placeholderapi: true
+
+  # Configuración de rendimiento
+  performance:
+    # Máximo de mensajes de bienvenida simultáneos
+    max-concurrent-welcomes: 10
+
+    # Cache de configuración en memoria
+    cache-config: true
+
+# Placeholders disponibles:
+# {PLAYER} - Nombre del jugador
+# {DISPLAYNAME} - Nombre mostrado del jugador
+# {WORLD} - Mundo actual del jugador
+# {ONLINE} - Jugadores conectados
+# {MAX_PLAYERS} - Máximo de jugadores
+# {SERVER} - Nombre del servidor
+# {MOTD} - MOTD del servidor
+#
+# Si tienes PlaceholderAPI instalado, también puedes usar:
+# %player_name% - Nombre del jugador
+# %server_online% - Jugadores conectados
+# %player_world% - Mundo del jugador
+# Y muchos más según los plugins que tengas
+
+# Códigos de color disponibles:
+# Legacy: &0-&9, &a-&f, &k-&r
+# Hex: &#RRGGBB (ej: &#FF6B6B para rojo coral)
+#
+# Efectos especiales:
+# {GRADIENT} - Aplica gradiente configurado
+# {RAINBOW} - Aplica colores arcoíris animados
