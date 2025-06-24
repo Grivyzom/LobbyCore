@@ -136,6 +136,35 @@ welcome:
     power: 1
 
 # ========================================
+#         CONFIGURACIÓN DEL PROXY
+# ========================================
+
+# Configuración del proxy (BungeeCord/Velocity)
+proxy:
+  # Tipo de proxy: "bungeecord" o "velocity"
+  # Si no se especifica, se auto-detectará
+  type: "velocity"  # Cambia a "bungeecord" si usas BungeeCord
+
+  # Configuración específica de Velocity
+  velocity:
+    # Usar el canal moderno de Velocity (recomendado)
+    use-modern-channel: true
+
+    # Timeout para conexiones (en milisegundos)
+    connection-timeout: 5000
+
+    # Reintentos en caso de fallo
+    max-retries: 3
+
+  # Configuración específica de BungeeCord
+  bungeecord:
+    # Usar solo el canal legacy
+    legacy-only: false
+
+    # Timeout para conexiones (en milisegundos)
+    connection-timeout: 3000
+
+# ========================================
 #           SISTEMA DE ITEMS DE ACCIÓN
 # ========================================
 
@@ -208,7 +237,41 @@ action-items:
         # Al hacer shift + click izquierdo (opcional)
         shift-left-click: []
 
-    # Ejemplo 2: Brújula de navegación
+    # Ejemplo 2: Selector de servidores
+    server_selector:
+      material: "NETHER_STAR"
+      display-name: "&d🌐 &fSelector de Servidores"
+      lore:
+        - "&7Click para navegar entre"
+        - "&7los diferentes servidores"
+        - ""
+        - "&dClick derecho: &fServidor Survival"
+        - "&dClick izquierdo: &fServidor SkyBlock"
+        - "&dShift + Click: &fVolver al Hub"
+      slot: 0
+      amount: 1
+      flags:
+        give-on-join: true
+        prevent-drop: true
+        prevent-move: true
+        prevent-inventory-click: true
+        keep-on-death: true
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5"
+          - "[MESSAGE]&d🌐 &f¡Conectando al servidor &eSurvival&f!"
+          - "[SERVER]survival"
+        left-click:
+          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2"
+          - "[MESSAGE]&d🌐 &f¡Conectando al servidor &bSkyBlock&f!"
+          - "[SERVER]skyblock"
+        shift-right-click:
+          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.0"
+          - "[MESSAGE]&d🌐 &f¡Regresando al Hub principal!"
+          - "[SERVER]hub"
+
+    # Ejemplo 3: Brújula de navegación
     compass_navigator:
       material: "COMPASS"
       display-name: "&e🧭 &fNavegador"
@@ -217,7 +280,7 @@ action-items:
         - "&7el menú de navegación"
         - ""
         - "&eClick izquierdo: &fInfo del servidor"
-      slot: 0
+      slot: 1
       amount: 1
       flags:
         give-on-join: true
@@ -235,7 +298,64 @@ action-items:
           - "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}"
           - "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
 
-    # Ejemplo 3: Libro de ayuda
+    # Ejemplo 4: Portal a servidor de minijuegos
+    minigames_portal:
+      material: "ENDER_PEARL"
+      display-name: "&a🎮 &fMinijuegos"
+      lore:
+        - "&7Portal directo al servidor"
+        - "&7de minijuegos y eventos"
+        - ""
+        - "&a🎮 &fClick: &eConectar"
+        - "&7Incluye: BedWars, SkyWars, PvP"
+      slot: 2
+      amount: 1
+      flags:
+        give-on-join: true
+        prevent-drop: true
+        prevent-move: true
+        prevent-inventory-click: true
+        keep-on-death: true
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
+          - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
+          - "[MESSAGE]&7Preparándote para la diversión..."
+          - "[DELAY]20:[SERVER]minigames"
+        left-click:
+          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
+          - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
+          - "[MESSAGE]&7Preparándote para la diversión..."
+          - "[DELAY]20:[SERVER]minigames"
+
+    # Ejemplo 5: Acceso rápido a Creative
+    creative_portal:
+      material: "GOLDEN_APPLE"
+      display-name: "&6🎨 &fModo Creativo"
+      lore:
+        - "&7Servidor dedicado para"
+        - "&7construcción y creatividad"
+        - ""
+        - "&6🎨 &fClick: &eConectar al Creative"
+        - "&7Builds ilimitados y WorldEdit"
+      slot: 3
+      amount: 1
+      flags:
+        give-on-join: true
+        prevent-drop: true
+        prevent-move: true
+        prevent-inventory-click: true
+        keep-on-death: true
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]BLOCK_BEACON_ACTIVATE:1.0:1.2"
+          - "[MESSAGE]&6🎨 &f¡Conectando al servidor Creativo!"
+          - "[MESSAGE]&7¡A construir se ha dicho!"
+          - "[SERVER]creative"
+
+    # Ejemplo 6: Libro de ayuda
     help_book:
       material: "BOOK"
       display-name: "&a📚 &fGuía de Ayuda"
@@ -264,35 +384,33 @@ action-items:
           - "[MESSAGE]&7• &f/spawn - Ir al spawn"
           - "[MESSAGE]&7• &f/menu - Abrir menú principal"
 
-    # Ejemplo 4: Ender Pearl especial
-    special_pearl:
-      material: "ENDER_PEARL"
-      display-name: "&d✨ &fPerla Mágica"
+    # Ejemplo 7: Conexión a servidor de pruebas/staff
+    staff_server:
+      material: "BARRIER"
+      display-name: "&c🔧 &fServidor Staff"
       lore:
-        - "&7Una perla con poderes especiales"
+        - "&7Servidor exclusivo para"
+        - "&7miembros del equipo"
         - ""
-        - "&dClick derecho: &fTeletransporte aleatorio"
-        - "&dShift + Click: &fVolver al spawn"
-      slot: 1
-      amount: 3
+        - "&c⚠ &fSolo para Staff"
+        - "&cRequiere permisos especiales"
+      slot: 7
+      amount: 1
       flags:
-        give-on-join: false  # Solo se da manualmente o por eventos
-        prevent-drop: false
-        prevent-move: false
-        prevent-inventory-click: false
-        keep-on-death: true  # Se mantiene al morir
+        give-on-join: false  # Solo dar manualmente
+        prevent-drop: true
+        prevent-move: true
+        prevent-inventory-click: true
+        keep-on-death: true
         replaceable: true
       actions:
         right-click:
-          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
-          - "[MESSAGE]&d✨ &f¡Teletransporte aleatorio!"
-          - "[CONSOLE]rtp {PLAYER}"
-        shift-right-click:
-          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.5"
-          - "[MESSAGE]&d🏠 &f¡Regresando al spawn!"
-          - "[DELAY]20:[CONSOLE]spawn {PLAYER}"
+          - "[SOUND]BLOCK_ANVIL_USE:0.8:1.0"
+          - "[MESSAGE]&c🔧 &f¡Conectando al servidor Staff!"
+          - "[MESSAGE]&7Acceso autorizado..."
+          - "[SERVER]staff"
 
-    # Ejemplo 5: Poción de velocidad
+    # Ejemplo 8: Poción de velocidad (sin cambio de servidor)
     speed_potion:
       material: "POTION"
       display-name: "&b⚡ &fPoción de Velocidad"
@@ -301,7 +419,7 @@ action-items:
         - "&7por 30 segundos"
         - ""
         - "&b⚡ &fVelocidad II - 30s"
-      slot: 7
+      slot: 6
       amount: 1
       flags:
         give-on-join: false
@@ -316,6 +434,55 @@ action-items:
           - "[MESSAGE]&b⚡ &f¡Has usado la poción de velocidad!"
           - "[CONSOLE]effect give {PLAYER} speed 30 1"
           - "[CONSOLE]clear {PLAYER} potion 1"
+
+# ========================================
+#         SERVIDORES DE TU NETWORK
+# ========================================
+
+# Lista de servidores disponibles en tu network
+# Esto es solo para documentación y validación
+servers:
+  hub:
+    display-name: "&bHub Principal"
+    description: "Servidor principal del network"
+    permission: "lobbycore.server.connect.hub"
+
+  survival:
+    display-name: "&aSurvival"
+    description: "Servidor de supervivencia vanilla"
+    permission: "lobbycore.server.connect.survival"
+
+  skyblock:
+    display-name: "&eSkyBlock"
+    description: "Servidor SkyBlock personalizado"
+    permission: "lobbycore.server.connect.skyblock"
+
+  minigames:
+    display-name: "&dMinijuegos"
+    description: "Servidor de minijuegos y eventos"
+    permission: "lobbycore.server.connect.minigames"
+
+  creative:
+    display-name: "&6Creativo"
+    description: "Servidor para construcción libre"
+    permission: "lobbycore.server.connect.creative"
+
+  staff:
+    display-name: "&cStaff"
+    description: "Servidor exclusivo para personal"
+    permission: "lobbycore.server.connect.staff"
+    restricted: true
+
+# ========================================
+#           MENSAJES PERSONALIZADOS
+# ========================================
+
+# Mensajes específicos para conexiones de servidor
+server-messages:
+  connecting: "&a🌐 &fConectando al servidor &e{SERVER}&f..."
+  connection-failed: "&c❌ &fError al conectar al servidor &e{SERVER}&f. Inténtalo de nuevo."
+  no-permission: "&c❌ &fNo tienes permisos para acceder al servidor &e{SERVER}&f."
+  server-offline: "&e⚠ &fEl servidor &e{SERVER} &fno está disponible en este momento."
 
 # Configuración de base de datos (opcional)
 database:
@@ -364,6 +531,7 @@ advanced:
 # {MAX_PLAYERS} - Máximo de jugadores
 # {SERVER} - Nombre del servidor
 # {MOTD} - MOTD del servidor
+# {PROXY} - Tipo de proxy (Velocity/BungeeCord)
 
 # TIPOS DE ACCIONES DISPONIBLES:
 # [COMMAND] - Ejecuta comando como jugador
@@ -371,6 +539,7 @@ advanced:
 # [MESSAGE] - Envía mensaje al jugador
 # [BROADCAST] - Envía mensaje a todos los jugadores
 # [SOUND] - Reproduce sonido (formato: SONIDO:volumen:pitch)
+# [SERVER] - Conecta a otro servidor del proxy (formato: [SERVER]nombre_servidor)
 # [TELEPORT] - Teletransporta (formato: x:y:z:mundo)
 # [GIVE_ITEM] - Da otro item de acción
 # [CLOSE_INVENTORY] - Cierra el inventario
@@ -382,9 +551,27 @@ advanced:
 # [MESSAGE]&a¡Hola {PLAYER}!
 # [BROADCAST]&e{PLAYER} usó un item especial
 # [SOUND]ENTITY_PLAYER_LEVELUP:1.0:1.2
+# [SERVER]survival
+# [SERVER]skyblock
+# [SERVER]minigames
 # [TELEPORT]100:64:200:world
 # [GIVE_ITEM]special_pearl
 # [DELAY]5:[MESSAGE]&aTeletransporte en 5 segundos!
+# [DELAY]10:[SERVER]lobby
+
+# EJEMPLOS DE CONEXIÓN A SERVIDORES:
+# [SERVER]lobby - Conecta al servidor lobby
+# [SERVER]survival - Conecta al servidor survival
+# [SERVER]skyblock - Conecta al servidor skyblock
+# [SERVER]minigames - Conecta al servidor de minijuegos
+# [SERVER]creative - Conecta al servidor creativo
+# [SERVER]hub - Conecta al hub principal
+# [SERVER]staff - Conecta al servidor de staff
+
+# COMBINANDO ACCIONES DE SERVIDOR CON OTRAS:
+# - "[MESSAGE]&a🌐 &fConectando al servidor..."
+# - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5"
+# - "[DELAY]20:[SERVER]survival"  # Espera 1 segundo antes de conectar
 
 # FLAGS DISPONIBLES:
 # give-on-join: true/false - Dar al conectarse
@@ -399,6 +586,31 @@ advanced:
 # Inventario principal: 9-35
 # Recomendado usar slots 0-8 para items importantes
 
-# MATERIALES COMUNES:
-# STICK, COMPASS, BOOK, ENDER_PEARL, POTION, DIAMOND,
-# EMERALD, GOLD_INGOT, IRON_INGOT, PAPER, MAP, etc.
+# MATERIALES COMUNES PARA PORTALES:
+# NETHER_STAR - Selector general de servidores
+# ENDER_PEARL - Portales de teletransporte/minijuegos
+# COMPASS - Navegación/información
+# GOLDEN_APPLE - Servidores especiales (creative, vip)
+# BARRIER - Servidores restringidos (staff, admin)
+# EMERALD - Economía/tiendas
+# DIAMOND - Servidores premium
+# PAPER - Información/ayuda
+# MAP - Mapas/mundos específicos
+
+# NOTAS IMPORTANTES PARA PROXY:
+# - Asegúrate de que tu servidor esté conectado a Velocity/BungeeCord
+# - Los nombres de servidores deben coincidir exactamente con los configurados en el proxy
+# - El plugin registra automáticamente los canales necesarios para comunicación
+# - Si un servidor no existe, el jugador recibirá un error de conexión
+# - Se recomienda usar delays antes de conectar para mejor experiencia de usuario
+# - Velocity es auto-detectado, pero puedes especificarlo manualmente en proxy.type
+
+# CONFIGURACIÓN PARA VELOCITY:
+# 1. Cambia proxy.type a "velocity"
+# 2. Ajusta los nombres de servidores en la sección "servers"
+# 3. Asegúrate de que velocity.toml tenga los mismos nombres de servidor
+
+# CONFIGURACIÓN PARA BUNGEECORD:
+# 1. Cambia proxy.type a "bungeecord" (o déjalo en auto-detección)
+# 2. Ajusta los nombres de servidores en la sección "servers"
+# 3. Asegúrate de que config.yml de BungeeCord tenga los mismos nombres de servidor

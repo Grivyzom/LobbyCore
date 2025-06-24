@@ -4,7 +4,7 @@ main: gc.grivyzom.lobbyCore.MainClass
 api-version: '1.20'
 authors: [ Francisco Fuentes ]
 website: www.grivyzom.com
-description: Sistema moderno y escalable de mensajes de bienvenida para lobbies
+description: Sistema moderno y escalable de mensajes de bienvenida para lobbies con soporte BungeeCord
 load: POSTWORLD
 
 # Dependencias opcionales
@@ -15,7 +15,7 @@ commands:
   lobbycore:
     description: Comando principal de LobbyCore
     aliases: [lc, lobby]
-    usage: /<command> [reload|test|info|welcome|version|fireworks]
+    usage: /<command> [reload|test|info|welcome|version|fireworks|items]
     permission: lobbycore.use
 
 # Permisos del plugin
@@ -25,6 +25,7 @@ permissions:
     children:
       lobbycore.use: true
       lobbycore.admin: true
+      lobbycore.server.connect: true
     default: op
 
   lobbycore.use:
@@ -53,4 +54,52 @@ permissions:
 
   lobbycore.fireworks.test:
     description: Permite probar fuegos artificiales
+    default: op
+
+  lobbycore.items:
+    description: Permite gestionar items de acción
+    default: op
+
+  lobbycore.items.give:
+    description: Permite dar items de acción a otros jugadores
+    default: op
+
+  # Permisos para conexión de servidores
+  lobbycore.server.connect:
+    description: Permite usar items que conectan a otros servidores
+    default: true
+
+  lobbycore.server.connect.*:
+    description: Permite conectar a cualquier servidor
+    children:
+      lobbycore.server.connect.survival: true
+      lobbycore.server.connect.skyblock: true
+      lobbycore.server.connect.minigames: true
+      lobbycore.server.connect.creative: true
+      lobbycore.server.connect.hub: true
+      lobbycore.server.connect.staff: true
+    default: op
+
+  lobbycore.server.connect.survival:
+    description: Permite conectar al servidor Survival
+    default: true
+
+  lobbycore.server.connect.skyblock:
+    description: Permite conectar al servidor SkyBlock
+    default: true
+
+  lobbycore.server.connect.minigames:
+    description: Permite conectar al servidor de Minijuegos
+    default: true
+
+  lobbycore.server.connect.creative:
+    description: Permite conectar al servidor Creative
+    default: true
+
+  lobbycore.server.connect.hub:
+    description: Permite conectar al Hub principal
+    default: true
+
+  lobbycore.server.connect.staff:
+    description: Permite conectar al servidor Staff (restringido)
     default: op

@@ -179,22 +179,22 @@ action-items:
   items:
 
     # Ejemplo 1: Palito para ir al lobby
-    lobby_stick:
+    lobby_item:
       # Material del item (usar nombres de Material de Bukkit)
-      material: "STICK"
+      material: FIREWORK_STAR
 
       # Nombre que se mostrará en el item
-      display-name: "&b🏠 &fIr al Lobby"
+      display-name: '&9Regresar al Lobby'
 
       # Descripción del item (lore)
       lore:
-        - "&7Click derecho para"
-        - "&7teletransportarte al lobby"
-        - ""
-        - "&a✅ &fDisponible siempre"
+        - '&8Descripción'
+        - '&7Click derecho para'
+        - '&7teletransportarte al lobby'
+        - ''
 
       # Slot donde se coloca el item (0-35, hotbar: 0-8)
-      slot: 4
+      slot: 8
 
       # Cantidad del item
       amount: 1
@@ -223,16 +223,16 @@ action-items:
       actions:
         # Al hacer click derecho
         right-click:
-          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-          - "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!"
-          - "[CONSOLE]spawn {PLAYER}"
+          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+          - '[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!'
+          - '[CONSOLE]ajqueue:server {PLAYER} lobby'
 
         # Al hacer click izquierdo (opcional)
         left-click: []
 
         # Al hacer shift + click derecho (opcional)
         shift-right-click:
-          - "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
+          - '[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby'
 
         # Al hacer shift + click izquierdo (opcional)
         shift-left-click: []
