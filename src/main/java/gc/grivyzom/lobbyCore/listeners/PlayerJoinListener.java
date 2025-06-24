@@ -35,7 +35,14 @@ public class PlayerJoinListener implements Listener {
         boolean isNewPlayer = !player.hasPlayedBefore();
 
         // Enviar mensaje de bienvenida
-        plugin.getWelcomeMessageManager().sendWelcomeMessage(player);
+        if (plugin.getConfigManager().isWelcomeEnabled()) {
+            plugin.getWelcomeMessageManager().sendWelcomeMessage(player);
+        }
+
+        // Dar items de acción de bienvenida
+        if (plugin.getConfigManager().getConfig().getBoolean("action-items.enabled", true)) {
+            plugin.getItemActionManager().giveJoinItems(player);
+        }
 
         // Dar dinero de bienvenida si Vault está habilitado
         if (isNewPlayer && plugin.getConfigManager().isVaultEnabled() && economy != null) {

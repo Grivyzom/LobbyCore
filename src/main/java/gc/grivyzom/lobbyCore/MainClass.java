@@ -2,8 +2,10 @@ package gc.grivyzom.lobbyCore;
 
 import gc.grivyzom.lobbyCore.commands.LobbyCommand;
 import gc.grivyzom.lobbyCore.config.ConfigManager;
+import gc.grivyzom.lobbyCore.listeners.ItemActionListener;
 import gc.grivyzom.lobbyCore.listeners.PlayerJoinListener;
 import gc.grivyzom.lobbyCore.managers.FireworksManager;
+import gc.grivyzom.lobbyCore.managers.ItemActionManager;
 import gc.grivyzom.lobbyCore.managers.WelcomeMessageManager;
 import gc.grivyzom.lobbyCore.utils.ColorUtils;
 import org.bukkit.Bukkit;
@@ -15,6 +17,7 @@ public final class MainClass extends JavaPlugin {
     private ConfigManager configManager;
     private WelcomeMessageManager welcomeMessageManager;
     private FireworksManager fireworksManager;
+    private ItemActionManager itemActionManager;
 
     @Override
     public void onEnable() {
@@ -46,6 +49,10 @@ public final class MainClass extends JavaPlugin {
         // Inicializar gestor de fuegos artificiales
         fireworksManager = new FireworksManager(this);
         getLogger().info(ColorUtils.translate("&a✓ &fGestor de fuegos artificiales inicializado"));
+
+        // Inicializar gestor de items de acción
+        itemActionManager = new ItemActionManager(this);
+        getLogger().info(ColorUtils.translate("&a✓ &fGestor de items de acción inicializado"));
 
         // Registrar eventos
         registerEvents();
@@ -80,6 +87,7 @@ public final class MainClass extends JavaPlugin {
         // Limpiar instancias
         welcomeMessageManager = null;
         fireworksManager = null;
+        itemActionManager = null;
         configManager = null;
         instance = null;
 
@@ -89,6 +97,7 @@ public final class MainClass extends JavaPlugin {
 
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        getServer().getPluginManager().registerEvents(new ItemActionListener(this), this);
     }
 
     private void registerCommands() {
@@ -128,5 +137,9 @@ public final class MainClass extends JavaPlugin {
 
     public FireworksManager getFireworksManager() {
         return fireworksManager;
+    }
+
+    public ItemActionManager getItemActionManager() {
+        return itemActionManager;
     }
 }

@@ -1,6 +1,7 @@
 package gc.grivyzom.lobbyCore.commands;
 
 import gc.grivyzom.lobbyCore.MainClass;
+import gc.grivyzom.lobbyCore.models.ActionItem;
 import gc.grivyzom.lobbyCore.utils.ColorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LobbyCommand implements CommandExecutor, TabCompleter {
@@ -50,6 +52,14 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 handleVersion(sender);
                 break;
 
+            case "items":
+                handleItems(sender, args);
+                break;
+
+            case "fireworks":
+                handleFireworks(sender, args);
+                break;
+
             default:
                 sendHelpMessage(sender);
                 break;
@@ -70,6 +80,8 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
         try {
             plugin.getConfigManager().reloadConfig();
             plugin.getWelcomeMessageManager().reload();
+            plugin.getFireworksManager().reload();
+            plugin.getItemActionManager().reload();
 
             ColorUtils.sendMessage((Player) sender,
                     "&a✅ &f¡Configuración recargada correctamente!");
@@ -138,7 +150,8 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 "  &7┃ &fVersión: &a" + plugin.getDescription().getVersion(),
                 "  &7┃ &fAutor: &a" + plugin.getDescription().getAuthors().get(0),
                 "  &7┃ &fWeb: &a" + plugin.getDescription().getWebsite(),
-                "  &7┃ &fEstado: &a" + (plugin.getConfigManager().isWelcomeEnabled() ? "Habilitado" : "Deshabilitado"),
+                "  &7┃ &fBienvenida: &a" + (plugin.getConfigManager().isWelcomeEnabled() ? "Habilitada" : "Deshabilitada"),
+                "  &7┃ &fItems de acción: &a" + plugin.getItemActionManager().getAllActionItems().size() + " configurados",
                 "  &7┃ &fJugadores: &a" + Bukkit.getOnlinePlayers().size() + "&7/&a" + Bukkit.getMaxPlayers(),
                 "",
                 "  &7Usa &e/lobbycore help &7para ver todos los comandos",
@@ -146,6 +159,122 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
                 ""
         ));
+    }
+
+    /**
+     * Maneja el comando de items de acción
+     */
+    private void handleItems(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("lobbycore.admin")) {
+            ColorUtils.sendMessage((Player) sender, "&c❌ &fNo tienes permisos para usar este comando.");
+            return;
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Este comando solo puede ser usado por jugadores.");
+            return;
+        }
+
+        Player player = (Player) sender;
+
+        if (args.length < 2) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fUso: /lobbycore items <list|give|reload>");
+            return;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "list":
+                handleItemsList(player);
+                break;
+
+            case "give":
+                handleItemsGive(player, args);
+                break;
+
+            case "reload":
+                plugin.getItemActionManager().reload();
+                ColorUtils.sendMessage(player,
+                        "&a✅ &f¡Items de acción recargados!");
+                break;
+
+            default:
+                ColorUtils.sendMessage(player,
+                        "&c❌ &fUso: /lobbycore items <list|give|reload>");
+                break;
+        }
+    }
+
+    /**
+     * Lista todos los items de acción disponibles
+     */
+    private void handleItemsList(Player player) {
+        Map<String, ActionItem> items = plugin.getItemActionManager().getAllActionItems();
+
+        if (items.isEmpty()) {
+            ColorUtils.sendMessage(player, "&e⚠ &fNo hay items de acción configurados.");
+            return;
+        }
+
+        ColorUtils.sendMessage(player, "");
+        ColorUtils.sendMessage(player, "&b📦 &fItems de acción disponibles:");
+        ColorUtils.sendMessage(player, "");
+
+        for (ActionItem item : items.values()) {
+            String flags = "";
+            if (item.isGiveOnJoin()) flags += "&a[AUTO] ";
+            if (item.isPreventDrop()) flags += "&c[NO-DROP] ";
+            if (item.isPreventMove()) flags += "&e[FIJO] ";
+            if (item.isKeepOnDeath()) flags += "&d[INMORTAL] ";
+
+            ColorUtils.sendMessage(player,
+                    "&7• &e" + item.getItemId() + " &7- " + item.getDisplayName() + " " + flags);
+        }
+
+        ColorUtils.sendMessage(player, "");
+        ColorUtils.sendMessage(player, "&7Usa &e/lobbycore items give <item> [jugador] &7para dar un item");
+        ColorUtils.sendMessage(player, "");
+    }
+
+    /**
+     * Da un item de acción a un jugador
+     */
+    private void handleItemsGive(Player sender, String[] args) {
+        if (args.length < 3) {
+            ColorUtils.sendMessage(sender,
+                    "&c❌ &fUso: /lobbycore items give <item> [jugador]");
+            return;
+        }
+
+        String itemId = args[2];
+        ActionItem actionItem = plugin.getItemActionManager().getActionItem(itemId);
+
+        if (actionItem == null) {
+            ColorUtils.sendMessage(sender,
+                    "&c❌ &fItem de acción no encontrado: &e" + itemId);
+            return;
+        }
+
+        Player target = sender;
+        if (args.length > 3) {
+            target = Bukkit.getPlayer(args[3]);
+            if (target == null) {
+                ColorUtils.sendMessage(sender, "&c❌ &fJugador no encontrado.");
+                return;
+            }
+        }
+
+        plugin.getItemActionManager().giveItemToPlayer(target, actionItem);
+
+        if (target.equals(sender)) {
+            ColorUtils.sendMessage(sender,
+                    "&a✅ &fHas recibido el item: " + actionItem.getDisplayName());
+        } else {
+            ColorUtils.sendMessage(sender,
+                    "&a✅ &fItem &e" + itemId + " &fdado a &b" + target.getName() + "&f.");
+            ColorUtils.sendMessage(target,
+                    "&a🎁 &fHas recibido un item: " + actionItem.getDisplayName());
+        }
     }
 
     /**
@@ -262,6 +391,7 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("/lobbycore reload - Recarga la configuración");
             sender.sendMessage("/lobbycore info - Información del plugin");
             sender.sendMessage("/lobbycore test [jugador] - Prueba el mensaje de bienvenida");
+            sender.sendMessage("/lobbycore items <list|give|reload> - Gestionar items de acción");
             return;
         }
 
@@ -278,6 +408,8 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 "  &e/lobbycore version &7- &fMuestra la versión",
                 "  &e/lobbycore test [jugador] &7- &fPrueba el mensaje de bienvenida",
                 "  &e/lobbycore welcome <jugador> <mensaje> &7- &fEnvía mensaje personalizado",
+                "  &e/lobbycore items <list|give|reload> &7- &fGestionar items de acción",
+                "  &e/lobbycore fireworks <enable|disable|test> &7- &fGestionar fuegos artificiales",
                 "",
                 "  &7Permisos:",
                 "  &c• &flobbycore.admin &7- &fAcceso a comandos administrativos",
@@ -290,17 +422,48 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("reload", "test", "info", "welcome", "version")
+            return Arrays.asList("reload", "test", "info", "welcome", "version", "items", "fireworks")
                     .stream()
                     .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
         }
 
-        if (args.length == 2 && (args[0].equalsIgnoreCase("test") || args[0].equalsIgnoreCase("welcome"))) {
+        if (args.length == 2) {
+            switch (args[0].toLowerCase()) {
+                case "test":
+                case "welcome":
+                    return Bukkit.getOnlinePlayers()
+                            .stream()
+                            .map(Player::getName)
+                            .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                            .collect(Collectors.toList());
+
+                case "items":
+                    return Arrays.asList("list", "give", "reload")
+                            .stream()
+                            .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                            .collect(Collectors.toList());
+
+                case "fireworks":
+                    return Arrays.asList("enable", "disable", "test", "status")
+                            .stream()
+                            .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                            .collect(Collectors.toList());
+            }
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("items") && args[1].equalsIgnoreCase("give")) {
+            return plugin.getItemActionManager().getAllActionItems().keySet()
+                    .stream()
+                    .filter(itemId -> itemId.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (args.length == 4 && args[0].equalsIgnoreCase("items") && args[1].equalsIgnoreCase("give")) {
             return Bukkit.getOnlinePlayers()
                     .stream()
                     .map(Player::getName)
-                    .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .filter(name -> name.toLowerCase().startsWith(args[3].toLowerCase()))
                     .collect(Collectors.toList());
         }
 

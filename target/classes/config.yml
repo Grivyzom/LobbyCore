@@ -135,6 +135,188 @@ welcome:
     # Poder del fuego artificial (altura del vuelo: 0-3)
     power: 1
 
+# ========================================
+#           SISTEMA DE ITEMS DE ACCIÓN
+# ========================================
+
+action-items:
+  # ¿Habilitar sistema de items de acción?
+  enabled: true
+
+  # Delay en segundos antes de dar los items (después de conectarse)
+  give-delay: 2
+
+  # Configuración de items
+  items:
+
+    # Ejemplo 1: Palito para ir al lobby
+    lobby_stick:
+      # Material del item (usar nombres de Material de Bukkit)
+      material: "STICK"
+
+      # Nombre que se mostrará en el item
+      display-name: "&b🏠 &fIr al Lobby"
+
+      # Descripción del item (lore)
+      lore:
+        - "&7Click derecho para"
+        - "&7teletransportarte al lobby"
+        - ""
+        - "&a✅ &fDisponible siempre"
+
+      # Slot donde se coloca el item (0-35, hotbar: 0-8)
+      slot: 4
+
+      # Cantidad del item
+      amount: 1
+
+      # Flags del item
+      flags:
+        # ¿Dar este item cuando el jugador se conecta?
+        give-on-join: true
+
+        # ¿Prevenir que se pueda soltar/tirar?
+        prevent-drop: true
+
+        # ¿Prevenir que se pueda mover de su slot?
+        prevent-move: true
+
+        # ¿Prevenir clics en inventario?
+        prevent-inventory-click: true
+
+        # ¿Mantener al morir?
+        keep-on-death: true
+
+        # ¿Se puede reemplazar si el slot está ocupado?
+        replaceable: true
+
+      # Acciones que ejecuta el item
+      actions:
+        # Al hacer click derecho
+        right-click:
+          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
+          - "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!"
+          - "[CONSOLE]spawn {PLAYER}"
+
+        # Al hacer click izquierdo (opcional)
+        left-click: []
+
+        # Al hacer shift + click derecho (opcional)
+        shift-right-click:
+          - "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
+
+        # Al hacer shift + click izquierdo (opcional)
+        shift-left-click: []
+
+    # Ejemplo 2: Brújula de navegación
+    compass_navigator:
+      material: "COMPASS"
+      display-name: "&e🧭 &fNavegador"
+      lore:
+        - "&7Click derecho para abrir"
+        - "&7el menú de navegación"
+        - ""
+        - "&eClick izquierdo: &fInfo del servidor"
+      slot: 0
+      amount: 1
+      flags:
+        give-on-join: true
+        prevent-drop: true
+        prevent-move: true
+        prevent-inventory-click: true
+        keep-on-death: true
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]UI_BUTTON_CLICK:0.8:1.0"
+          - "[CONSOLE]menu navegacion {PLAYER}"
+        left-click:
+          - "[MESSAGE]&e📊 &fServidor: &b{SERVER}"
+          - "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}"
+          - "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
+
+    # Ejemplo 3: Libro de ayuda
+    help_book:
+      material: "BOOK"
+      display-name: "&a📚 &fGuía de Ayuda"
+      lore:
+        - "&7Todo lo que necesitas"
+        - "&7saber sobre el servidor"
+        - ""
+        - "&aClick: &fAbrir guía"
+      slot: 8
+      amount: 1
+      flags:
+        give-on-join: true
+        prevent-drop: true
+        prevent-move: false  # Este se puede mover
+        prevent-inventory-click: false
+        keep-on-death: false
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0"
+          - "[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!"
+          - "[COMMAND]help"
+        left-click:
+          - "[MESSAGE]&a📚 &fGuía rápida:"
+          - "[MESSAGE]&7• &f/help - Ver comandos"
+          - "[MESSAGE]&7• &f/spawn - Ir al spawn"
+          - "[MESSAGE]&7• &f/menu - Abrir menú principal"
+
+    # Ejemplo 4: Ender Pearl especial
+    special_pearl:
+      material: "ENDER_PEARL"
+      display-name: "&d✨ &fPerla Mágica"
+      lore:
+        - "&7Una perla con poderes especiales"
+        - ""
+        - "&dClick derecho: &fTeletransporte aleatorio"
+        - "&dShift + Click: &fVolver al spawn"
+      slot: 1
+      amount: 3
+      flags:
+        give-on-join: false  # Solo se da manualmente o por eventos
+        prevent-drop: false
+        prevent-move: false
+        prevent-inventory-click: false
+        keep-on-death: true  # Se mantiene al morir
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
+          - "[MESSAGE]&d✨ &f¡Teletransporte aleatorio!"
+          - "[CONSOLE]rtp {PLAYER}"
+        shift-right-click:
+          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.5"
+          - "[MESSAGE]&d🏠 &f¡Regresando al spawn!"
+          - "[DELAY]20:[CONSOLE]spawn {PLAYER}"
+
+    # Ejemplo 5: Poción de velocidad
+    speed_potion:
+      material: "POTION"
+      display-name: "&b⚡ &fPoción de Velocidad"
+      lore:
+        - "&7Una poción que te da velocidad"
+        - "&7por 30 segundos"
+        - ""
+        - "&b⚡ &fVelocidad II - 30s"
+      slot: 7
+      amount: 1
+      flags:
+        give-on-join: false
+        prevent-drop: false
+        prevent-move: false
+        prevent-inventory-click: false
+        keep-on-death: false
+        replaceable: true
+      actions:
+        right-click:
+          - "[SOUND]ENTITY_PLAYER_SPLASH:1.0:1.2"
+          - "[MESSAGE]&b⚡ &f¡Has usado la poción de velocidad!"
+          - "[CONSOLE]effect give {PLAYER} speed 30 1"
+          - "[CONSOLE]clear {PLAYER} potion 1"
+
 # Configuración de base de datos (opcional)
 database:
   enabled: false
@@ -170,7 +352,11 @@ advanced:
     # Cache de configuración en memoria
     cache-config: true
 
-# Placeholders disponibles:
+# ========================================
+#              DOCUMENTACIÓN
+# ========================================
+
+# PLACEHOLDERS DISPONIBLES:
 # {PLAYER} - Nombre del jugador
 # {DISPLAYNAME} - Nombre mostrado del jugador
 # {WORLD} - Mundo actual del jugador
@@ -178,34 +364,41 @@ advanced:
 # {MAX_PLAYERS} - Máximo de jugadores
 # {SERVER} - Nombre del servidor
 # {MOTD} - MOTD del servidor
-#
-# Si tienes PlaceholderAPI instalado, también puedes usar:
-# %player_name% - Nombre del jugador
-# %server_online% - Jugadores conectados
-# %player_world% - Mundo del jugador
-# Y muchos más según los plugins que tengas
 
-# Códigos de color disponibles:
-# Legacy: &0-&9, &a-&f, &k-&r
-# Hex: &#RRGGBB (ej: &#FF6B6B para rojo coral)
-#
-# Efectos especiales:
-# {GRADIENT} - Aplica gradiente configurado
-# {RAINBOW} - Aplica colores arcoíris animados
+# TIPOS DE ACCIONES DISPONIBLES:
+# [COMMAND] - Ejecuta comando como jugador
+# [CONSOLE] - Ejecuta comando desde consola
+# [MESSAGE] - Envía mensaje al jugador
+# [BROADCAST] - Envía mensaje a todos los jugadores
+# [SOUND] - Reproduce sonido (formato: SONIDO:volumen:pitch)
+# [TELEPORT] - Teletransporta (formato: x:y:z:mundo)
+# [GIVE_ITEM] - Da otro item de acción
+# [CLOSE_INVENTORY] - Cierra el inventario
+# [DELAY] - Ejecuta acción con delay (formato: segundos:acción)
 
-# Comandos de fuegos artificiales:
-# /lobbycore fireworks enable - Habilita fuegos artificiales
-# /lobbycore fireworks disable - Deshabilita fuegos artificiales
-# /lobbycore fireworks test - Prueba fuegos artificiales
-# /lobbycore fireworks status - Muestra estado actual
+# EJEMPLOS DE ACCIONES:
+# [COMMAND]spawn
+# [CONSOLE]give {PLAYER} diamond 1
+# [MESSAGE]&a¡Hola {PLAYER}!
+# [BROADCAST]&e{PLAYER} usó un item especial
+# [SOUND]ENTITY_PLAYER_LEVELUP:1.0:1.2
+# [TELEPORT]100:64:200:world
+# [GIVE_ITEM]special_pearl
+# [DELAY]5:[MESSAGE]&aTeletransporte en 5 segundos!
 
-# Tipos de fuegos artificiales disponibles:
-# BALL - Bola pequeña
-# BALL_LARGE - Bola grande
-# STAR - Estrella
-# BURST - Explosión
-# CREEPER - Forma de creeper
+# FLAGS DISPONIBLES:
+# give-on-join: true/false - Dar al conectarse
+# prevent-drop: true/false - Prevenir que se tire
+# prevent-move: true/false - Prevenir movimiento del slot
+# prevent-inventory-click: true/false - Prevenir clics en inventario
+# keep-on-death: true/false - Mantener al morir
+# replaceable: true/false - Reemplazar si slot ocupado
 
-# Colores disponibles para fuegos artificiales:
-# RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, PINK, WHITE, BLACK,
-# GRAY, LIME, CYAN, NAVY, MAROON, OLIVE, SILVER, TEAL
+# SLOTS DEL INVENTARIO:
+# Hotbar: 0-8 (slot 0 = primer slot, slot 8 = último slot)
+# Inventario principal: 9-35
+# Recomendado usar slots 0-8 para items importantes
+
+# MATERIALES COMUNES:
+# STICK, COMPASS, BOOK, ENDER_PEARL, POTION, DIAMOND,
+# EMERALD, GOLD_INGOT, IRON_INGOT, PAPER, MAP, etc.

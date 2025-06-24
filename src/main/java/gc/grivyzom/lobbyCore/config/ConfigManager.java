@@ -134,6 +134,40 @@ public class ConfigManager {
         addDefault("welcome.fireworks.flicker", true);
         addDefault("welcome.fireworks.trail", true);
         addDefault("welcome.fireworks.power", 1);
+
+        // Configuración de items de acción
+        addDefault("action-items.enabled", true);
+        addDefault("action-items.give-delay", 2);
+
+        // Configuración por defecto para el ejemplo del palito del lobby
+        if (!config.contains("action-items.items.lobby_stick")) {
+            addDefault("action-items.items.lobby_stick.material", "STICK");
+            addDefault("action-items.items.lobby_stick.display-name", "&b🏠 &fIr al Lobby");
+            addDefault("action-items.items.lobby_stick.lore", Arrays.asList(
+                    "&7Click derecho para",
+                    "&7teletransportarte al lobby",
+                    "",
+                    "&a✅ &fDisponible siempre"
+            ));
+            addDefault("action-items.items.lobby_stick.slot", 4);
+            addDefault("action-items.items.lobby_stick.amount", 1);
+            addDefault("action-items.items.lobby_stick.flags.give-on-join", true);
+            addDefault("action-items.items.lobby_stick.flags.prevent-drop", true);
+            addDefault("action-items.items.lobby_stick.flags.prevent-move", true);
+            addDefault("action-items.items.lobby_stick.flags.prevent-inventory-click", true);
+            addDefault("action-items.items.lobby_stick.flags.keep-on-death", true);
+            addDefault("action-items.items.lobby_stick.flags.replaceable", true);
+            addDefault("action-items.items.lobby_stick.actions.right-click", Arrays.asList(
+                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
+                    "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!",
+                    "[CONSOLE]spawn {PLAYER}"
+            ));
+            addDefault("action-items.items.lobby_stick.actions.left-click", Arrays.asList());
+            addDefault("action-items.items.lobby_stick.actions.shift-right-click", Arrays.asList(
+                    "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
+            ));
+            addDefault("action-items.items.lobby_stick.actions.shift-left-click", Arrays.asList());
+        }
     }
 
     /**
@@ -344,6 +378,15 @@ public class ConfigManager {
 
     public int getFireworksPower() {
         return config.getInt("welcome.fireworks.power", 1);
+    }
+
+    // Getters para items de acción
+    public boolean isActionItemsEnabled() {
+        return config.getBoolean("action-items.enabled", true);
+    }
+
+    public int getActionItemsGiveDelay() {
+        return config.getInt("action-items.give-delay", 2);
     }
 
     /**
