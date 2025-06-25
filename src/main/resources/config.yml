@@ -178,6 +178,7 @@ action-items:
   # Configuración de items
   items:
 
+
     # Ejemplo 1: Palito para ir al lobby
     lobby_item:
       # Material del item (usar nombres de Material de Bukkit)
@@ -219,6 +220,19 @@ action-items:
         # ¿Se puede reemplazar si el slot está ocupado?
         replaceable: true
 
+        # ¿Ocultar información de Minecraft? (CORREGIDO: ahora está dentro de flags)
+        hide-minecraft-info: true
+
+        # Flags específicas a ocultar (opcional si hide-minecraft-info es true)
+        hide-flags:
+          - 'HIDE_ATTRIBUTES'
+          - 'HIDE_DESTROYS'
+          - 'HIDE_DYE'
+          - 'HIDE_ENCHANTS'
+          - 'HIDE_PLACED_ON'
+          - 'HIDE_POTION_EFFECTS'
+          - 'HIDE_UNBREAKABLE'
+
       # Acciones que ejecuta el item
       actions:
         # Al hacer click derecho
@@ -236,6 +250,82 @@ action-items:
 
         # Al hacer shift + click izquierdo (opcional)
         shift-left-click: []
+    # Ejemplo 1: Palito para ir al lobby
+    automatic_arena:
+      # Material del item (usar nombres de Material de Bukkit)
+      material: ENDER_PEARL
+
+      # Nombre que se mostrará en el item
+      display-name: '&f&lBuscar partida...'
+
+      # Descripción del item (lore)
+      lore:
+        - '&8Descripción'
+        - '&7Click derecho para'
+        - '&7teletransportarte al lobby'
+        - ''
+        - '&bClick: &fPara unirte!'
+
+      # Slot donde se coloca el item (0-35, hotbar: 0-8)
+      slot: 4
+
+      # Cantidad del item
+      amount: 1
+
+      # Flags del item
+      flags:
+        # ¿Dar este item cuando el jugador se conecta?
+        give-on-join: true
+
+        # ¿Prevenir que se pueda soltar/tirar?
+        prevent-drop: true
+
+        # ¿Prevenir que se pueda mover de su slot?
+        prevent-move: true
+
+        # ¿Prevenir clics en inventario?
+        prevent-inventory-click: true
+
+        # ¿Mantener al morir?
+        keep-on-death: true
+
+        # ¿Se puede reemplazar si el slot está ocupado?
+        replaceable: true
+
+        # ¿Ocultar información de Minecraft? (CORREGIDO: ahora está dentro de flags)
+        hide-minecraft-info: true
+
+        # Flags específicas a ocultar (opcional si hide-minecraft-info es true)
+        hide-flags:
+          - 'HIDE_ATTRIBUTES'
+          - 'HIDE_DESTROYS'
+          - 'HIDE_DYE'
+          - 'HIDE_ENCHANTS'
+          - 'HIDE_PLACED_ON'
+          - 'HIDE_POTION_EFFECTS'
+          - 'HIDE_UNBREAKABLE'
+
+      # Acciones que ejecuta el item
+      actions:
+        # Al hacer click derecho
+        right-click:
+          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+          - '[COMMAND]mm randomjoin'
+
+        # Al hacer click izquierdo (opcional)
+        left-click:
+          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+          - '[COMMAND]mm randomjoin'
+
+        # Al hacer shift + click derecho (opcional)
+        shift-right-click:
+          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+          - '[COMMAND]mm randomjoin'
+
+        # Al hacer shift + click izquierdo (opcional)
+        shift-left-click:
+          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+          - '[COMMAND_OP]mm randomjoin'
 
     # Ejemplo 2: Selector de servidores
     server_selector:
@@ -328,32 +418,6 @@ action-items:
           - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
           - "[MESSAGE]&7Preparándote para la diversión..."
           - "[DELAY]20:[SERVER]minigames"
-
-    # Ejemplo 5: Acceso rápido a Creative
-    creative_portal:
-      material: "GOLDEN_APPLE"
-      display-name: "&6🎨 &fModo Creativo"
-      lore:
-        - "&7Servidor dedicado para"
-        - "&7construcción y creatividad"
-        - ""
-        - "&6🎨 &fClick: &eConectar al Creative"
-        - "&7Builds ilimitados y WorldEdit"
-      slot: 3
-      amount: 1
-      flags:
-        give-on-join: true
-        prevent-drop: true
-        prevent-move: true
-        prevent-inventory-click: true
-        keep-on-death: true
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]BLOCK_BEACON_ACTIVATE:1.0:1.2"
-          - "[MESSAGE]&6🎨 &f¡Conectando al servidor Creativo!"
-          - "[MESSAGE]&7¡A construir se ha dicho!"
-          - "[SERVER]creative"
 
     # Ejemplo 6: Libro de ayuda
     help_book:
@@ -535,6 +599,7 @@ advanced:
 
 # TIPOS DE ACCIONES DISPONIBLES:
 # [COMMAND] - Ejecuta comando como jugador
+# [COMMAND_OP] - Ejecuta comandos como jugador con OP
 # [CONSOLE] - Ejecuta comando desde consola
 # [MESSAGE] - Envía mensaje al jugador
 # [BROADCAST] - Envía mensaje a todos los jugadores

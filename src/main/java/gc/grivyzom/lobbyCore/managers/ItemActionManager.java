@@ -14,10 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ItemActionManager {
 
@@ -123,16 +120,30 @@ public class ItemActionManager {
             boolean preventInventoryClick = section.getBoolean("flags.prevent-inventory-click", false);
             boolean keepOnDeath = section.getBoolean("flags.keep-on-death", false);
             boolean replaceable = section.getBoolean("flags.replaceable", true);
+            boolean hideMincraftInfo = section.getBoolean("flags.hide-minecraft-info", true);
 
             // Acciones
+            List<String> hideFlags = section.getStringList("flags.hide-flags");
             List<String> rightClickActions = section.getStringList("actions.right-click");
             List<String> leftClickActions = section.getStringList("actions.left-click");
             List<String> shiftRightClickActions = section.getStringList("actions.shift-right-click");
             List<String> shiftLeftClickActions = section.getStringList("actions.shift-left-click");
+            if (hideMincraftInfo && hideFlags.isEmpty()) {
+                hideFlags = Arrays.asList(
+                        "HIDE_ATTRIBUTES",
+                        "HIDE_DESTROYS",
+                        "HIDE_DYE",
+                        "HIDE_ENCHANTS",
+                        "HIDE_PLACED_ON",
+                        "HIDE_POTION_EFFECTS",
+                        "HIDE_UNBREAKABLE"
+                );
+            }
 
             return new ActionItem(
                     itemId, material, displayName, lore, slot, amount,
                     giveOnJoin, preventDrop, preventMove, preventInventoryClick, keepOnDeath, replaceable,
+                    hideMincraftInfo, hideFlags,  // Nuevos parámetros
                     rightClickActions, leftClickActions, shiftRightClickActions, shiftLeftClickActions
             );
 
@@ -201,6 +212,12 @@ public class ItemActionManager {
     /**
      * Crea un ItemStack basado en un ActionItem
      */
+    /**
+     * Crea un ItemStack basado en un ActionItem
+     */
+    /**
+     * Crea un ItemStack basado en un ActionItem (Versión Simplificada)
+     */
     private ItemStack createItemStack(ActionItem actionItem, Player player) {
         ItemStack itemStack = new ItemStack(actionItem.getMaterial(), actionItem.getAmount());
         ItemMeta meta = itemStack.getItemMeta();
@@ -218,11 +235,36 @@ public class ItemActionManager {
             }
             meta.setLore(lore);
 
+            // Aplicar hide flags - Versión simplificada
+            if (actionItem.isHideMincraftInfo()) {
+                // Ocultar toda la información de Minecraft
+                meta.addItemFlags(
+                        org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
+                        org.bukkit.inventory.ItemFlag.HIDE_DESTROYS,
+                        org.bukkit.inventory.ItemFlag.HIDE_DYE,
+                        org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
+                        org.bukkit.inventory.ItemFlag.HIDE_PLACED_ON,
+                        org.bukkit.inventory.ItemFlag.HIDE_POTION_EFFECTS,
+                        org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE
+                );
+            } else if (!actionItem.getHideFlags().isEmpty()) {
+                // Aplicar flags específicas solo si hide-minecraft-info es false
+                for (String flagName : actionItem.getHideFlags()) {
+                    try {
+                        org.bukkit.inventory.ItemFlag flag = org.bukkit.inventory.ItemFlag.valueOf(flagName.toUpperCase());
+                        meta.addItemFlags(flag); // addItemFlags acepta varargs, así que se puede pasar uno a la vez
+                    } catch (IllegalArgumentException e) {
+                        plugin.getLogger().warning("Flag inválida para item " + actionItem.getItemId() + ": " + flagName);
+                    }
+                }
+            }
+
             itemStack.setItemMeta(meta);
         }
 
         return itemStack;
     }
+
 
     /**
      * Ejecuta las acciones de un item
@@ -255,6 +297,7 @@ public class ItemActionManager {
         }
     }
 
+
     /**
      * Ejecuta una acción individual
      */
@@ -266,6 +309,11 @@ public class ItemActionManager {
                 // Ejecutar comando como jugador
                 String command = processedAction.replace("[COMMAND]", "").trim();
                 player.performCommand(command);
+
+            } else if (processedAction.startsWith("[COMMAND_OP]")) {
+                // Ejecutar comando como jugador con permisos de OP temporalmente
+                String command = processedAction.replace("[COMMAND_OP]", "").trim();
+                executeCommandAsOp(player, command);
 
             } else if (processedAction.startsWith("[CONSOLE]")) {
                 // Ejecutar comando desde consola
@@ -359,6 +407,53 @@ public class ItemActionManager {
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error ejecutando acción '" + action + "': " + e.getMessage());
+        }
+    }
+
+    /**
+     * Ejecuta un comando como jugador con permisos de OP temporalmente
+     * @param player El jugador
+     * @param command El comando a ejecutar
+     */
+    private void executeCommandAsOp(Player player, String command) {
+        boolean wasOp = player.isOp();
+
+        try {
+            // Dar OP temporalmente si no lo tiene
+            if (!wasOp) {
+                player.setOp(true);
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&e⚡ &fOtorgando permisos OP temporales a &b" + player.getName() +
+                                " &fpara ejecutar: &e/" + command
+                ));
+            }
+
+            // Ejecutar el comando
+            boolean success = player.performCommand(command);
+
+            if (success) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a✅ &fComando ejecutado exitosamente como OP: &e/" + command +
+                                " &fpor &b" + player.getName()
+                ));
+            } else {
+                plugin.getLogger().warning(
+                        "Comando OP falló para " + player.getName() + ": /" + command
+                );
+            }
+
+        } catch (Exception e) {
+            plugin.getLogger().severe(
+                    "Error ejecutando comando OP '" + command + "' para " + player.getName() + ": " + e.getMessage()
+            );
+        } finally {
+            // Restaurar el estado original de OP
+            if (!wasOp) {
+                player.setOp(false);
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&c🔒 &fPermisos OP removidos de &b" + player.getName()
+                ));
+            }
         }
     }
 

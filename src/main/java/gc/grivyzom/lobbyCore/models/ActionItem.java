@@ -2,6 +2,7 @@ package gc.grivyzom.lobbyCore.models;
 
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActionItem {
@@ -12,6 +13,8 @@ public class ActionItem {
     private final List<String> lore;
     private final int slot;
     private final int amount;
+    private final boolean hideMincraftInfo;
+    private final List<String> hideFlags;
 
     // Flags
     private final boolean giveOnJoin;
@@ -30,7 +33,8 @@ public class ActionItem {
     public ActionItem(String itemId, Material material, String displayName, List<String> lore,
                       int slot, int amount, boolean giveOnJoin, boolean preventDrop,
                       boolean preventMove, boolean preventInventoryClick, boolean keepOnDeath,
-                      boolean replaceable, List<String> rightClickActions, List<String> leftClickActions,
+                      boolean replaceable, boolean hideMincraftInfo, List<String> hideFlags,
+                      List<String> rightClickActions, List<String> leftClickActions,
                       List<String> shiftRightClickActions, List<String> shiftLeftClickActions) {
         this.itemId = itemId;
         this.material = material;
@@ -48,6 +52,8 @@ public class ActionItem {
         this.leftClickActions = leftClickActions;
         this.shiftRightClickActions = shiftRightClickActions;
         this.shiftLeftClickActions = shiftLeftClickActions;
+        this.hideMincraftInfo = hideMincraftInfo;
+        this.hideFlags = hideFlags != null ? hideFlags : new ArrayList<>();
     }
 
     // Getters
@@ -57,6 +63,8 @@ public class ActionItem {
     public List<String> getLore() { return lore; }
     public int getSlot() { return slot; }
     public int getAmount() { return amount; }
+    public boolean isHideMincraftInfo() { return hideMincraftInfo; }
+    public List<String> getHideFlags() { return hideFlags; }
 
     // Flags
     public boolean isGiveOnJoin() { return giveOnJoin; }
