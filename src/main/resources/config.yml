@@ -175,329 +175,8 @@ action-items:
   # Delay en segundos antes de dar los items (después de conectarse)
   give-delay: 2
 
-  # Configuración de items
-  items:
-
-
-    # Ejemplo 1: Palito para ir al lobby
-    lobby_item:
-      # Material del item (usar nombres de Material de Bukkit)
-      material: FIREWORK_STAR
-
-      # Nombre que se mostrará en el item
-      display-name: '&9Regresar al Lobby'
-
-      # Descripción del item (lore)
-      lore:
-        - '&8Descripción'
-        - '&7Click derecho para'
-        - '&7teletransportarte al lobby'
-        - ''
-
-      # Slot donde se coloca el item (0-35, hotbar: 0-8)
-      slot: 8
-
-      # Cantidad del item
-      amount: 1
-
-      # Flags del item
-      flags:
-        # ¿Dar este item cuando el jugador se conecta?
-        give-on-join: true
-
-        # ¿Prevenir que se pueda soltar/tirar?
-        prevent-drop: true
-
-        # ¿Prevenir que se pueda mover de su slot?
-        prevent-move: true
-
-        # ¿Prevenir clics en inventario?
-        prevent-inventory-click: true
-
-        # ¿Mantener al morir?
-        keep-on-death: true
-
-        # ¿Se puede reemplazar si el slot está ocupado?
-        replaceable: true
-
-        # ¿Ocultar información de Minecraft? (CORREGIDO: ahora está dentro de flags)
-        hide-minecraft-info: true
-
-        # Flags específicas a ocultar (opcional si hide-minecraft-info es true)
-        hide-flags:
-          - 'HIDE_ATTRIBUTES'
-          - 'HIDE_DESTROYS'
-          - 'HIDE_DYE'
-          - 'HIDE_ENCHANTS'
-          - 'HIDE_PLACED_ON'
-          - 'HIDE_POTION_EFFECTS'
-          - 'HIDE_UNBREAKABLE'
-
-      # Acciones que ejecuta el item
-      actions:
-        # Al hacer click derecho
-        right-click:
-          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
-          - '[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!'
-          - '[CONSOLE]ajqueue:server {PLAYER} lobby'
-
-        # Al hacer click izquierdo (opcional)
-        left-click: []
-
-        # Al hacer shift + click derecho (opcional)
-        shift-right-click:
-          - '[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby'
-
-        # Al hacer shift + click izquierdo (opcional)
-        shift-left-click: []
-    # Ejemplo 1: Palito para ir al lobby
-    automatic_arena:
-      # Material del item (usar nombres de Material de Bukkit)
-      material: ENDER_PEARL
-
-      # Nombre que se mostrará en el item
-      display-name: '&f&lBuscar partida...'
-
-      # Descripción del item (lore)
-      lore:
-        - '&8Descripción'
-        - '&7Click derecho para'
-        - '&7teletransportarte al lobby'
-        - ''
-        - '&bClick: &fPara unirte!'
-
-      # Slot donde se coloca el item (0-35, hotbar: 0-8)
-      slot: 4
-
-      # Cantidad del item
-      amount: 1
-
-      # Flags del item
-      flags:
-        # ¿Dar este item cuando el jugador se conecta?
-        give-on-join: true
-
-        # ¿Prevenir que se pueda soltar/tirar?
-        prevent-drop: true
-
-        # ¿Prevenir que se pueda mover de su slot?
-        prevent-move: true
-
-        # ¿Prevenir clics en inventario?
-        prevent-inventory-click: true
-
-        # ¿Mantener al morir?
-        keep-on-death: true
-
-        # ¿Se puede reemplazar si el slot está ocupado?
-        replaceable: true
-
-        # ¿Ocultar información de Minecraft? (CORREGIDO: ahora está dentro de flags)
-        hide-minecraft-info: true
-
-        # Flags específicas a ocultar (opcional si hide-minecraft-info es true)
-        hide-flags:
-          - 'HIDE_ATTRIBUTES'
-          - 'HIDE_DESTROYS'
-          - 'HIDE_DYE'
-          - 'HIDE_ENCHANTS'
-          - 'HIDE_PLACED_ON'
-          - 'HIDE_POTION_EFFECTS'
-          - 'HIDE_UNBREAKABLE'
-
-      # Acciones que ejecuta el item
-      actions:
-        # Al hacer click derecho
-        right-click:
-          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
-          - '[COMMAND]mm randomjoin'
-
-        # Al hacer click izquierdo (opcional)
-        left-click:
-          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
-          - '[COMMAND]mm randomjoin'
-
-        # Al hacer shift + click derecho (opcional)
-        shift-right-click:
-          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
-          - '[COMMAND]mm randomjoin'
-
-        # Al hacer shift + click izquierdo (opcional)
-        shift-left-click:
-          - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
-          - '[COMMAND_OP]mm randomjoin'
-
-    # Ejemplo 2: Selector de servidores
-    server_selector:
-      material: "NETHER_STAR"
-      display-name: "&d🌐 &fSelector de Servidores"
-      lore:
-        - "&7Click para navegar entre"
-        - "&7los diferentes servidores"
-        - ""
-        - "&dClick derecho: &fServidor Survival"
-        - "&dClick izquierdo: &fServidor SkyBlock"
-        - "&dShift + Click: &fVolver al Hub"
-      slot: 0
-      amount: 1
-      flags:
-        give-on-join: true
-        prevent-drop: true
-        prevent-move: true
-        prevent-inventory-click: true
-        keep-on-death: true
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5"
-          - "[MESSAGE]&d🌐 &f¡Conectando al servidor &eSurvival&f!"
-          - "[SERVER]survival"
-        left-click:
-          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2"
-          - "[MESSAGE]&d🌐 &f¡Conectando al servidor &bSkyBlock&f!"
-          - "[SERVER]skyblock"
-        shift-right-click:
-          - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.0"
-          - "[MESSAGE]&d🌐 &f¡Regresando al Hub principal!"
-          - "[SERVER]hub"
-
-    # Ejemplo 3: Brújula de navegación
-    compass_navigator:
-      material: "COMPASS"
-      display-name: "&e🧭 &fNavegador"
-      lore:
-        - "&7Click derecho para abrir"
-        - "&7el menú de navegación"
-        - ""
-        - "&eClick izquierdo: &fInfo del servidor"
-      slot: 1
-      amount: 1
-      flags:
-        give-on-join: true
-        prevent-drop: true
-        prevent-move: true
-        prevent-inventory-click: true
-        keep-on-death: true
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]UI_BUTTON_CLICK:0.8:1.0"
-          - "[CONSOLE]menu navegacion {PLAYER}"
-        left-click:
-          - "[MESSAGE]&e📊 &fServidor: &b{SERVER}"
-          - "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}"
-          - "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
-
-    # Ejemplo 4: Portal a servidor de minijuegos
-    minigames_portal:
-      material: "ENDER_PEARL"
-      display-name: "&a🎮 &fMinijuegos"
-      lore:
-        - "&7Portal directo al servidor"
-        - "&7de minijuegos y eventos"
-        - ""
-        - "&a🎮 &fClick: &eConectar"
-        - "&7Incluye: BedWars, SkyWars, PvP"
-      slot: 2
-      amount: 1
-      flags:
-        give-on-join: true
-        prevent-drop: true
-        prevent-move: true
-        prevent-inventory-click: true
-        keep-on-death: true
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
-          - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
-          - "[MESSAGE]&7Preparándote para la diversión..."
-          - "[DELAY]20:[SERVER]minigames"
-        left-click:
-          - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
-          - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
-          - "[MESSAGE]&7Preparándote para la diversión..."
-          - "[DELAY]20:[SERVER]minigames"
-
-    # Ejemplo 6: Libro de ayuda
-    help_book:
-      material: "BOOK"
-      display-name: "&a📚 &fGuía de Ayuda"
-      lore:
-        - "&7Todo lo que necesitas"
-        - "&7saber sobre el servidor"
-        - ""
-        - "&aClick: &fAbrir guía"
-      slot: 8
-      amount: 1
-      flags:
-        give-on-join: true
-        prevent-drop: true
-        prevent-move: false  # Este se puede mover
-        prevent-inventory-click: false
-        keep-on-death: false
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0"
-          - "[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!"
-          - "[COMMAND]help"
-        left-click:
-          - "[MESSAGE]&a📚 &fGuía rápida:"
-          - "[MESSAGE]&7• &f/help - Ver comandos"
-          - "[MESSAGE]&7• &f/spawn - Ir al spawn"
-          - "[MESSAGE]&7• &f/menu - Abrir menú principal"
-
-    # Ejemplo 7: Conexión a servidor de pruebas/staff
-    staff_server:
-      material: "BARRIER"
-      display-name: "&c🔧 &fServidor Staff"
-      lore:
-        - "&7Servidor exclusivo para"
-        - "&7miembros del equipo"
-        - ""
-        - "&c⚠ &fSolo para Staff"
-        - "&cRequiere permisos especiales"
-      slot: 7
-      amount: 1
-      flags:
-        give-on-join: false  # Solo dar manualmente
-        prevent-drop: true
-        prevent-move: true
-        prevent-inventory-click: true
-        keep-on-death: true
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]BLOCK_ANVIL_USE:0.8:1.0"
-          - "[MESSAGE]&c🔧 &f¡Conectando al servidor Staff!"
-          - "[MESSAGE]&7Acceso autorizado..."
-          - "[SERVER]staff"
-
-    # Ejemplo 8: Poción de velocidad (sin cambio de servidor)
-    speed_potion:
-      material: "POTION"
-      display-name: "&b⚡ &fPoción de Velocidad"
-      lore:
-        - "&7Una poción que te da velocidad"
-        - "&7por 30 segundos"
-        - ""
-        - "&b⚡ &fVelocidad II - 30s"
-      slot: 6
-      amount: 1
-      flags:
-        give-on-join: false
-        prevent-drop: false
-        prevent-move: false
-        prevent-inventory-click: false
-        keep-on-death: false
-        replaceable: true
-      actions:
-        right-click:
-          - "[SOUND]ENTITY_PLAYER_SPLASH:1.0:1.2"
-          - "[MESSAGE]&b⚡ &f¡Has usado la poción de velocidad!"
-          - "[CONSOLE]effect give {PLAYER} speed 30 1"
-          - "[CONSOLE]clear {PLAYER} potion 1"
+  # NOTA: Los items personalizados se configuran en el archivo 'items.yml'
+  # Esto permite una mejor organización y facilita la gestión de items
 
 # ========================================
 #         SERVIDORES DE TU NETWORK
@@ -597,78 +276,9 @@ advanced:
 # {MOTD} - MOTD del servidor
 # {PROXY} - Tipo de proxy (Velocity/BungeeCord)
 
-# TIPOS DE ACCIONES DISPONIBLES:
-# [COMMAND] - Ejecuta comando como jugador
-# [COMMAND_OP] - Ejecuta comandos como jugador con OP
-# [CONSOLE] - Ejecuta comando desde consola
-# [MESSAGE] - Envía mensaje al jugador
-# [BROADCAST] - Envía mensaje a todos los jugadores
-# [SOUND] - Reproduce sonido (formato: SONIDO:volumen:pitch)
-# [SERVER] - Conecta a otro servidor del proxy (formato: [SERVER]nombre_servidor)
-# [TELEPORT] - Teletransporta (formato: x:y:z:mundo)
-# [GIVE_ITEM] - Da otro item de acción
-# [CLOSE_INVENTORY] - Cierra el inventario
-# [DELAY] - Ejecuta acción con delay (formato: segundos:acción)
-
-# EJEMPLOS DE ACCIONES:
-# [COMMAND]spawn
-# [CONSOLE]give {PLAYER} diamond 1
-# [MESSAGE]&a¡Hola {PLAYER}!
-# [BROADCAST]&e{PLAYER} usó un item especial
-# [SOUND]ENTITY_PLAYER_LEVELUP:1.0:1.2
-# [SERVER]survival
-# [SERVER]skyblock
-# [SERVER]minigames
-# [TELEPORT]100:64:200:world
-# [GIVE_ITEM]special_pearl
-# [DELAY]5:[MESSAGE]&aTeletransporte en 5 segundos!
-# [DELAY]10:[SERVER]lobby
-
-# EJEMPLOS DE CONEXIÓN A SERVIDORES:
-# [SERVER]lobby - Conecta al servidor lobby
-# [SERVER]survival - Conecta al servidor survival
-# [SERVER]skyblock - Conecta al servidor skyblock
-# [SERVER]minigames - Conecta al servidor de minijuegos
-# [SERVER]creative - Conecta al servidor creativo
-# [SERVER]hub - Conecta al hub principal
-# [SERVER]staff - Conecta al servidor de staff
-
-# COMBINANDO ACCIONES DE SERVIDOR CON OTRAS:
-# - "[MESSAGE]&a🌐 &fConectando al servidor..."
-# - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5"
-# - "[DELAY]20:[SERVER]survival"  # Espera 1 segundo antes de conectar
-
-# FLAGS DISPONIBLES:
-# give-on-join: true/false - Dar al conectarse
-# prevent-drop: true/false - Prevenir que se tire
-# prevent-move: true/false - Prevenir movimiento del slot
-# prevent-inventory-click: true/false - Prevenir clics en inventario
-# keep-on-death: true/false - Mantener al morir
-# replaceable: true/false - Reemplazar si slot ocupado
-
-# SLOTS DEL INVENTARIO:
-# Hotbar: 0-8 (slot 0 = primer slot, slot 8 = último slot)
-# Inventario principal: 9-35
-# Recomendado usar slots 0-8 para items importantes
-
-# MATERIALES COMUNES PARA PORTALES:
-# NETHER_STAR - Selector general de servidores
-# ENDER_PEARL - Portales de teletransporte/minijuegos
-# COMPASS - Navegación/información
-# GOLDEN_APPLE - Servidores especiales (creative, vip)
-# BARRIER - Servidores restringidos (staff, admin)
-# EMERALD - Economía/tiendas
-# DIAMOND - Servidores premium
-# PAPER - Información/ayuda
-# MAP - Mapas/mundos específicos
-
-# NOTAS IMPORTANTES PARA PROXY:
-# - Asegúrate de que tu servidor esté conectado a Velocity/BungeeCord
-# - Los nombres de servidores deben coincidir exactamente con los configurados en el proxy
-# - El plugin registra automáticamente los canales necesarios para comunicación
-# - Si un servidor no existe, el jugador recibirá un error de conexión
-# - Se recomienda usar delays antes de conectar para mejor experiencia de usuario
-# - Velocity es auto-detectado, pero puedes especificarlo manualmente en proxy.type
+# ARCHIVOS DE CONFIGURACIÓN:
+# config.yml - Configuración principal del plugin
+# items.yml - Configuración de todos los items personalizados
 
 # CONFIGURACIÓN PARA VELOCITY:
 # 1. Cambia proxy.type a "velocity"
@@ -679,3 +289,309 @@ advanced:
 # 1. Cambia proxy.type a "bungeecord" (o déjalo en auto-detección)
 # 2. Ajusta los nombres de servidores en la sección "servers"
 # 3. Asegúrate de que config.yml de BungeeCord tenga los mismos nombres de servidor
+
+# NOTAS IMPORTANTES:
+# - Los items personalizados están en items.yml para mejor organización
+# - Asegúrate de que tu servidor esté conectado a Velocity/BungeeCord
+# - Los nombres de servidores deben coincidir exactamente con los configurados en el proxy
+# - Si un servidor no existe, el jugador recibirá un error de conexión
+# - Se recomienda usar delays antes de conectar para mejor experiencia de usuario
+
+
+# ========================================
+#       INTEGRACIÓN CON GRIVYZOMCORE
+# ========================================
+
+grivyzom-integration:
+  # ¿Habilitar integración con GrivyzomCore?
+  enabled: true
+
+  # Configuración de comunicación
+  communication:
+    # Timeout para respuestas (en milisegundos)
+    response-timeout: 5000
+
+    # Número máximo de reintentos
+    max-retries: 3
+
+    # Intervalo entre reintentos (en milisegundos)
+    retry-interval: 1000
+
+  # Funciones habilitadas
+  features:
+    # ¿Sincronizar datos de jugadores?
+    sync-player-data: true
+
+    # ¿Recibir actualizaciones de economía?
+    economy-updates: true
+
+    # ¿Mostrar estadísticas del network?
+    network-stats: true
+
+    # ¿Notificar eventos del lobby?
+    lobby-events: true
+
+  # Configuración de placeholders
+  placeholders:
+    # ¿Habilitar placeholders de GrivyzomCore?
+    enabled: true
+
+    # Placeholders disponibles:
+    # {grivyzom_coins} - Monedas del jugador
+    # {grivyzom_gems} - Gemas del jugador
+    # {grivyzom_rank} - Rango del jugador
+    # {grivyzom_online} - Jugadores online en el network
+    # {grivyzom_server} - Servidor actual del jugador
+
+    # Actualizar placeholders cada X segundos
+    update-interval: 30
+
+  # Mensajes personalizados para integración
+  messages:
+    # Cuando la conexión con GrivyzomCore falla
+    connection-failed: "&c❌ &fNo se pudo conectar con GrivyzomCore"
+
+    # Cuando se establece la conexión
+    connection-established: "&a✅ &fConectado con GrivyzomCore"
+
+    # Cuando se reciben datos del jugador
+    data-received: "&a📊 &fDatos sincronizados con GrivyzomCore"
+
+    # Cuando hay un error en la sincronización
+    sync-error: "&c⚠ &fError sincronizando datos con GrivyzomCore"
+
+# ========================================
+#     MENSAJES MEJORADOS CON PLACEHOLDERS
+# ========================================
+
+# Mensajes de bienvenida mejorados con datos de GrivyzomCore
+welcome-enhanced:
+  enabled: true
+  messages:
+    - ""
+    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    - ""
+    - "  &f¡Hola &b{PLAYER}&f! Te damos la bienvenida a &a{SERVER}"
+    - ""
+    - "  &7┃ &fWeb: &bwww.grivyzom.com
+    - ""
+    - "  &a¡Esperamos que disfrutes tu estadía!"
+    - ""
+    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    - ""
+
+# ========================================
+#           ACCIONES INTEGRADAS
+# ========================================
+
+# Items de acción que usan datos de GrivyzomCore
+action-items-integrated:
+
+  # Item que muestra estadísticas del jugador
+  player_stats:
+    material: "PLAYER_HEAD"
+    display-name: "&e📊 &fMis Estadísticas"
+    lore:
+      - "&7Tus datos en el network"
+      - ""
+      - "&7💰 Monedas: &e{grivyzom_coins}"
+      - "&7💎 Gemas: &d{grivyzom_gems}"
+      - "&7🎖️ Rango: &6{grivyzom_rank}"
+      - "&7🌐 Servidor: &b{grivyzom_server}"
+      - ""
+      - "&aClick para actualizar"
+    slot: 3
+    amount: 1
+    flags:
+      give-on-join: true
+      prevent-drop: true
+      prevent-move: true
+      prevent-inventory-click: true
+      keep-on-death: true
+      replaceable: true
+      hide-minecraft-info: true
+    actions:
+      right-click:
+        - "[SOUND]BLOCK_NOTE_BLOCK_PLING:1.0:1.5"
+        - "[MESSAGE]&e📊 &fActualizando tus estadísticas..."
+        - "[GRIVYZOM]REQUEST_PLAYER_DATA"
+      left-click:
+        - "[SOUND]BLOCK_NOTE_BLOCK_PLING:1.0:1.5"
+        - "[MESSAGE]&e📊 &fActualizando tus estadísticas..."
+        - "[GRIVYZOM]REQUEST_PLAYER_DATA"
+
+  # Item para ver top de jugadores
+  leaderboard:
+    material: "GOLDEN_HELMET"
+    display-name: "&6🏆 &fTop Jugadores"
+    lore:
+      - "&7Los mejores del network"
+      - ""
+      - "&7Click derecho: &eTop Monedas"
+      - "&7Click izquierdo: &dTop Gemas"
+      - "&7Shift + Click: &bTop General"
+    slot: 5
+    amount: 1
+    flags:
+      give-on-join: true
+      prevent-drop: true
+      prevent-move: true
+      prevent-inventory-click: true
+      keep-on-death: true
+      replaceable: true
+      hide-minecraft-info: true
+    actions:
+      right-click:
+        - "[SOUND]UI_BUTTON_CLICK:1.0:1.2"
+        - "[MESSAGE]&6🏆 &fObteniendo top jugadores por monedas..."
+        - "[GRIVYZOM]REQUEST_TOP_COINS:10"
+      left-click:
+        - "[SOUND]UI_BUTTON_CLICK:1.0:1.2"
+        - "[MESSAGE]&d🏆 &fObteniendo top jugadores por gemas..."
+        - "[GRIVYZOM]REQUEST_TOP_GEMS:10"
+      shift-right-click:
+        - "[SOUND]UI_BUTTON_CLICK:1.0:1.0"
+        - "[MESSAGE]&b🏆 &fObteniendo estadísticas generales..."
+        - "[GRIVYZOM]REQUEST_NETWORK_STATS"
+
+  # Item para tienda virtual
+  virtual_shop:
+    material: "EMERALD"
+    display-name: "&a💰 &fTienda Virtual"
+    lore:
+      - "&7Compra items con tus monedas"
+      - ""
+      - "&7💰 Tus monedas: &e{grivyzom_coins}"
+      - "&7💎 Tus gemas: &d{grivyzom_gems}"
+      - ""
+      - "&aClick para abrir tienda"
+    slot: 6
+    amount: 1
+    flags:
+      give-on-join: true
+      prevent-drop: true
+      prevent-move: true
+      prevent-inventory-click: true
+      keep-on-death: true
+      replaceable: true
+      hide-minecraft-info: true
+    actions:
+      right-click:
+        - "[SOUND]BLOCK_CHEST_OPEN:1.0:1.0"
+        - "[MESSAGE]&a💰 &fAbriendo tienda virtual..."
+        - "[GRIVYZOM]OPEN_SHOP"
+      left-click:
+        - "[SOUND]BLOCK_CHEST_OPEN:1.0:1.0"
+        - "[MESSAGE]&a💰 &fAbriendo tienda virtual..."
+        - "[GRIVYZOM]OPEN_SHOP"
+
+# ========================================
+#         EVENTOS Y NOTIFICACIONES
+# ========================================
+
+# Configuración de eventos automáticos
+auto-events:
+  enabled: true
+
+  # Notificar a GrivyzomCore sobre eventos del lobby
+  lobby-events:
+    # Cuando un jugador se conecta al lobby
+    player-join:
+      enabled: true
+      notify-grivyzom: true
+      message-type: "PLAYER_JOINED_LOBBY"
+
+    # Cuando un jugador usa un item especial
+    special-item-use:
+      enabled: true
+      notify-grivyzom: true
+      message-type: "LOBBY_ITEM_USED"
+
+    # Eventos de celebración (fuegos artificiales, etc.)
+    celebration:
+      enabled: true
+      notify-grivyzom: true
+      message-type: "LOBBY_CELEBRATION"
+
+# ========================================
+#            SINCRONIZACIÓN
+# ========================================
+
+# Configuración de sincronización de datos
+data-sync:
+  # Intervalo de sincronización automática (en segundos)
+  auto-sync-interval: 60
+
+  # ¿Sincronizar al conectarse?
+  sync-on-join: true
+
+  # ¿Sincronizar al desconectarse?
+  sync-on-quit: true
+
+  # ¿Sincronizar al cambiar de servidor?
+  sync-on-server-change: true
+
+  # Datos a sincronizar
+  sync-data:
+    coins: true
+    gems: true
+    rank: true
+    permissions: true
+    playtime: true
+    last-server: true
+
+# ========================================
+#              COMANDOS MEJORADOS
+# ========================================
+
+# Comandos que usan integración con GrivyzomCore
+integrated-commands:
+  enabled: true
+
+  # Comando para ver estadísticas personales
+  mystats:
+    enabled: true
+    permission: "lobbycore.mystats"
+    cooldown: 5 # segundos
+
+  # Comando para ver top de jugadores
+  top:
+    enabled: true
+    permission: "lobbycore.top"
+    cooldown: 10 # segundos
+
+  # Comando para transferir monedas/gemas
+  transfer:
+    enabled: true
+    permission: "lobbycore.transfer"
+    cooldown: 30 # segundos
+    min-amount: 1
+    max-amount: 10000
+      
+      # ========================================
+      #            EJEMPLOS DE USO
+      # ========================================
+      
+      # NUEVAS ACCIONES DISPONIBLES:
+      # [GRIVYZOM]REQUEST_PLAYER_DATA - Solicita datos del jugador
+      # [GRIVYZOM]REQUEST_TOP_COINS:limit - Top jugadores por monedas
+      # [GRIVYZOM]REQUEST_TOP_GEMS:limit - Top jugadores por gemas
+      # [GRIVYZOM]REQUEST_NETWORK_STATS - Estadísticas del network
+      # [GRIVYZOM]UPDATE_COINS:amount - Actualiza monedas
+      # [GRIVYZOM]UPDATE_GEMS:amount - Actualiza gemas
+      # [GRIVYZOM]OPEN_SHOP - Abre tienda virtual
+      # [GRIVYZOM]NOTIFY_EVENT:type:data - Notifica evento personalizado
+      
+      # PLACEHOLDERS INTEGRADOS:
+      # {grivyzom_coins} - Monedas del jugador
+      # {grivyzom_gems} - Gemas del jugador  
+      # {grivyzom_rank} - Rango del jugador
+      # {grivyzom_online} - Jugadores online en el network
+      # {grivyzom_server} - Servidor actual
+      # {grivyzom_playtime} - Tiempo de juego total
+      # {grivyzom_first_join} - Primera conexión
+      # {grivyzom_last_join} - Última conexión &fJugadores online: &a{grivyzom_online}&7/&a{MAX_PLAYERS}"
+      - "  &7┃ &fTus monedas: &e{grivyzom_coins}"
+      - "  &7┃ &fTus gemas: &d{grivyzom_gems}"
+      - "  &7┃ &fTu rango: &6{grivyzom_rank}"
+      - "  &7┃

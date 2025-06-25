@@ -73,30 +73,37 @@ public class ItemActionManager {
     }
 
     /**
-     * Carga los items de acción desde la configuración
+     * Carga los items de acción desde items.yml
      */
     public void loadActionItems() {
         actionItems.clear();
 
-        ConfigurationSection itemsSection = plugin.getConfigManager().getConfig().getConfigurationSection("action-items.items");
-        if (itemsSection == null) {
-            plugin.getLogger().info(ColorUtils.translate("&e⚠ &fNo se encontraron items de acción configurados"));
+        // Usar la configuración de items separada
+        ConfigurationSection itemsSection = plugin.getConfigManager().getItemsConfig().getRoot();
+        if (itemsSection == null || itemsSection.getKeys(false).isEmpty()) {
+            plugin.getLogger().info(ColorUtils.translate("&e⚠ &fNo se encontraron items de acción en items.yml"));
             return;
         }
 
         for (String itemId : itemsSection.getKeys(false)) {
+            // Saltar comentarios y secciones que no son items
+            if (itemId.startsWith("#") || itemId.contains("#")) continue;
+
             try {
-                ActionItem actionItem = loadActionItemFromConfig(itemId, itemsSection.getConfigurationSection(itemId));
-                if (actionItem != null) {
-                    actionItems.put(itemId, actionItem);
-                    plugin.getLogger().info(ColorUtils.translate("&a✓ &fItem de acción cargado: &e" + itemId));
+                ConfigurationSection itemSection = itemsSection.getConfigurationSection(itemId);
+                if (itemSection != null) {
+                    ActionItem actionItem = loadActionItemFromConfig(itemId, itemSection);
+                    if (actionItem != null) {
+                        actionItems.put(itemId, actionItem);
+                        plugin.getLogger().info(ColorUtils.translate("&a✓ &fItem de acción cargado: &e" + itemId));
+                    }
                 }
             } catch (Exception e) {
                 plugin.getLogger().severe("Error al cargar item de acción '" + itemId + "': " + e.getMessage());
             }
         }
 
-        plugin.getLogger().info(ColorUtils.translate("&a✓ &fCargados &e" + actionItems.size() + " &fitems de acción"));
+        plugin.getLogger().info(ColorUtils.translate("&a✓ &fCargados &e" + actionItems.size() + " &fitems de acción desde items.yml"));
     }
 
     /**
@@ -128,6 +135,7 @@ public class ItemActionManager {
             List<String> leftClickActions = section.getStringList("actions.left-click");
             List<String> shiftRightClickActions = section.getStringList("actions.shift-right-click");
             List<String> shiftLeftClickActions = section.getStringList("actions.shift-left-click");
+
             if (hideMincraftInfo && hideFlags.isEmpty()) {
                 hideFlags = Arrays.asList(
                         "HIDE_ATTRIBUTES",
@@ -143,7 +151,7 @@ public class ItemActionManager {
             return new ActionItem(
                     itemId, material, displayName, lore, slot, amount,
                     giveOnJoin, preventDrop, preventMove, preventInventoryClick, keepOnDeath, replaceable,
-                    hideMincraftInfo, hideFlags,  // Nuevos parámetros
+                    hideMincraftInfo, hideFlags,
                     rightClickActions, leftClickActions, shiftRightClickActions, shiftLeftClickActions
             );
 
@@ -212,12 +220,6 @@ public class ItemActionManager {
     /**
      * Crea un ItemStack basado en un ActionItem
      */
-    /**
-     * Crea un ItemStack basado en un ActionItem
-     */
-    /**
-     * Crea un ItemStack basado en un ActionItem (Versión Simplificada)
-     */
     private ItemStack createItemStack(ActionItem actionItem, Player player) {
         ItemStack itemStack = new ItemStack(actionItem.getMaterial(), actionItem.getAmount());
         ItemMeta meta = itemStack.getItemMeta();
@@ -252,7 +254,7 @@ public class ItemActionManager {
                 for (String flagName : actionItem.getHideFlags()) {
                     try {
                         org.bukkit.inventory.ItemFlag flag = org.bukkit.inventory.ItemFlag.valueOf(flagName.toUpperCase());
-                        meta.addItemFlags(flag); // addItemFlags acepta varargs, así que se puede pasar uno a la vez
+                        meta.addItemFlags(flag);
                     } catch (IllegalArgumentException e) {
                         plugin.getLogger().warning("Flag inválida para item " + actionItem.getItemId() + ": " + flagName);
                     }
@@ -264,7 +266,6 @@ public class ItemActionManager {
 
         return itemStack;
     }
-
 
     /**
      * Ejecuta las acciones de un item
@@ -296,7 +297,6 @@ public class ItemActionManager {
                 return new ArrayList<>();
         }
     }
-
 
     /**
      * Ejecuta una acción individual
@@ -412,14 +412,11 @@ public class ItemActionManager {
 
     /**
      * Ejecuta un comando como jugador con permisos de OP temporalmente
-     * @param player El jugador
-     * @param command El comando a ejecutar
      */
     private void executeCommandAsOp(Player player, String command) {
         boolean wasOp = player.isOp();
 
         try {
-            // Dar OP temporalmente si no lo tiene
             if (!wasOp) {
                 player.setOp(true);
                 plugin.getLogger().info(ColorUtils.translate(
@@ -428,7 +425,6 @@ public class ItemActionManager {
                 ));
             }
 
-            // Ejecutar el comando
             boolean success = player.performCommand(command);
 
             if (success) {
@@ -447,7 +443,6 @@ public class ItemActionManager {
                     "Error ejecutando comando OP '" + command + "' para " + player.getName() + ": " + e.getMessage()
             );
         } finally {
-            // Restaurar el estado original de OP
             if (!wasOp) {
                 player.setOp(false);
                 plugin.getLogger().info(ColorUtils.translate(
@@ -459,9 +454,6 @@ public class ItemActionManager {
 
     /**
      * Conecta un jugador a otro servidor del proxy (BungeeCord/Velocity)
-     * Compatible con ambos tipos de proxy
-     * @param player El jugador a conectar
-     * @param serverName El nombre del servidor de destino
      */
     private void connectPlayerToServer(Player player, String serverName) {
         try {
@@ -469,7 +461,6 @@ public class ItemActionManager {
             out.writeUTF("Connect");
             out.writeUTF(serverName);
 
-            // Intentar con el canal preferido según el proxy
             String channel = isVelocityMode ? "velocity:main" : "BungeeCord";
 
             try {
@@ -479,7 +470,6 @@ public class ItemActionManager {
                                 " &7(usando " + (isVelocityMode ? "Velocity" : "BungeeCord") + ")"
                 ));
             } catch (Exception e) {
-                // Fallback al canal BungeeCord si Velocity falla
                 if (isVelocityMode) {
                     plugin.getLogger().warning("Fallo conexión Velocity, intentando con BungeeCord...");
                     player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
@@ -488,11 +478,10 @@ public class ItemActionManager {
                                     " &7(fallback a BungeeCord)"
                     ));
                 } else {
-                    throw e; // Re-lanzar si ya era BungeeCord
+                    throw e;
                 }
             }
 
-            // Mensaje opcional al jugador
             ColorUtils.sendMessage(player, "&a🌐 &fConectando al servidor &e" + serverName + "&f...");
 
         } catch (Exception e) {
@@ -552,7 +541,7 @@ public class ItemActionManager {
      */
     public void reload() {
         loadActionItems();
-        plugin.getLogger().info(ColorUtils.translate("&a✓ &fGestor de items de acción recargado"));
+        plugin.getLogger().info(ColorUtils.translate("&a✓ &fGestor de items de acción recargado desde items.yml"));
     }
 
     /**

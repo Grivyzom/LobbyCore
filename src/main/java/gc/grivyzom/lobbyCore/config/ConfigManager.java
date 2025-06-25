@@ -13,56 +13,98 @@ public class ConfigManager {
 
     private final MainClass plugin;
     private File configFile;
+    private File itemsFile;
     private FileConfiguration config;
+    private FileConfiguration itemsConfig;
 
     public ConfigManager(MainClass plugin) {
         this.plugin = plugin;
     }
 
     /**
-     * Carga o crea la configuración
+     * Carga o crea la configuración principal e items
      */
     public void loadConfig() {
+        // Cargar config.yml principal
+        loadMainConfig();
+
+        // Cargar items.yml
+        loadItemsConfig();
+    }
+
+    /**
+     * Carga la configuración principal (config.yml)
+     */
+    private void loadMainConfig() {
         configFile = new File(plugin.getDataFolder(), "config.yml");
 
         if (!configFile.exists()) {
             plugin.saveDefaultConfig();
-            createDefaultConfig();
+            createDefaultMainConfig();
         }
 
         config = YamlConfiguration.loadConfiguration(configFile);
 
         // Verificar y añadir nuevas opciones si no existen
-        addDefaults();
-        saveConfig();
+        addMainConfigDefaults();
+        saveMainConfig();
     }
 
     /**
-     * Crea la configuración por defecto
+     * Carga la configuración de items (items.yml)
      */
-    private void createDefaultConfig() {
+    private void loadItemsConfig() {
+        itemsFile = new File(plugin.getDataFolder(), "items.yml");
+
+        if (!itemsFile.exists()) {
+            createDefaultItemsConfig();
+        }
+
+        itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
+
+        // Verificar y añadir items por defecto si no existen
+        addItemsConfigDefaults();
+        saveItemsConfig();
+    }
+
+    /**
+     * Crea la configuración principal por defecto
+     */
+    private void createDefaultMainConfig() {
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveConfig();
     }
 
     /**
-     * Añade valores por defecto si no existen
+     * Crea la configuración de items por defecto
      */
-    private void addDefaults() {
+    private void createDefaultItemsConfig() {
+        try {
+            itemsFile.createNewFile();
+            plugin.getLogger().info("Archivo items.yml creado correctamente");
+        } catch (IOException e) {
+            plugin.getLogger().severe("Error al crear items.yml: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Añade valores por defecto a la configuración principal
+     */
+    private void addMainConfigDefaults() {
         // Configuración general de bienvenida
-        addDefault("welcome.enabled", true);
-        addDefault("welcome.delay", 1);
+        addMainDefault("welcome.enabled", true);
+        addMainDefault("welcome.delay", 1);
 
         // Configuración de título
-        addDefault("welcome.title.enabled", true);
-        addDefault("welcome.title.title", "&#FF6B6B¡B&#FF8E53i&#FFB347e&#FFCC02n&#E4FF02v&#90FF02e&#02FF02n&#02FF90i&#02FFE4d&#02CCFF&#0247FFo&#6B02FF!");
-        addDefault("welcome.title.subtitle", "&7¡Disfruta tu estadía en &b{SERVER}&7!");
-        addDefault("welcome.title.fade-in", 10);
-        addDefault("welcome.title.stay", 40);
-        addDefault("welcome.title.fade-out", 10);
+        addMainDefault("welcome.title.enabled", true);
+        addMainDefault("welcome.title.title", "&#FF6B6B¡B&#FF8E53i&#FFB347e&#FFCC02n&#E4FF02v&#90FF02e&#02FF02n&#02FF90i&#02FFE4d&#02CCFF&#0247FFo&#6B02FF!");
+        addMainDefault("welcome.title.subtitle", "&7¡Disfruta tu estadía en &b{SERVER}&7!");
+        addMainDefault("welcome.title.fade-in", 10);
+        addMainDefault("welcome.title.stay", 40);
+        addMainDefault("welcome.title.fade-out", 10);
 
         // Mensajes de chat
-        addDefault("welcome.messages", Arrays.asList(
+        addMainDefault("welcome.messages", Arrays.asList(
                 "",
                 "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
                 "",
@@ -79,15 +121,15 @@ public class ConfigManager {
         ));
 
         // Mensajes basados en tiempo
-        addDefault("welcome.time-based.enabled", true);
-        addDefault("welcome.time-based.morning", "&e☀ &fBuenos días &b{PLAYER}&f, que tengas un excelente día!");
-        addDefault("welcome.time-based.afternoon", "&6🌅 &fBuenas tardes &b{PLAYER}&f, perfecta hora para jugar!");
-        addDefault("welcome.time-based.evening", "&c🌆 &fBuenas tardes &b{PLAYER}&f, disfruta la tarde!");
-        addDefault("welcome.time-based.night", "&9🌙 &fBuenas noches &b{PLAYER}&f, hora perfecta para relajarse!");
+        addMainDefault("welcome.time-based.enabled", true);
+        addMainDefault("welcome.time-based.morning", "&e☀ &fBuenos días &b{PLAYER}&f, que tengas un excelente día!");
+        addMainDefault("welcome.time-based.afternoon", "&6🌅 &fBuenas tardes &b{PLAYER}&f, perfecta hora para jugar!");
+        addMainDefault("welcome.time-based.evening", "&c🌆 &fBuenas tardes &b{PLAYER}&f, disfruta la tarde!");
+        addMainDefault("welcome.time-based.night", "&9🌙 &fBuenas noches &b{PLAYER}&f, hora perfecta para relajarse!");
 
         // Mensajes para nuevos jugadores
-        addDefault("welcome.first-time.enabled", true);
-        addDefault("welcome.first-time.messages", Arrays.asList(
+        addMainDefault("welcome.first-time.enabled", true);
+        addMainDefault("welcome.first-time.messages", Arrays.asList(
                 "",
                 "&a🎉 &f¡Es tu primera vez aquí! Te damos una cálida bienvenida.",
                 "&7💡 &fTip: Usa &e/help &fpara ver los comandos disponibles.",
@@ -96,98 +138,308 @@ public class ConfigManager {
         ));
 
         // Anuncio de nuevo jugador
-        addDefault("welcome.new-player.announce", true);
-        addDefault("welcome.new-player.announcement", "&a🎊 &f¡Démosle la bienvenida a &b{PLAYER} &fque se une por primera vez!");
+        addMainDefault("welcome.new-player.announce", true);
+        addMainDefault("welcome.new-player.announcement", "&a🎊 &f¡Démosle la bienvenida a &b{PLAYER} &fque se une por primera vez!");
 
         // Configuración de sonido
-        addDefault("welcome.sound.enabled", true);
-        addDefault("welcome.sound.sound", "ENTITY_PLAYER_LEVELUP");
-        addDefault("welcome.sound.volume", 0.5);
-        addDefault("welcome.sound.pitch", 1.0);
+        addMainDefault("welcome.sound.enabled", true);
+        addMainDefault("welcome.sound.sound", "ENTITY_PLAYER_LEVELUP");
+        addMainDefault("welcome.sound.volume", 0.5);
+        addMainDefault("welcome.sound.pitch", 1.0);
 
         // Efectos especiales
-        addDefault("welcome.effects.gradient.start-color", "FF6B6B");
-        addDefault("welcome.effects.gradient.end-color", "4ECDC4");
+        addMainDefault("welcome.effects.gradient.start-color", "FF6B6B");
+        addMainDefault("welcome.effects.gradient.end-color", "4ECDC4");
 
         // Configuración de base de datos (opcional)
-        addDefault("database.enabled", false);
-        addDefault("database.host", "localhost");
-        addDefault("database.port", 3306);
-        addDefault("database.database", "lobbycore");
-        addDefault("database.username", "root");
-        addDefault("database.password", "password");
+        addMainDefault("database.enabled", false);
+        addMainDefault("database.host", "localhost");
+        addMainDefault("database.port", 3306);
+        addMainDefault("database.database", "lobbycore");
+        addMainDefault("database.username", "root");
+        addMainDefault("database.password", "password");
 
         // Configuración de Vault (opcional)
-        addDefault("vault.enabled", false);
-        addDefault("vault.welcome-money", 100.0);
-        addDefault("vault.welcome-money-message", "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!");
+        addMainDefault("vault.enabled", false);
+        addMainDefault("vault.welcome-money", 100.0);
+        addMainDefault("vault.welcome-money-message", "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!");
 
         // Configuración de fuegos artificiales
-        addDefault("welcome.fireworks.enabled", true);
-        addDefault("welcome.fireworks.delay", 2);
-        addDefault("welcome.fireworks.amount", 3);
-        addDefault("welcome.fireworks.height", 5);
-        addDefault("welcome.fireworks.spread", 3);
-        addDefault("welcome.fireworks.types", Arrays.asList("BALL", "STAR", "BURST"));
-        addDefault("welcome.fireworks.colors", Arrays.asList("RED", "BLUE", "GREEN", "YELLOW", "PURPLE", "ORANGE"));
-        addDefault("welcome.fireworks.fade-colors", Arrays.asList("WHITE", "GRAY"));
-        addDefault("welcome.fireworks.flicker", true);
-        addDefault("welcome.fireworks.trail", true);
-        addDefault("welcome.fireworks.power", 1);
+        addMainDefault("welcome.fireworks.enabled", true);
+        addMainDefault("welcome.fireworks.delay", 2);
+        addMainDefault("welcome.fireworks.amount", 3);
+        addMainDefault("welcome.fireworks.height", 5);
+        addMainDefault("welcome.fireworks.spread", 3);
+        addMainDefault("welcome.fireworks.types", Arrays.asList("BALL", "STAR", "BURST"));
+        addMainDefault("welcome.fireworks.colors", Arrays.asList("RED", "BLUE", "GREEN", "YELLOW", "PURPLE", "ORANGE"));
+        addMainDefault("welcome.fireworks.fade-colors", Arrays.asList("WHITE", "GRAY"));
+        addMainDefault("welcome.fireworks.flicker", true);
+        addMainDefault("welcome.fireworks.trail", true);
+        addMainDefault("welcome.fireworks.power", 1);
 
-        // Configuración de items de acción
-        addDefault("action-items.enabled", true);
-        addDefault("action-items.give-delay", 2);
+        // Configuración de items de acción (solo configuración general)
+        addMainDefault("action-items.enabled", true);
+        addMainDefault("action-items.give-delay", 2);
 
-        // Configuración por defecto para el ejemplo del palito del lobby
-        if (!config.contains("action-items.items.lobby_stick")) {
-            addDefault("action-items.items.lobby_stick.material", "STICK");
-            addDefault("action-items.items.lobby_stick.display-name", "&b🏠 &fIr al Lobby");
-            addDefault("action-items.items.lobby_stick.lore", Arrays.asList(
+        // Configuración del proxy
+        addMainDefault("proxy.type", "velocity");
+        addMainDefault("proxy.velocity.use-modern-channel", true);
+        addMainDefault("proxy.velocity.connection-timeout", 5000);
+        addMainDefault("proxy.velocity.max-retries", 3);
+        addMainDefault("proxy.bungeecord.legacy-only", false);
+        addMainDefault("proxy.bungeecord.connection-timeout", 3000);
+    }
+
+    /**
+     * Añade items por defecto a la configuración de items
+     */
+    private void addItemsConfigDefaults() {
+        // Header del archivo
+        addItemsDefault("# ========================================", null);
+        addItemsDefault("#         CONFIGURACIÓN DE ITEMS", null);
+        addItemsDefault("#              LobbyCore", null);
+        addItemsDefault("# ========================================", null);
+
+        // Item de lobby
+        if (!itemsConfig.contains("lobby_item")) {
+            addItemsDefault("lobby_item.material", "FIREWORK_STAR");
+            addItemsDefault("lobby_item.display-name", "&9Regresar al Lobby");
+            addItemsDefault("lobby_item.lore", Arrays.asList(
+                    "&8Descripción",
                     "&7Click derecho para",
                     "&7teletransportarte al lobby",
-                    "",
-                    "&a✅ &fDisponible siempre"
+                    ""
             ));
-            addDefault("action-items.items.lobby_stick.slot", 4);
-            addDefault("action-items.items.lobby_stick.amount", 1);
-            addDefault("action-items.items.lobby_stick.flags.give-on-join", true);
-            addDefault("action-items.items.lobby_stick.flags.prevent-drop", true);
-            addDefault("action-items.items.lobby_stick.flags.prevent-move", true);
-            addDefault("action-items.items.lobby_stick.flags.prevent-inventory-click", true);
-            addDefault("action-items.items.lobby_stick.flags.keep-on-death", true);
-            addDefault("action-items.items.lobby_stick.flags.replaceable", true);
-            addDefault("action-items.items.lobby_stick.actions.right-click", Arrays.asList(
+            addItemsDefault("lobby_item.slot", 8);
+            addItemsDefault("lobby_item.amount", 1);
+            addItemsDefault("lobby_item.flags.give-on-join", true);
+            addItemsDefault("lobby_item.flags.prevent-drop", true);
+            addItemsDefault("lobby_item.flags.prevent-move", true);
+            addItemsDefault("lobby_item.flags.prevent-inventory-click", true);
+            addItemsDefault("lobby_item.flags.keep-on-death", true);
+            addItemsDefault("lobby_item.flags.replaceable", true);
+            addItemsDefault("lobby_item.flags.hide-minecraft-info", true);
+            addItemsDefault("lobby_item.flags.hide-flags", Arrays.asList(
+                    "HIDE_ATTRIBUTES",
+                    "HIDE_DESTROYS",
+                    "HIDE_DYE",
+                    "HIDE_ENCHANTS",
+                    "HIDE_PLACED_ON",
+                    "HIDE_POTION_EFFECTS",
+                    "HIDE_UNBREAKABLE"
+            ));
+            addItemsDefault("lobby_item.actions.right-click", Arrays.asList(
                     "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
                     "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!",
-                    "[CONSOLE]spawn {PLAYER}"
+                    "[CONSOLE]ajqueue:server {PLAYER} lobby"
             ));
-            addDefault("action-items.items.lobby_stick.actions.left-click", Arrays.asList());
-            addDefault("action-items.items.lobby_stick.actions.shift-right-click", Arrays.asList(
+            addItemsDefault("lobby_item.actions.left-click", Arrays.asList());
+            addItemsDefault("lobby_item.actions.shift-right-click", Arrays.asList(
                     "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
             ));
-            addDefault("action-items.items.lobby_stick.actions.shift-left-click", Arrays.asList());
+            addItemsDefault("lobby_item.actions.shift-left-click", Arrays.asList());
+        }
+
+        // Item de búsqueda automática
+        if (!itemsConfig.contains("automatic_arena")) {
+            addItemsDefault("automatic_arena.material", "ENDER_PEARL");
+            addItemsDefault("automatic_arena.display-name", "&f&lBuscar partida...");
+            addItemsDefault("automatic_arena.lore", Arrays.asList(
+                    "&8Descripción",
+                    "&7Click para buscar",
+                    "&7una partida automáticamente",
+                    "",
+                    "&bClick: &fPara unirte!"
+            ));
+            addItemsDefault("automatic_arena.slot", 4);
+            addItemsDefault("automatic_arena.amount", 1);
+            addItemsDefault("automatic_arena.flags.give-on-join", true);
+            addItemsDefault("automatic_arena.flags.prevent-drop", true);
+            addItemsDefault("automatic_arena.flags.prevent-move", true);
+            addItemsDefault("automatic_arena.flags.prevent-inventory-click", true);
+            addItemsDefault("automatic_arena.flags.keep-on-death", true);
+            addItemsDefault("automatic_arena.flags.replaceable", true);
+            addItemsDefault("automatic_arena.flags.hide-minecraft-info", true);
+            addItemsDefault("automatic_arena.actions.right-click", Arrays.asList(
+                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
+                    "[COMMAND]mm randomjoin"
+            ));
+            addItemsDefault("automatic_arena.actions.left-click", Arrays.asList(
+                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
+                    "[COMMAND]mm randomjoin"
+            ));
+        }
+
+        // Selector de servidores
+        if (!itemsConfig.contains("server_selector")) {
+            addItemsDefault("server_selector.material", "NETHER_STAR");
+            addItemsDefault("server_selector.display-name", "&d🌐 &fSelector de Servidores");
+            addItemsDefault("server_selector.lore", Arrays.asList(
+                    "&7Click para navegar entre",
+                    "&7los diferentes servidores",
+                    "",
+                    "&dClick derecho: &fServidor Survival",
+                    "&dClick izquierdo: &fServidor SkyBlock"
+            ));
+            addItemsDefault("server_selector.slot", 0);
+            addItemsDefault("server_selector.amount", 1);
+            addItemsDefault("server_selector.flags.give-on-join", true);
+            addItemsDefault("server_selector.flags.prevent-drop", true);
+            addItemsDefault("server_selector.flags.prevent-move", true);
+            addItemsDefault("server_selector.flags.prevent-inventory-click", true);
+            addItemsDefault("server_selector.flags.keep-on-death", true);
+            addItemsDefault("server_selector.flags.replaceable", true);
+            addItemsDefault("server_selector.actions.right-click", Arrays.asList(
+                    "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5",
+                    "[MESSAGE]&d🌐 &f¡Conectando al servidor &eSurvival&f!",
+                    "[SERVER]survival"
+            ));
+            addItemsDefault("server_selector.actions.left-click", Arrays.asList(
+                    "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2",
+                    "[MESSAGE]&d🌐 &f¡Conectando al servidor &bSkyBlock&f!",
+                    "[SERVER]skyblock"
+            ));
+        }
+
+        // Navegador
+        if (!itemsConfig.contains("compass_navigator")) {
+            addItemsDefault("compass_navigator.material", "COMPASS");
+            addItemsDefault("compass_navigator.display-name", "&e🧭 &fNavegador");
+            addItemsDefault("compass_navigator.lore", Arrays.asList(
+                    "&7Click derecho para abrir",
+                    "&7el menú de navegación",
+                    "",
+                    "&eClick izquierdo: &fInfo del servidor"
+            ));
+            addItemsDefault("compass_navigator.slot", 1);
+            addItemsDefault("compass_navigator.amount", 1);
+            addItemsDefault("compass_navigator.flags.give-on-join", true);
+            addItemsDefault("compass_navigator.flags.prevent-drop", true);
+            addItemsDefault("compass_navigator.flags.prevent-move", true);
+            addItemsDefault("compass_navigator.flags.prevent-inventory-click", true);
+            addItemsDefault("compass_navigator.flags.keep-on-death", true);
+            addItemsDefault("compass_navigator.flags.replaceable", true);
+            addItemsDefault("compass_navigator.actions.right-click", Arrays.asList(
+                    "[SOUND]UI_BUTTON_CLICK:0.8:1.0",
+                    "[CONSOLE]menu navegacion {PLAYER}"
+            ));
+            addItemsDefault("compass_navigator.actions.left-click", Arrays.asList(
+                    "[MESSAGE]&e📊 &fServidor: &b{SERVER}",
+                    "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}",
+                    "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
+            ));
+        }
+
+        // Portal de minijuegos
+        if (!itemsConfig.contains("minigames_portal")) {
+            addItemsDefault("minigames_portal.material", "SLIME_BALL");
+            addItemsDefault("minigames_portal.display-name", "&a🎮 &fMinijuegos");
+            addItemsDefault("minigames_portal.lore", Arrays.asList(
+                    "&7Portal directo al servidor",
+                    "&7de minijuegos y eventos",
+                    "",
+                    "&a🎮 &fClick: &eConectar",
+                    "&7Incluye: BedWars, SkyWars, PvP"
+            ));
+            addItemsDefault("minigames_portal.slot", 2);
+            addItemsDefault("minigames_portal.amount", 1);
+            addItemsDefault("minigames_portal.flags.give-on-join", true);
+            addItemsDefault("minigames_portal.flags.prevent-drop", true);
+            addItemsDefault("minigames_portal.flags.prevent-move", true);
+            addItemsDefault("minigames_portal.flags.prevent-inventory-click", true);
+            addItemsDefault("minigames_portal.flags.keep-on-death", true);
+            addItemsDefault("minigames_portal.flags.replaceable", true);
+            addItemsDefault("minigames_portal.actions.right-click", Arrays.asList(
+                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8",
+                    "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!",
+                    "[MESSAGE]&7Preparándote para la diversión...",
+                    "[DELAY]20:[SERVER]minigames"
+            ));
+            addItemsDefault("minigames_portal.actions.left-click", Arrays.asList(
+                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8",
+                    "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!",
+                    "[SERVER]minigames"
+            ));
+        }
+
+        // Libro de ayuda
+        if (!itemsConfig.contains("help_book")) {
+            addItemsDefault("help_book.material", "BOOK");
+            addItemsDefault("help_book.display-name", "&a📚 &fGuía de Ayuda");
+            addItemsDefault("help_book.lore", Arrays.asList(
+                    "&7Todo lo que necesitas",
+                    "&7saber sobre el servidor",
+                    "",
+                    "&aClick: &fAbrir guía"
+            ));
+            addItemsDefault("help_book.slot", 6);
+            addItemsDefault("help_book.amount", 1);
+            addItemsDefault("help_book.flags.give-on-join", true);
+            addItemsDefault("help_book.flags.prevent-drop", true);
+            addItemsDefault("help_book.flags.prevent-move", false);
+            addItemsDefault("help_book.flags.prevent-inventory-click", false);
+            addItemsDefault("help_book.flags.keep-on-death", false);
+            addItemsDefault("help_book.flags.replaceable", true);
+            addItemsDefault("help_book.actions.right-click", Arrays.asList(
+                    "[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0",
+                    "[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!",
+                    "[COMMAND]help"
+            ));
+            addItemsDefault("help_book.actions.left-click", Arrays.asList(
+                    "[MESSAGE]&a📚 &fGuía rápida:",
+                    "[MESSAGE]&7• &f/help - Ver comandos",
+                    "[MESSAGE]&7• &f/spawn - Ir al spawn",
+                    "[MESSAGE]&7• &f/menu - Abrir menú principal"
+            ));
         }
     }
 
     /**
-     * Añade un valor por defecto si no existe
+     * Añade un valor por defecto a la configuración principal
      */
-    private void addDefault(String path, Object value) {
+    private void addMainDefault(String path, Object value) {
         if (!config.contains(path)) {
             config.set(path, value);
         }
     }
 
     /**
-     * Guarda la configuración
+     * Añade un valor por defecto a la configuración de items
      */
-    public void saveConfig() {
+    private void addItemsDefault(String path, Object value) {
+        if (value != null && !itemsConfig.contains(path)) {
+            itemsConfig.set(path, value);
+        }
+    }
+
+    /**
+     * Guarda la configuración principal
+     */
+    public void saveMainConfig() {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("No se pudo guardar la configuración: " + e.getMessage());
+            plugin.getLogger().severe("No se pudo guardar config.yml: " + e.getMessage());
         }
+    }
+
+    /**
+     * Guarda la configuración de items
+     */
+    public void saveItemsConfig() {
+        try {
+            itemsConfig.save(itemsFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("No se pudo guardar items.yml: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Guarda ambas configuraciones
+     */
+    public void saveConfig() {
+        saveMainConfig();
+        saveItemsConfig();
     }
 
     /**
@@ -195,7 +447,8 @@ public class ConfigManager {
      */
     public void reloadConfig() {
         config = YamlConfiguration.loadConfiguration(configFile);
-        plugin.getLogger().info("Configuración recargada correctamente");
+        itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
+        plugin.getLogger().info("Configuraciones recargadas correctamente");
     }
 
     // Getters para configuración de bienvenida
@@ -390,10 +643,17 @@ public class ConfigManager {
     }
 
     /**
-     * Obtiene la configuración actual
+     * Obtiene la configuración principal
      */
     public FileConfiguration getConfig() {
         return config;
+    }
+
+    /**
+     * Obtiene la configuración de items
+     */
+    public FileConfiguration getItemsConfig() {
+        return itemsConfig;
     }
 
     /**
