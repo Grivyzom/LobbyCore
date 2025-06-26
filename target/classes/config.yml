@@ -2,6 +2,7 @@
 #           LobbyCore Configuration
 #           Autor: Francisco Fuentes
 #           Web: www.grivyzom.com
+#         VERSIÓN CON PLACEHOLDERS DINÁMICOS
 # ========================================
 
 # Configuración general de mensajes de bienvenida
@@ -18,97 +19,96 @@ welcome:
   # Configuración del título de bienvenida
   title:
     enabled: true
-    # Puedes usar códigos de color legacy (&a, &b, etc.) o hexadecimales (&#FF6B6B)
+    # Título con placeholders dinámicos de GrivyzomCore
     title: "&#FF6B6B¡B&#FF8E53i&#FFB347e&#FFCC02n&#E4FF02v&#90FF02e&#02FF02n&#02FF90i&#02FFE4d&#02CCFF&#0247FFo&#6B02FF!"
-    subtitle: "&7¡Disfruta tu estadía en &b{SERVER}&7!"
+    subtitle: "&7¡Bienvenido al network &b{SERVER}&7! &8| &7Jugadores: &a{grivyzom_online}"
     # Configuración de tiempos (en ticks, 20 ticks = 1 segundo)
     fade-in: 10    # Tiempo de aparición
-    stay: 40       # Tiempo que permanece
-    fade-out: 10   # Tiempo de desaparición
+    stay: 50       # Tiempo que permanece (aumentado para ver placeholders)
+    fade-out: 15   # Tiempo de desaparición
 
-  # Mensajes principales de bienvenida en el chat
+  # Mensajes principales de bienvenida con placeholders dinámicos
   messages:
     - ""
     - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     - ""
     - "  &f¡Hola &b{PLAYER}&f! Te damos la bienvenida a &a{SERVER}"
     - ""
-    - "  &7┃ &fJugadores conectados: &a{ONLINE}&7/&a{MAX_PLAYERS}"
-    - "  &7┃ &fTu mundo actual: &e{WORLD}"
-    - "  &7┃ &fWeb: &bwww.grivyzom.com"
-    - "  &7┃ &fDiscord: &9discord.gg/tu-servidor"
+    - "  &e🌐 &fDatos del Network:"
+    - "  &7┃ &fJugadores conectados: &a{grivyzom_online}&7/&a{MAX_PLAYERS}"
+    - "  &7┃ &fServidores activos: &a{grivyzom_servers}"
+    - "  &7┃ &fEstado del network: {grivyzom_status}"
     - ""
-    - "  &a¡Esperamos que disfrutes tu estadía!"
+    - "  &e💰 &fTus Datos:"
+    - "  &7┃ &fTus monedas: &e{grivyzom_coins}"
+    - "  &7┃ &fTus gemas: &d{grivyzom_gems}"
+    - "  &7┃ &fTu rango: &6{grivyzom_rank}"
+    - "  &7┃ &fTu nivel: &a{grivyzom_level}"
+    - ""
+    - "  &e🏆 &fTop del Servidor:"
+    - "  &7┃ &f#1 Monedas: &b{grivyzom_top_coins_1} &7(&e{grivyzom_top_coins_1_amount}&7)"
+    - "  &7┃ &f#1 Gemas: &b{grivyzom_top_gems_1} &7(&d{grivyzom_top_gems_1_amount}&7)"
+    - ""
+    - "  &7📊 &fEconomía global: &e{grivyzom_economy_total_coins} &7monedas, &d{grivyzom_economy_total_gems} &7gemas"
+    - "  &7🌐 &fWeb: &bwww.grivyzom.com &7| Discord: &9discord.gg/grivyzom"
+    - ""
+    - "  &a¡Esperamos que disfrutes tu estadía en nuestro network!"
     - ""
     - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     - ""
 
-  # Mensajes basados en la hora del día
+  # Mensajes basados en la hora del día con datos dinámicos
   time-based:
     enabled: true
-    morning: "&e☀ &fBuenos días &b{PLAYER}&f, que tengas un excelente día!"
-    afternoon: "&6🌅 &fBuenas tardes &b{PLAYER}&f, perfecta hora para jugar!"
-    evening: "&c🌆 &fBuenas tardes &b{PLAYER}&f, disfruta la tarde!"
-    night: "&9🌙 &fBuenas noches &b{PLAYER}&f, hora perfecta para relajarse!"
+    morning: "&e☀ &fBuenos días &b{PLAYER}&f! &7Hay &a{grivyzom_online} &7jugadores conectados. ¡Perfecto para comenzar el día!"
+    afternoon: "&6🌅 &fBuenas tardes &b{PLAYER}&f! &7El network está activo con &a{grivyzom_online} &7jugadores. ¡Hora perfecta para jugar!"
+    evening: "&c🌆 &fBuenas tardes &b{PLAYER}&f! &7Únete a los &a{grivyzom_online} &7jugadores online. ¡Disfruta la tarde!"
+    night: "&9🌙 &fBuenas noches &b{PLAYER}&f! &7Aún hay &a{grivyzom_online} &7jugadores despiertos. ¡Perfecta hora para relajarse!"
 
   # Configuración para jugadores nuevos (primera vez)
   first-time:
     enabled: true
     messages:
       - ""
-      - "&a🎉 &f¡Es tu primera vez aquí! Te damos una cálida bienvenida."
+      - "&a🎉 &f¡Es tu primera vez en nuestro network! Te damos una cálida bienvenida."
       - "&7💡 &fTip: Usa &e/help &fpara ver los comandos disponibles."
       - "&7📋 &fAsegúrate de leer las reglas con &e/rules"
-      - "&7🎁 &f¡Has recibido un regalo de bienvenida!"
+      - "&7🎁 &f¡Has recibido &e{grivyzom_coins} &fmonedas y &d{grivyzom_gems} &fgemas de bienvenida!"
+      - "&7🏆 &fPuedes ver los tops con &e/top &f- ¡Tal vez algún día aparezcas ahí!"
       - ""
 
-  # Anuncio cuando un jugador nuevo se une
+  # Anuncio cuando un jugador nuevo se une (con datos del network)
   new-player:
     announce: true
-    announcement: "&a🎊 &f¡Démosle la bienvenida a &b{PLAYER} &fque se une por primera vez!"
+    announcement: "&a🎊 &f¡Démosle la bienvenida a &b{PLAYER} &fque se une por primera vez! &7(Jugador #{grivyzom_online} del network)"
 
   # Configuración de sonidos
   sound:
     enabled: true
-    # Sonidos disponibles: ENTITY_PLAYER_LEVELUP, BLOCK_NOTE_BLOCK_CHIME, UI_TOAST_CHALLENGE_COMPLETE, etc.
     sound: "ENTITY_PLAYER_LEVELUP"
-    volume: 0.5  # 0.0 - 1.0
-    pitch: 1.0   # 0.5 - 2.0
+    volume: 0.6  # Aumentado ligeramente
+    pitch: 1.2   # Más agudo para mayor atención
 
   # Efectos especiales para texto
   effects:
     gradient:
-      # Colores en formato hexadecimal (sin #)
       start-color: "FF6B6B"  # Rojo coral
       end-color: "4ECDC4"    # Turquesa
     # Para usar gradiente: {GRADIENT}Tu texto aquí
     # Para usar arcoíris: {RAINBOW}Tu texto aquí
 
-  # Configuración de fuegos artificiales
+  # Configuración de fuegos artificiales mejorada
   fireworks:
-    # ¿Habilitar fuegos artificiales de bienvenida?
     enabled: true
-
-    # Delay en segundos antes de lanzar los fuegos artificiales
-    delay: 2
-
-    # Cantidad de fuegos artificiales por jugador
-    amount: 3
-
-    # Altura a la que aparecen los fuegos artificiales (bloques sobre el jugador)
-    height: 5
-
-    # Dispersión horizontal de los fuegos artificiales (radio en bloques)
-    spread: 3
-
-    # Tipos de fuegos artificiales disponibles
-    # Opciones: BALL, BALL_LARGE, STAR, BURST, CREEPER
+    delay: 3  # Aumentado para que no interfiera con la lectura del mensaje
+    amount: 4 # Un fuego más para celebrar mejor
+    height: 6
+    spread: 4
     types:
       - "BALL"
       - "STAR"
       - "BURST"
-
-    # Colores principales de los fuegos artificiales
+      - "BALL_LARGE"  # Añadido para más variedad
     colors:
       - "RED"
       - "BLUE"
@@ -119,187 +119,20 @@ welcome:
       - "PINK"
       - "LIME"
       - "CYAN"
-
-    # Colores de desvanecimiento
+      - "AQUA"      # Añadidos más colores
+      - "FUCHSIA"
     fade-colors:
       - "WHITE"
       - "GRAY"
       - "SILVER"
-
-    # ¿Habilitar efecto de parpadeo?
+      - "YELLOW"    # Más opciones de fade
     flicker: true
-
-    # ¿Habilitar estela?
     trail: true
-
-    # Poder del fuego artificial (altura del vuelo: 0-3)
     power: 1
 
 # ========================================
-#         CONFIGURACIÓN DEL PROXY
-# ========================================
-
-# Configuración del proxy (BungeeCord/Velocity)
-proxy:
-  # Tipo de proxy: "bungeecord" o "velocity"
-  # Si no se especifica, se auto-detectará
-  type: "velocity"  # Cambia a "bungeecord" si usas BungeeCord
-
-  # Configuración específica de Velocity
-  velocity:
-    # Usar el canal moderno de Velocity (recomendado)
-    use-modern-channel: true
-
-    # Timeout para conexiones (en milisegundos)
-    connection-timeout: 5000
-
-    # Reintentos en caso de fallo
-    max-retries: 3
-
-  # Configuración específica de BungeeCord
-  bungeecord:
-    # Usar solo el canal legacy
-    legacy-only: false
-
-    # Timeout para conexiones (en milisegundos)
-    connection-timeout: 3000
-
-# ========================================
-#           SISTEMA DE ITEMS DE ACCIÓN
-# ========================================
-
-action-items:
-  # ¿Habilitar sistema de items de acción?
-  enabled: true
-
-  # Delay en segundos antes de dar los items (después de conectarse)
-  give-delay: 2
-
-  # NOTA: Los items personalizados se configuran en el archivo 'items.yml'
-  # Esto permite una mejor organización y facilita la gestión de items
-
-# ========================================
-#         SERVIDORES DE TU NETWORK
-# ========================================
-
-# Lista de servidores disponibles en tu network
-# Esto es solo para documentación y validación
-servers:
-  hub:
-    display-name: "&bHub Principal"
-    description: "Servidor principal del network"
-    permission: "lobbycore.server.connect.hub"
-
-  survival:
-    display-name: "&aSurvival"
-    description: "Servidor de supervivencia vanilla"
-    permission: "lobbycore.server.connect.survival"
-
-  skyblock:
-    display-name: "&eSkyBlock"
-    description: "Servidor SkyBlock personalizado"
-    permission: "lobbycore.server.connect.skyblock"
-
-  minigames:
-    display-name: "&dMinijuegos"
-    description: "Servidor de minijuegos y eventos"
-    permission: "lobbycore.server.connect.minigames"
-
-  creative:
-    display-name: "&6Creativo"
-    description: "Servidor para construcción libre"
-    permission: "lobbycore.server.connect.creative"
-
-  staff:
-    display-name: "&cStaff"
-    description: "Servidor exclusivo para personal"
-    permission: "lobbycore.server.connect.staff"
-    restricted: true
-
-# ========================================
-#           MENSAJES PERSONALIZADOS
-# ========================================
-
-# Mensajes específicos para conexiones de servidor
-server-messages:
-  connecting: "&a🌐 &fConectando al servidor &e{SERVER}&f..."
-  connection-failed: "&c❌ &fError al conectar al servidor &e{SERVER}&f. Inténtalo de nuevo."
-  no-permission: "&c❌ &fNo tienes permisos para acceder al servidor &e{SERVER}&f."
-  server-offline: "&e⚠ &fEl servidor &e{SERVER} &fno está disponible en este momento."
-
-# Configuración de base de datos (opcional)
-database:
-  enabled: false
-  host: "localhost"
-  port: 3306
-  database: "lobbycore"
-  username: "root"
-  password: "password"
-  # Pool de conexiones
-  max-pool-size: 10
-  connection-timeout: 30000
-
-# Integración con Vault (economía)
-vault:
-  enabled: false
-  # Dinero que reciben los jugadores nuevos
-  welcome-money: 100.0
-  welcome-money-message: "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!"
-
-# Configuración avanzada
-advanced:
-  # ¿Registrar conexiones en consola?
-  log-joins: true
-
-  # ¿Usar PlaceholderAPI si está disponible?
-  use-placeholderapi: true
-
-  # Configuración de rendimiento
-  performance:
-    # Máximo de mensajes de bienvenida simultáneos
-    max-concurrent-welcomes: 10
-
-    # Cache de configuración en memoria
-    cache-config: true
-
-# ========================================
-#              DOCUMENTACIÓN
-# ========================================
-
-# PLACEHOLDERS DISPONIBLES:
-# {PLAYER} - Nombre del jugador
-# {DISPLAYNAME} - Nombre mostrado del jugador
-# {WORLD} - Mundo actual del jugador
-# {ONLINE} - Jugadores conectados
-# {MAX_PLAYERS} - Máximo de jugadores
-# {SERVER} - Nombre del servidor
-# {MOTD} - MOTD del servidor
-# {PROXY} - Tipo de proxy (Velocity/BungeeCord)
-
-# ARCHIVOS DE CONFIGURACIÓN:
-# config.yml - Configuración principal del plugin
-# items.yml - Configuración de todos los items personalizados
-
-# CONFIGURACIÓN PARA VELOCITY:
-# 1. Cambia proxy.type a "velocity"
-# 2. Ajusta los nombres de servidores en la sección "servers"
-# 3. Asegúrate de que velocity.toml tenga los mismos nombres de servidor
-
-# CONFIGURACIÓN PARA BUNGEECORD:
-# 1. Cambia proxy.type a "bungeecord" (o déjalo en auto-detección)
-# 2. Ajusta los nombres de servidores en la sección "servers"
-# 3. Asegúrate de que config.yml de BungeeCord tenga los mismos nombres de servidor
-
-# NOTAS IMPORTANTES:
-# - Los items personalizados están en items.yml para mejor organización
-# - Asegúrate de que tu servidor esté conectado a Velocity/BungeeCord
-# - Los nombres de servidores deben coincidir exactamente con los configurados en el proxy
-# - Si un servidor no existe, el jugador recibirá un error de conexión
-# - Se recomienda usar delays antes de conectar para mejor experiencia de usuario
-
-
-# ========================================
 #       INTEGRACIÓN CON GRIVYZOMCORE
+#         CONFIGURACIÓN MEJORADA
 # ========================================
 
 grivyzom-integration:
@@ -310,10 +143,8 @@ grivyzom-integration:
   communication:
     # Timeout para respuestas (en milisegundos)
     response-timeout: 5000
-
     # Número máximo de reintentos
     max-retries: 3
-
     # Intervalo entre reintentos (en milisegundos)
     retry-interval: 1000
 
@@ -321,277 +152,531 @@ grivyzom-integration:
   features:
     # ¿Sincronizar datos de jugadores?
     sync-player-data: true
-
     # ¿Recibir actualizaciones de economía?
     economy-updates: true
-
     # ¿Mostrar estadísticas del network?
     network-stats: true
-
     # ¿Notificar eventos del lobby?
     lobby-events: true
 
-  # Configuración de placeholders
+  # Configuración de placeholders dinámicos
   placeholders:
     # ¿Habilitar placeholders de GrivyzomCore?
     enabled: true
 
-    # Placeholders disponibles:
-    # {grivyzom_coins} - Monedas del jugador
-    # {grivyzom_gems} - Gemas del jugador
-    # {grivyzom_rank} - Rango del jugador
-    # {grivyzom_online} - Jugadores online en el network
-    # {grivyzom_server} - Servidor actual del jugador
+    # Actualización automática de datos
+    auto-refresh:
+      enabled: true
+      # Actualizar datos de jugadores cada X segundos
+      player-data-interval: 300  # 5 minutos
+      # Actualizar datos de network cada X segundos
+      network-data-interval: 60  # 1 minuto
+      # Actualizar top players cada X segundos
+      top-players-interval: 120  # 2 minutos
+      # Actualizar economía cada X segundos
+      economy-interval: 180      # 3 minutos
 
-    # Actualizar placeholders cada X segundos
-    update-interval: 30
+    # Cache de datos (TTL - Time To Live)
+    cache:
+      # Tiempo de vida de datos de jugadores (milisegundos)
+      player-data-ttl: 300000    # 5 minutos
+      # Tiempo de vida de datos de network (milisegundos)
+      network-data-ttl: 60000    # 1 minuto
+      # Tiempo de vida de top players (milisegundos)
+      top-players-ttl: 120000    # 2 minutos
+      # Tiempo de vida de economía (milisegundos)
+      economy-ttl: 180000        # 3 minutos
+
+    # Configuración de fallbacks (datos por defecto cuando no hay conexión)
+    fallbacks:
+      # ¿Usar datos simulados realistas cuando GrivyzomCore no esté disponible?
+      use-realistic-simulation: true
+      # ¿Mostrar indicador cuando se usan datos simulados?
+      show-simulation-indicator: false
+      # Datos por defecto para jugadores nuevos
+      default-player-data:
+        coins: "1,500"
+        gems: "250"
+        rank: "Nuevo"
+        level: "1"
+        playtime: "0h 0m"
 
   # Mensajes personalizados para integración
   messages:
     # Cuando la conexión con GrivyzomCore falla
-    connection-failed: "&c❌ &fNo se pudo conectar con GrivyzomCore"
-
+    connection-failed: "&c❌ &fNo se pudo conectar con GrivyzomCore - usando datos locales"
     # Cuando se establece la conexión
-    connection-established: "&a✅ &fConectado con GrivyzomCore"
-
+    connection-established: "&a✅ &fConectado con GrivyzomCore - datos en tiempo real disponibles"
     # Cuando se reciben datos del jugador
     data-received: "&a📊 &fDatos sincronizados con GrivyzomCore"
-
     # Cuando hay un error en la sincronización
     sync-error: "&c⚠ &fError sincronizando datos con GrivyzomCore"
+    # Cuando se usan datos simulados
+    using-simulation: "&e🔄 &fUsando datos simulados (GrivyzomCore no disponible)"
 
 # ========================================
 #     MENSAJES MEJORADOS CON PLACEHOLDERS
 # ========================================
 
-# Mensajes de bienvenida mejorados con datos de GrivyzomCore
-welcome-enhanced:
-  enabled: true
-  messages:
-    - ""
-    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-    - ""
-    - "  &f¡Hola &b{PLAYER}&f! Te damos la bienvenida a &a{SERVER}"
-    - ""
-    - "  &7┃ &fWeb: &bwww.grivyzom.com
-    - ""
-    - "  &a¡Esperamos que disfrutes tu estadía!"
-    - ""
-    - "&#FF6B6B▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-    - ""
-
-# ========================================
-#           ACCIONES INTEGRADAS
-# ========================================
-
-# Items de acción que usan datos de GrivyzomCore
-action-items-integrated:
-
-  # Item que muestra estadísticas del jugador
-  player_stats:
-    material: "PLAYER_HEAD"
-    display-name: "&e📊 &fMis Estadísticas"
-    lore:
-      - "&7Tus datos en el network"
-      - ""
-      - "&7💰 Monedas: &e{grivyzom_coins}"
-      - "&7💎 Gemas: &d{grivyzom_gems}"
-      - "&7🎖️ Rango: &6{grivyzom_rank}"
-      - "&7🌐 Servidor: &b{grivyzom_server}"
-      - ""
-      - "&aClick para actualizar"
-    slot: 3
-    amount: 1
-    flags:
-      give-on-join: true
-      prevent-drop: true
-      prevent-move: true
-      prevent-inventory-click: true
-      keep-on-death: true
-      replaceable: true
-      hide-minecraft-info: true
-    actions:
-      right-click:
-        - "[SOUND]BLOCK_NOTE_BLOCK_PLING:1.0:1.5"
-        - "[MESSAGE]&e📊 &fActualizando tus estadísticas..."
-        - "[GRIVYZOM]REQUEST_PLAYER_DATA"
-      left-click:
-        - "[SOUND]BLOCK_NOTE_BLOCK_PLING:1.0:1.5"
-        - "[MESSAGE]&e📊 &fActualizando tus estadísticas..."
-        - "[GRIVYZOM]REQUEST_PLAYER_DATA"
-
-  # Item para ver top de jugadores
-  leaderboard:
-    material: "GOLDEN_HELMET"
-    display-name: "&6🏆 &fTop Jugadores"
-    lore:
-      - "&7Los mejores del network"
-      - ""
-      - "&7Click derecho: &eTop Monedas"
-      - "&7Click izquierdo: &dTop Gemas"
-      - "&7Shift + Click: &bTop General"
-    slot: 5
-    amount: 1
-    flags:
-      give-on-join: true
-      prevent-drop: true
-      prevent-move: true
-      prevent-inventory-click: true
-      keep-on-death: true
-      replaceable: true
-      hide-minecraft-info: true
-    actions:
-      right-click:
-        - "[SOUND]UI_BUTTON_CLICK:1.0:1.2"
-        - "[MESSAGE]&6🏆 &fObteniendo top jugadores por monedas..."
-        - "[GRIVYZOM]REQUEST_TOP_COINS:10"
-      left-click:
-        - "[SOUND]UI_BUTTON_CLICK:1.0:1.2"
-        - "[MESSAGE]&d🏆 &fObteniendo top jugadores por gemas..."
-        - "[GRIVYZOM]REQUEST_TOP_GEMS:10"
-      shift-right-click:
-        - "[SOUND]UI_BUTTON_CLICK:1.0:1.0"
-        - "[MESSAGE]&b🏆 &fObteniendo estadísticas generales..."
-        - "[GRIVYZOM]REQUEST_NETWORK_STATS"
-
-  # Item para tienda virtual
-  virtual_shop:
-    material: "EMERALD"
-    display-name: "&a💰 &fTienda Virtual"
-    lore:
-      - "&7Compra items con tus monedas"
-      - ""
-      - "&7💰 Tus monedas: &e{grivyzom_coins}"
-      - "&7💎 Tus gemas: &d{grivyzom_gems}"
-      - ""
-      - "&aClick para abrir tienda"
-    slot: 6
-    amount: 1
-    flags:
-      give-on-join: true
-      prevent-drop: true
-      prevent-move: true
-      prevent-inventory-click: true
-      keep-on-death: true
-      replaceable: true
-      hide-minecraft-info: true
-    actions:
-      right-click:
-        - "[SOUND]BLOCK_CHEST_OPEN:1.0:1.0"
-        - "[MESSAGE]&a💰 &fAbriendo tienda virtual..."
-        - "[GRIVYZOM]OPEN_SHOP"
-      left-click:
-        - "[SOUND]BLOCK_CHEST_OPEN:1.0:1.0"
-        - "[MESSAGE]&a💰 &fAbriendo tienda virtual..."
-        - "[GRIVYZOM]OPEN_SHOP"
-
-# ========================================
-#         EVENTOS Y NOTIFICACIONES
-# ========================================
-
-# Configuración de eventos automáticos
-auto-events:
+# Mensajes alternativos para diferentes momentos
+welcome-variants:
   enabled: true
 
-  # Notificar a GrivyzomCore sobre eventos del lobby
-  lobby-events:
-    # Cuando un jugador se conecta al lobby
-    player-join:
-      enabled: true
-      notify-grivyzom: true
-      message-type: "PLAYER_JOINED_LOBBY"
+  # Mensajes para usuarios VIP/Premium (basado en rango)
+  vip-welcome:
+    enabled: true
+    # Se activa si el rango del jugador contiene estas palabras
+    rank-triggers: ["VIP", "Premium", "Donador", "Oro", "Diamante", "Maestro", "Leyenda"]
+    messages:
+      - ""
+      - "&#FFD700▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+      - ""
+      - "  &6👑 &f¡Bienvenido de vuelta, &6{PLAYER}&f!"
+      - "  &7Tu rango &6{grivyzom_rank} &7te da acceso a beneficios especiales"
+      - ""
+      - "  &e💎 &fTus Recursos:"
+      - "  &7┃ &fMonedas: &e{grivyzom_coins} &7(+25% bonus VIP)"
+      - "  &7┃ &fGemas: &d{grivyzom_gems} &7(+50% bonus VIP)"
+      - "  &7┃ &fNivel: &a{grivyzom_level} &7(XP bonus activo)"
+      - ""
+      - "  &e🏆 &fEstás en el &atop {grivyzom_player_ranking} &fdel servidor!"
+      - "  &7Network con &a{grivyzom_online} &7jugadores | &a{grivyzom_servers} &7servidores"
+      - ""
+      - "&#FFD700▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+      - ""
 
-    # Cuando un jugador usa un item especial
-    special-item-use:
-      enabled: true
-      notify-grivyzom: true
-      message-type: "LOBBY_ITEM_USED"
+  # Mensaje para jugadores que regresan después de mucho tiempo
+  returning-player:
+    enabled: true
+    # Si el jugador no se conectaba hace X días
+    days-threshold: 7
+    messages:
+      - ""
+      - "&a🎉 &f¡Hey &b{PLAYER}&f! Qué bueno verte de vuelta después de tanto tiempo!"
+      - "&7Desde tu última visita han pasado muchas cosas:"
+      - "&7• &fNuevos jugadores se han unido (ahora somos &a{grivyzom_online}&7)"
+      - "&7• &fLa economía ha crecido (&e{grivyzom_economy_total_coins} &7monedas totales)"
+      - "&7• &f¡Tienes &e{grivyzom_coins} &fmonedas y &d{grivyzom_gems} &fgemas esperándote!"
+      - ""
 
-    # Eventos de celebración (fuegos artificiales, etc.)
-    celebration:
-      enabled: true
-      notify-grivyzom: true
-      message-type: "LOBBY_CELEBRATION"
-
-# ========================================
-#            SINCRONIZACIÓN
-# ========================================
-
-# Configuración de sincronización de datos
-data-sync:
-  # Intervalo de sincronización automática (en segundos)
-  auto-sync-interval: 60
-
-  # ¿Sincronizar al conectarse?
-  sync-on-join: true
-
-  # ¿Sincronizar al desconectarse?
-  sync-on-quit: true
-
-  # ¿Sincronizar al cambiar de servidor?
-  sync-on-server-change: true
-
-  # Datos a sincronizar
-  sync-data:
-    coins: true
-    gems: true
-    rank: true
-    permissions: true
-    playtime: true
-    last-server: true
+  # Mensajes para diferentes momentos del día con datos del network
+  time-enhanced:
+    enabled: true
+    morning-peak: "&e🌅 &f¡Buenos días &b{PLAYER}&f! Es hora pico - &a{grivyzom_online} &fjugadores conectados"
+    afternoon-calm: "&6☀ &fBuenas tardes &b{PLAYER}&f! Momento tranquilo con &a{grivyzom_online} &fjugadores"
+    evening-active: "&c🌆 &fBuenas tardes &b{PLAYER}&f! El network está muy activo - &a{grivyzom_online} &fjugadores"
+    night-chill: "&9🌙 &fBuenas noches &b{PLAYER}&f! &a{grivyzom_online} &ftrasnochadores como tú conectados"
 
 # ========================================
-#              COMANDOS MEJORADOS
+#           SISTEMA DE ITEMS DE ACCIÓN
+#            CON PLACEHOLDERS DINÁMICOS
 # ========================================
 
-# Comandos que usan integración con GrivyzomCore
-integrated-commands:
+action-items:
+  enabled: true
+  give-delay: 2
+
+  # Items que usan placeholders dinámicos en sus nombres/lore
+  dynamic-items:
+    enabled: true
+
+    # Actualizar lore de items cada X segundos
+    update-interval: 30
+
+    # Items que se actualizan automáticamente
+    auto-update-items:
+      - "player_stats"      # Item que muestra estadísticas del jugador
+      - "server_info"       # Item que muestra info del servidor
+      - "economy_tracker"   # Item que muestra economía actual
+
+# ========================================
+#         CONFIGURACIÓN DEL PROXY
+#            CON DETECCIÓN MEJORADA
+# ========================================
+
+proxy:
+  # Auto-detección mejorada del tipo de proxy
+  auto-detection:
+    enabled: true
+    # Métodos de detección (en orden de prioridad)
+    methods:
+      - "system-property"   # Verificar propiedades del sistema
+      - "server-brand"      # Verificar marca del servidor
+      - "config-manual"     # Configuración manual
+      - "fallback"          # Fallback a BungeeCord
+
+  # Configuración manual (si auto-detección falla)
+  type: "velocity"  # "velocity" o "bungeecord"
+
+  # Configuración específica de Velocity
+  velocity:
+    use-modern-channel: true
+    connection-timeout: 5000
+    max-retries: 3
+
+  # Configuración específica de BungeeCord
+  bungeecord:
+    legacy-only: false
+    connection-timeout: 3000
+
+# ========================================
+#         SISTEMA DE NOTIFICACIONES
+#            DINÁMICAS
+# ========================================
+
+notifications:
   enabled: true
 
-  # Comando para ver estadísticas personales
-  mystats:
-    enabled: true
-    permission: "lobbycore.mystats"
-    cooldown: 5 # segundos
+  # Notificaciones basadas en datos del network
+  network-events:
+    # Notificar cuando el network alcance ciertos hitos
+    player-milestones:
+      enabled: true
+      # Avisar cuando el network tenga estos números de jugadores
+      thresholds: [50, 100, 200, 500, 1000]
+      message: "&a🎉 &f¡El network ha alcanzado &a{grivyzom_online} &fjugadores conectados!"
 
-  # Comando para ver top de jugadores
-  top:
-    enabled: true
-    permission: "lobbycore.top"
-    cooldown: 10 # segundos
+    # Notificar cuando un jugador alcance el top
+    top-achievements:
+      enabled: true
+      message: "&6🏆 &f¡&b{PLAYER} &fha entrado al top 3 de &e{category}&f!"
 
-  # Comando para transferir monedas/gemas
-  transfer:
+    # Notificar eventos económicos importantes
+    economy-events:
+      enabled: true
+      # Avisar cuando la economía alcance ciertos valores
+      coin-milestones: [1000000, 5000000, 10000000]  # 1M, 5M, 10M
+      gem-milestones: [100000, 500000, 1000000]       # 100K, 500K, 1M
+
+# ========================================
+#         CONFIGURACIÓN DE DEBUGGING
+#              Y DIAGNÓSTICOS
+# ========================================
+
+debug:
+  enabled: false
+
+  # Logging detallado de placeholders
+  placeholder-logging:
+    enabled: false
+    # Log cada resolución de placeholder
+    log-resolutions: false
+    # Log estadísticas de cache
+    log-cache-stats: true
+    # Intervalo de log de estadísticas (segundos)
+    stats-interval: 300  # 5 minutos
+
+  # Logging de integración GrivyzomCore
+  integration-logging:
     enabled: true
-    permission: "lobbycore.transfer"
-    cooldown: 30 # segundos
-    min-amount: 1
-    max-amount: 10000
-      
-      # ========================================
-      #            EJEMPLOS DE USO
-      # ========================================
-      
-      # NUEVAS ACCIONES DISPONIBLES:
-      # [GRIVYZOM]REQUEST_PLAYER_DATA - Solicita datos del jugador
-      # [GRIVYZOM]REQUEST_TOP_COINS:limit - Top jugadores por monedas
-      # [GRIVYZOM]REQUEST_TOP_GEMS:limit - Top jugadores por gemas
-      # [GRIVYZOM]REQUEST_NETWORK_STATS - Estadísticas del network
-      # [GRIVYZOM]UPDATE_COINS:amount - Actualiza monedas
-      # [GRIVYZOM]UPDATE_GEMS:amount - Actualiza gemas
-      # [GRIVYZOM]OPEN_SHOP - Abre tienda virtual
-      # [GRIVYZOM]NOTIFY_EVENT:type:data - Notifica evento personalizado
-      
-      # PLACEHOLDERS INTEGRADOS:
-      # {grivyzom_coins} - Monedas del jugador
-      # {grivyzom_gems} - Gemas del jugador  
-      # {grivyzom_rank} - Rango del jugador
-      # {grivyzom_online} - Jugadores online en el network
-      # {grivyzom_server} - Servidor actual
-      # {grivyzom_playtime} - Tiempo de juego total
-      # {grivyzom_first_join} - Primera conexión
-      # {grivyzom_last_join} - Última conexión &fJugadores online: &a{grivyzom_online}&7/&a{MAX_PLAYERS}"
-      - "  &7┃ &fTus monedas: &e{grivyzom_coins}"
-      - "  &7┃ &fTus gemas: &d{grivyzom_gems}"
-      - "  &7┃ &fTu rango: &6{grivyzom_rank}"
-      - "  &7┃
+    # Log mensajes enviados/recibidos
+    log-messages: true
+    # Log cambios de estado de conexión
+    log-connection-changes: true
+    # Log errores de comunicación
+    log-communication-errors: true
+
+  # Métricas de rendimiento
+  performance-metrics:
+    enabled: true
+    # Medir tiempo de resolución de placeholders
+    measure-placeholder-time: true
+    # Medir tiempo de actualización de cache
+    measure-cache-time: true
+    # Guardar métricas cada X minutos
+    save-interval: 60
+
+# ========================================
+#              DOCUMENTACIÓN
+#                ACTUALIZADA
+# ========================================
+
+# NUEVOS PLACEHOLDERS DINÁMICOS DISPONIBLES:
+#
+# DATOS DEL JUGADOR:
+# {grivyzom_player_name} - Nombre del jugador
+# {grivyzom_coins} - Monedas del jugador (actualizadas cada 5 min)
+# {grivyzom_gems} - Gemas del jugador (actualizadas cada 5 min)
+# {grivyzom_rank} - Rango del jugador
+# {grivyzom_level} - Nivel del jugador
+# {grivyzom_playtime} - Tiempo de juego total
+# {grivyzom_player_first_join} - Fecha de primera conexión
+# {grivyzom_player_last_join} - Fecha de última conexión
+#
+# DATOS DEL NETWORK:
+# {grivyzom_network_players} - Jugadores online totales (actualizado cada 1 min)
+# {grivyzom_online} - Alias para network_players
+# {grivyzom_servers} - Servidores activos
+# {grivyzom_status} - Estado del network (Online/Mantenimiento)
+# {grivyzom_connection_status} - Estado de conexión (● verde/rojo)
+# {grivyzom_connection_latency} - Latencia de conexión en ms
+# {grivyzom_server_name} - Nombre del servidor actual
+# {grivyzom_server_type} - Tipo de servidor (Lobby/Survival/etc)
+# {grivyzom_server_uptime} - Tiempo de actividad del servidor
+#
+# TOP PLAYERS (actualizados cada 2 min):
+# {grivyzom_top_coins_1} - Nombre del #1 en monedas
+# {grivyzom_top_coins_1_amount} - Cantidad de monedas del #1
+# {grivyzom_top_coins_2} - Nombre del #2 en monedas
+# {grivyzom_top_coins_2_amount} - Cantidad de monedas del #2
+# {grivyzom_top_coins_3} - Nombre del #3 en monedas
+# {grivyzom_top_coins_3_amount} - Cantidad de monedas del #3
+# (Igual para gems: top_gems_1, top_gems_1_amount, etc.)
+#
+# ECONOMÍA GLOBAL (actualizada cada 3 min):
+# {grivyzom_economy_total_coins} - Total de monedas en el servidor
+# {grivyzom_economy_total_gems} - Total de gemas en el servidor
+# {grivyzom_economy_circulation} - Porcentaje de monedas en circulación
+#
+# DATOS EN TIEMPO REAL:
+# {grivyzom_realtime_players} - Jugadores actuales (Bukkit)
+# {grivyzom_realtime_tps} - TPS del servidor actual
+# {grivyzom_realtime_memory} - Uso de memoria del servidor
+#
+# COMANDOS MEJORADOS:
+# /lobbycore placeholders test - Probar todos los placeholders
+# /lobbycore placeholders test player - Probar placeholders del jugador
+# /lobbycore placeholders test network - Probar placeholders del network
+# /lobbycore placeholders test economy - Probar placeholders de economía
+# /lobbycore placeholders test top - Probar placeholders de rankings
+# /lobbycore placeholders test realtime - Probar placeholders en tiempo real
+# /lobbycore placeholders list - Listar todos los placeholders disponibles
+# /lobbycore placeholders refresh - Forzar actualización de todos los datos
+# /lobbycore placeholders stats - Ver estadísticas del sistema de placeholders
+#
+# CARACTERÍSTICAS DINÁMICAS:
+# - Los placeholders se actualizan automáticamente según sus intervalos
+# - Cache inteligente con TTL (Time To Live) para optimizar rendimiento
+# - Fallback a datos simulados realistas cuando GrivyzomCore no está disponible
+# - Sistema de notificaciones basado en cambios de datos
+# - Debugging y métricas de rendimiento opcionales
+# - Soporte completo para tanto Velocity como BungeeCord
+#
+# NOTAS IMPORTANTES:
+# - Los datos simulados son consistentes y realistas
+# - El sistema detecta automáticamente si GrivyzomCore está disponible
+# - Los placeholders funcionan tanto con datos reales como simulados
+# - El cache se limpia automáticamente para evitar datos obsoletos
+# - Las actualizaciones son asíncronas para no afectar el rendimiento del servidor
+
+# ========================================
+#         CONFIGURACIÓN AVANZADA
+#              PARA TESTING
+# ========================================
+
+testing:
+  enabled: true
+
+  # Modo de demostración (para testing sin GrivyzomCore)
+  demo-mode:
+    enabled: true
+    # Usar datos más dinámicos y variados para demostración
+    use-enhanced-simulation: true
+    # Mostrar indicadores de que es una demo
+    show-demo-indicators: false
+    # Cambiar datos más frecuentemente para demostrar dinamismo
+    accelerated-updates: true
+
+  # Datos de prueba personalizados
+  test-data:
+    # Simular diferentes tipos de jugadores
+    player-profiles:
+      - name: "TestPlayer1"
+        coins: "75,000"
+        gems: "8,500"
+        rank: "Diamante"
+        level: "45"
+      - name: "TestPlayer2"
+        coins: "120,000"
+        gems: "12,000"
+        rank: "Maestro"
+        level: "67"
+
+    # Simular fluctuaciones del network
+    network-simulation:
+      base-players: 85
+      peak-variation: 35
+      off-peak-variation: -20
+
+# ========================================
+#           MENSAJES DE ESTADO
+#              DEL SISTEMA
+# ========================================
+
+system-messages:
+  # Mensajes cuando el sistema detecta cambios importantes
+  status-changes:
+    grivyzom-connected: "&a✅ &fGrivyzomCore conectado - placeholders actualizados a datos reales"
+    grivyzom-disconnected: "&e⚠ &fGrivyzomCore desconectado - usando datos locales simulados"
+    cache-refreshed: "&e🔄 &fCache de placeholders actualizado"
+
+  # Mensajes de bienvenida del administrador
+  admin-welcome:
+    enabled: true
+    message: "&7&o[Admin] &fSistema de placeholders dinámicos activo. Usa /lobbycore placeholders para gestionar."
+
+# ========================================
+#           COMPATIBILIDAD
+#              Y INTEGRACIONES
+# ========================================
+
+compatibility:
+  # Integración con otros plugins de placeholders
+  placeholder-integrations:
+    # ¿Registrar también placeholders en formato corto? (%gzc_coins% en vez de %grivyzom_coins%)
+    enable-short-format: true
+    short-prefix: "gzc"  # %gzc_coins%, %gzc_gems%, etc.
+
+    # ¿Habilitar placeholders de compatibilidad con otros plugins?
+    compatibility-placeholders:
+      enabled: true
+      # Mapear placeholders populares a los nuestros
+      mappings:
+        "%vault_eco_balance%" : "%grivyzom_coins%"
+        "%player_level%" : "%grivyzom_level%"
+        "%player_rank%" : "%grivyzom_rank%"
+
+  # Integración con plugins de scoreboard/TAB
+  scoreboard-support:
+    enabled: true
+    # Optimizar para plugins como TAB que actualizan frecuentemente
+    optimize-for-frequent-updates: true
+    # Cache especial para scoreboards (menor TTL)
+    scoreboard-cache-ttl: 30000  # 30 segundos
+
+# ========================================
+#              LOCALIZACIÓN
+#                (I18N)
+# ========================================
+
+localization:
+  # Soporte básico para diferentes idiomas
+  enabled: false
+  default-language: "es"
+
+  # Formatos de números según región
+  number-formatting:
+    # ¿Usar formato local para números grandes? (1.000.000 vs 1,000,000)
+    use-locale-formatting: true
+    locale: "es_ES"
+
+    # Sufijos para números grandes
+    large-number-suffixes:
+      thousand: "K"    # 1.5K
+      million: "M"     # 2.3M
+      billion: "B"     # 1.1B
+
+# ========================================
+#              SEGURIDAD
+#               Y LÍMITES
+# ========================================
+
+security:
+  # Límites para prevenir spam/abuso
+  rate-limits:
+    # Máximo de actualizaciones de placeholder por jugador por minuto
+    max-placeholder-requests-per-minute: 60
+    # Máximo de comandos de placeholders por jugador por minuto
+    max-commands-per-minute: 10
+
+  # Validación de datos
+  data-validation:
+    # ¿Validar que los datos recibidos son realistas?
+    validate-realistic-values: true
+    # Límites máximos para detectar datos corruptos
+    max-coins: 999999999
+    max-gems: 99999999
+    max-level: 1000
+
+# ========================================
+#               BACKUPS
+#               Y PERSISTENCIA
+# ========================================
+
+persistence:
+  # ¿Guardar cache de placeholders al disco?
+  save-cache-to-disk: false
+
+  # ¿Cargar cache desde disco al iniciar?
+  load-cache-from-disk: false
+
+  # Archivo donde guardar el cache
+  cache-file: "cache/placeholders.json"
+
+  # ¿Hacer backup de configuración automáticamente?
+  auto-backup-config: true
+  backup-interval-hours: 24
+  max-backups: 7
+
+# ========================================
+#           CONFIGURACIÓN FINAL
+# ========================================
+
+# Configuración de base de datos (opcional para persistencia avanzada)
+database:
+  enabled: false
+  host: "localhost"
+  port: 3306
+  database: "lobbycore"
+  username: "root"
+  password: "password"
+  # Pool de conexiones
+  max-pool-size: 10
+  connection-timeout: 30000
+  # ¿Guardar estadísticas de placeholders en BD?
+  save-placeholder-stats: false
+
+# Integración con Vault (economía)
+vault:
+  enabled: false
+  # Dinero que reciben los jugadores nuevos
+  welcome-money: 1000.0
+  welcome-money-message: "&a💰 &f¡Has recibido &e${AMOUNT} &fpor unirte al servidor!"
+  # ¿Sincronizar balance de Vault con placeholders de GrivyzomCore?
+  sync-with-grivyzom: true
+
+# Configuración avanzada final
+advanced:
+  # ¿Registrar conexiones en consola?
+  log-joins: true
+  # ¿Usar PlaceholderAPI si está disponible?
+  use-placeholderapi: true
+  # Configuración de rendimiento
+  performance:
+    # Máximo de mensajes de bienvenida simultáneos
+    max-concurrent-welcomes: 15
+    # Cache de configuración en memoria
+    cache-config: true
+    # ¿Usar threads separados para actualización de placeholders?
+    async-placeholder-updates: true
+    # ¿Optimizar para servidores con muchos jugadores?
+    optimize-for-large-servers: false
+
+# ========================================
+#              VERSION INFO
+# ========================================
+
+config-version: "2.0-dynamic"
+last-updated: "2025-06-25"
+compatible-with: ["Paper 1.20+", "Velocity 3.x", "BungeeCord Latest"]
+features: ["Dynamic Placeholders", "Real-time Data", "Smart Caching", "GrivyzomCore Integration"]
+
+# ========================================
+#              CHANGE LOG
+# ========================================
+
+# v2.0-dynamic (2025-06-25):
+# + Añadido sistema de placeholders dinámicos
+# + Integración mejorada con GrivyzomCore
+# + Cache inteligente con TTL
+# + Datos simulados realistas como fallback
+# + Sistema de actualización automática
+# + Comandos mejorados de testing y diagnóstico
+# + Soporte completo para Velocity y BungeeCord
+# + Mensajes de bienvenida con datos en tiempo real
+# + Sistema de notificaciones basado en eventos
+# + Debugging y métricas de rendimiento
+# + Compatibilidad mejorada con otros plugins
+# * Optimización general de rendimiento
+# * Mejor manejo de errores y reconexión
+# * Documentación expandida y ejemplos

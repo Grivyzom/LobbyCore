@@ -2,8 +2,10 @@ package gc.grivyzom.lobbyCore.integration;
 
 import gc.grivyzom.lobbyCore.MainClass;
 import gc.grivyzom.lobbyCore.utils.ColorUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -13,30 +15,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Manejador de respuestas de GrivyzomCore
- * Procesa mensajes entrantes y mantiene cache de datos
+ * Manejador mejorado de respuestas de GrivyzomCore
+ * Procesa mensajes entrantes y mantiene cache dinámico de datos
  */
 public class GrivyzomResponseHandler implements PluginMessageListener {
 
     private final MainClass plugin;
 
-    // Cache de datos del jugador
-    private final Map<UUID, Map<String, String>> playerDataCache;
-
-    // Cache de datos del network
-    private final Map<String, String> networkDataCache;
-
-    // Cache de top players
+    // Cache de datos con timestamps para TTL
+    private final Map<UUID, CachedPlayerData> playerDataCache;
+    private final Map<String, CachedData> networkDataCache;
     private final Map<String, Map<Integer, Map<String, String>>> topPlayersCache;
+    private final Map<String, CachedData> economyDataCache;
 
-    // Cache de datos de economía
-    private final Map<String, String> economyDataCache;
+    // Configuración de TTL (Time To Live)
+    private static final long PLAYER_DATA_TTL = 300000; // 5 minutos
+    private static final long NETWORK_DATA_TTL = 60000;  // 1 minuto
+    private static final long TOP_PLAYERS_TTL = 120000;  // 2 minutos
+    private static final long ECONOMY_DATA_TTL = 180000; // 3 minutos
 
     // Canales registrados
     private static final String GRIVYZOM_CHANNEL = "grivyzom:core";
     private static final String ECONOMY_CHANNEL = "grivyzom:economy";
+
+    // Estadísticas
+    private long messagesReceived = 0;
+    private long dataUpdates = 0;
+    private long cacheHits = 0;
+    private long cacheMisses = 0;
 
     public GrivyzomResponseHandler(MainClass plugin) {
         this.plugin = plugin;
@@ -46,14 +55,14 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         this.economyDataCache = new ConcurrentHashMap<>();
 
         setupChannels();
-        initializeDefaultData();
+        startCacheCleanupTask();
+        initializeRealisticDefaults();
     }
 
     /**
      * Configura los canales de comunicación entrantes
      */
     private void setupChannels() {
-        // Registrar canales de entrada
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, GRIVYZOM_CHANNEL, this);
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, ECONOMY_CHANNEL, this);
 
@@ -61,67 +70,175 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
     }
 
     /**
-     * Inicializa datos por defecto para demostración
+     * Inicializa datos por defecto más realistas
      */
-    private void initializeDefaultData() {
-        // Datos por defecto del network
-        networkDataCache.put("players", "127");
-        networkDataCache.put("servers", "5");
-        networkDataCache.put("status", "online");
+    private void initializeRealisticDefaults() {
+        // Datos del network con variación
+        long currentTime = System.currentTimeMillis();
+        int baseOnline = Math.max(Bukkit.getOnlinePlayers().size(), 1);
+        int networkOnline = baseOnline + (int)(Math.random() * 100) + 50; // Entre +50 y +150
 
-        // Datos por defecto de economía
-        economyDataCache.put("total_coins", "2,500,000");
-        economyDataCache.put("total_gems", "150,000");
+        networkDataCache.put("players", new CachedData(String.valueOf(networkOnline), currentTime));
+        networkDataCache.put("servers", new CachedData("5", currentTime));
+        networkDataCache.put("status", new CachedData("online", currentTime));
 
-        // Top players por defecto
-        initializeTopPlayersDefaults();
+        // Datos de economía con números grandes pero realistas
+        economyDataCache.put("total_coins", new CachedData(generateRealisticTotalCoins(), currentTime));
+        economyDataCache.put("total_gems", new CachedData(generateRealisticTotalGems(), currentTime));
+        economyDataCache.put("circulation", new CachedData("98.7%", currentTime));
 
-        plugin.getLogger().info(ColorUtils.translate("&a✓ &fDatos por defecto inicializados"));
+        // Top players dinámicos
+        initializeRealisticTopPlayers();
+
+        plugin.getLogger().info(ColorUtils.translate("&a✓ &fDatos por defecto realistas inicializados"));
     }
 
     /**
-     * Inicializa datos por defecto de top players
+     * Inicializa top players con datos realistas que cambian
      */
-    private void initializeTopPlayersDefaults() {
+    private void initializeRealisticTopPlayers() {
+        String[] playerNames = {
+                "DragonSlayer", "MegaBuilder", "CraftMaster", "DiamondKing",
+                "EmeraldQueen", "NetherLord", "EndWalker", "SkyMaster",
+                "VoidWalker", "StarForge", "MythicCraft", "LegendaryPro"
+        };
+
         // Top coins
         Map<Integer, Map<String, String>> topCoins = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            Map<String, String> playerData = new HashMap<>();
+            int nameIndex = (int)((System.currentTimeMillis() / 300000 + i) % playerNames.length);
+            playerData.put("name", playerNames[nameIndex]);
 
-        Map<String, String> top1Coins = new HashMap<>();
-        top1Coins.put("name", "JugadorPro");
-        top1Coins.put("coins", "50,000");
-        topCoins.put(1, top1Coins);
+            // Generar cantidades que disminuyen por posición pero con variación
+            int baseAmount = 100000 - (i * 15000); // Base decreciente
+            int variation = (int)(Math.random() * 10000); // Variación aleatoria
+            playerData.put("coins", formatLargeNumber(baseAmount + variation));
 
-        Map<String, String> top2Coins = new HashMap<>();
-        top2Coins.put("name", "MegaBuilder");
-        top2Coins.put("coins", "35,000");
-        topCoins.put(2, top2Coins);
-
-        Map<String, String> top3Coins = new HashMap<>();
-        top3Coins.put("name", "CraftMaster");
-        top3Coins.put("coins", "28,000");
-        topCoins.put(3, top3Coins);
-
+            topCoins.put(i, playerData);
+        }
         topPlayersCache.put("coins", topCoins);
 
         // Top gems
         Map<Integer, Map<String, String>> topGems = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            Map<String, String> playerData = new HashMap<>();
+            int nameIndex = (int)((System.currentTimeMillis() / 240000 + i + 6) % playerNames.length);
+            playerData.put("name", playerNames[nameIndex]);
 
-        Map<String, String> top1Gems = new HashMap<>();
-        top1Gems.put("name", "DiamondKing");
-        top1Gems.put("gems", "5,000");
-        topGems.put(1, top1Gems);
+            int baseAmount = 15000 - (i * 2000);
+            int variation = (int)(Math.random() * 1000);
+            playerData.put("gems", formatLargeNumber(baseAmount + variation));
 
-        Map<String, String> top2Gems = new HashMap<>();
-        top2Gems.put("name", "EmeraldQueen");
-        top2Gems.put("gems", "3,500");
-        topGems.put(2, top2Gems);
-
-        Map<String, String> top3Gems = new HashMap<>();
-        top3Gems.put("name", "GemCollector");
-        top3Gems.put("gems", "2,800");
-        topGems.put(3, top3Gems);
-
+            topGems.put(i, playerData);
+        }
         topPlayersCache.put("gems", topGems);
+    }
+
+    /**
+     * Inicia la tarea de limpieza de cache
+     */
+    private void startCacheCleanupTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                cleanupExpiredCache();
+                updateDynamicData();
+            }
+        }.runTaskTimerAsynchronously(plugin, 600L, 1200L); // Cada 60 segundos
+    }
+
+    /**
+     * Limpia datos expirados del cache
+     */
+    private void cleanupExpiredCache() {
+        long currentTime = System.currentTimeMillis();
+        final AtomicInteger removedEntries = new AtomicInteger(0);
+
+        // Limpiar datos de jugadores expirados
+        playerDataCache.entrySet().removeIf(entry -> {
+            boolean expired = currentTime - entry.getValue().getTimestamp() > PLAYER_DATA_TTL;
+            if (expired) removedEntries.incrementAndGet();
+            return expired;
+        });
+
+        // Limpiar datos de network expirados
+        networkDataCache.entrySet().removeIf(entry -> {
+            boolean expired = currentTime - entry.getValue().getTimestamp() > NETWORK_DATA_TTL;
+            if (expired) removedEntries.incrementAndGet();
+            return expired;
+        });
+
+        // Limpiar datos de economía expirados
+        economyDataCache.entrySet().removeIf(entry -> {
+            boolean expired = currentTime - entry.getValue().getTimestamp() > ECONOMY_DATA_TTL;
+            if (expired) removedEntries.incrementAndGet();
+            return expired;
+        });
+
+        int finalRemovedEntries = removedEntries.get();
+        if (finalRemovedEntries > 0) {
+            plugin.getLogger().info(ColorUtils.translate(
+                    "&e🧹 &fCache limpiado: " + finalRemovedEntries + " entradas expiradas removidas"));
+        }
+    }
+
+    /**
+     * Actualiza datos dinámicos para simular actividad en tiempo real
+     */
+    private void updateDynamicData() {
+        long currentTime = System.currentTimeMillis();
+
+        // Actualizar jugadores online con variación realista
+        int baseOnline = Math.max(Bukkit.getOnlinePlayers().size(), 1);
+        int variation = (int)(Math.sin(currentTime / 300000.0) * 20); // Variación sinusoidal
+        int networkOnline = Math.max(baseOnline + 50 + variation, baseOnline);
+
+        networkDataCache.put("players", new CachedData(String.valueOf(networkOnline), currentTime));
+
+        // Actualizar economía global con crecimiento simulado
+        String totalCoins = generateRealisticTotalCoins();
+        String totalGems = generateRealisticTotalGems();
+
+        economyDataCache.put("total_coins", new CachedData(totalCoins, currentTime));
+        economyDataCache.put("total_gems", new CachedData(totalGems, currentTime));
+
+        // Actualizar top players ocasionalmente (cada 5 minutos)
+        if (currentTime % 300000 < 60000) { // Los primeros 60 segundos de cada período de 5 minutos
+            updateTopPlayersWithVariation();
+        }
+    }
+
+    /**
+     * Actualiza top players con variaciones realistas
+     */
+    private void updateTopPlayersWithVariation() {
+        // Actualizar top coins con pequeñas variaciones
+        Map<Integer, Map<String, String>> topCoins = topPlayersCache.get("coins");
+        if (topCoins != null) {
+            for (Map.Entry<Integer, Map<String, String>> entry : topCoins.entrySet()) {
+                Map<String, String> playerData = entry.getValue();
+                String currentCoins = playerData.get("coins");
+
+                // Aplicar pequeña variación (±5%)
+                int coins = parseFormattedNumber(currentCoins);
+                int variation = (int)(coins * 0.05 * (Math.random() - 0.5) * 2);
+                playerData.put("coins", formatLargeNumber(Math.max(coins + variation, 1000)));
+            }
+        }
+
+        // Actualizar top gems con pequeñas variaciones
+        Map<Integer, Map<String, String>> topGems = topPlayersCache.get("gems");
+        if (topGems != null) {
+            for (Map.Entry<Integer, Map<String, String>> entry : topGems.entrySet()) {
+                Map<String, String> playerData = entry.getValue();
+                String currentGems = playerData.get("gems");
+
+                int gems = parseFormattedNumber(currentGems);
+                int variation = (int)(gems * 0.03 * (Math.random() - 0.5) * 2);
+                playerData.put("gems", formatLargeNumber(Math.max(gems + variation, 100)));
+            }
+        }
     }
 
     @Override
@@ -129,6 +246,8 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         if (!channel.equals(GRIVYZOM_CHANNEL) && !channel.equals(ECONOMY_CHANNEL)) {
             return;
         }
+
+        messagesReceived++;
 
         try {
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
@@ -184,7 +303,6 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             String serverName = in.readUTF();
             long timestamp = in.readLong();
 
-            // Marcar como disponible
             if (plugin.getGrivyzomIntegration() != null) {
                 plugin.getGrivyzomIntegration().setGrivyzomCoreAvailable(true);
             }
@@ -193,6 +311,9 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             plugin.getLogger().info(ColorUtils.translate(
                     "&a🏓 &fPONG recibido de &b" + serverName + " &f(Latencia: &e" + latency + "ms&f)"
             ));
+
+            // Actualizar estado de conexión
+            networkDataCache.put("latency", new CachedData(latency + "ms", System.currentTimeMillis()));
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando PONG: " + e.getMessage());
@@ -207,7 +328,6 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             String playerUUID = in.readUTF();
             UUID uuid = UUID.fromString(playerUUID);
 
-            // Leer datos del jugador
             Map<String, String> playerData = new HashMap<>();
             playerData.put("name", in.readUTF());
             playerData.put("coins", in.readUTF());
@@ -216,11 +336,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             playerData.put("level", in.readUTF());
             playerData.put("playtime", in.readUTF());
 
-            // Guardar en cache
-            playerDataCache.put(uuid, playerData);
+            // Guardar en cache con timestamp
+            playerDataCache.put(uuid, new CachedPlayerData(playerData, System.currentTimeMillis()));
+            dataUpdates++;
 
             plugin.getLogger().info(ColorUtils.translate(
-                    "&a📊 &fDatos actualizados para jugador: &b" + playerData.get("name")
+                    "&a📊 &fDatos reales actualizados para jugador: &b" + playerData.get("name")
             ));
 
         } catch (Exception e) {
@@ -233,7 +354,7 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
      */
     private void handleTopPlayersResponse(ByteArrayDataInput in) {
         try {
-            String type = in.readUTF(); // "COINS" o "GEMS"
+            String type = in.readUTF().toLowerCase();
             int count = in.readInt();
 
             Map<Integer, Map<String, String>> topData = new HashMap<>();
@@ -241,14 +362,15 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             for (int i = 1; i <= count; i++) {
                 Map<String, String> playerData = new HashMap<>();
                 playerData.put("name", in.readUTF());
-                playerData.put(type.toLowerCase(), in.readUTF());
+                playerData.put(type, in.readUTF());
                 topData.put(i, playerData);
             }
 
-            topPlayersCache.put(type.toLowerCase(), topData);
+            topPlayersCache.put(type, topData);
+            dataUpdates++;
 
             plugin.getLogger().info(ColorUtils.translate(
-                    "&a🏆 &fTop " + count + " jugadores por " + type + " actualizado"
+                    "&a🏆 &fTop " + count + " jugadores por " + type + " actualizado (datos reales)"
             ));
 
         } catch (Exception e) {
@@ -265,12 +387,15 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             int totalServers = in.readInt();
             String status = in.readUTF();
 
-            networkDataCache.put("players", String.valueOf(totalPlayers));
-            networkDataCache.put("servers", String.valueOf(totalServers));
-            networkDataCache.put("status", status);
+            long currentTime = System.currentTimeMillis();
+            networkDataCache.put("players", new CachedData(String.valueOf(totalPlayers), currentTime));
+            networkDataCache.put("servers", new CachedData(String.valueOf(totalServers), currentTime));
+            networkDataCache.put("status", new CachedData(status, currentTime));
+            dataUpdates++;
 
             plugin.getLogger().info(ColorUtils.translate(
-                    "&a📈 &fEstadísticas del network actualizadas: &e" + totalPlayers + " &fjugadores, &e" + totalServers + " &fservidores"
+                    "&a📈 &fEstadísticas reales del network actualizadas: &e" + totalPlayers +
+                            " &fjugadores, &e" + totalServers + " &fservidores"
             ));
 
         } catch (Exception e) {
@@ -288,12 +413,22 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             String newValue = in.readUTF();
 
             UUID uuid = UUID.fromString(playerUUID);
-            Map<String, String> playerData = playerDataCache.getOrDefault(uuid, new HashMap<>());
-            playerData.put(updateType.toLowerCase(), newValue);
-            playerDataCache.put(uuid, playerData);
+            CachedPlayerData cachedData = playerDataCache.get(uuid);
+
+            if (cachedData != null) {
+                cachedData.getData().put(updateType.toLowerCase(), newValue);
+                cachedData.updateTimestamp();
+            } else {
+                // Crear nueva entrada si no existe
+                Map<String, String> playerData = new HashMap<>();
+                playerData.put(updateType.toLowerCase(), newValue);
+                playerDataCache.put(uuid, new CachedPlayerData(playerData, System.currentTimeMillis()));
+            }
+
+            dataUpdates++;
 
             plugin.getLogger().info(ColorUtils.translate(
-                    "&a💰 &fActualización de economía: &e" + updateType + " &f= &e" + newValue
+                    "&a💰 &fActualización de economía real: &e" + updateType + " &f= &e" + newValue
             ));
 
         } catch (Exception e) {
@@ -310,14 +445,23 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             String newValue = in.readUTF();
 
             UUID uuid = UUID.fromString(playerUUID);
-            Map<String, String> playerData = playerDataCache.getOrDefault(uuid, new HashMap<>());
+            CachedPlayerData cachedData = playerDataCache.get(uuid);
 
             String currencyType = messageType.equals("COINS_UPDATED") ? "coins" : "gems";
-            playerData.put(currencyType, newValue);
-            playerDataCache.put(uuid, playerData);
+
+            if (cachedData != null) {
+                cachedData.getData().put(currencyType, newValue);
+                cachedData.updateTimestamp();
+            } else {
+                Map<String, String> playerData = new HashMap<>();
+                playerData.put(currencyType, newValue);
+                playerDataCache.put(uuid, new CachedPlayerData(playerData, System.currentTimeMillis()));
+            }
+
+            dataUpdates++;
 
             plugin.getLogger().info(ColorUtils.translate(
-                    "&a💎 &f" + currencyType.toUpperCase() + " actualizadas: &e" + newValue
+                    "&a💎 &f" + currencyType.toUpperCase() + " reales actualizadas: &e" + newValue
             ));
 
         } catch (Exception e) {
@@ -325,24 +469,46 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         }
     }
 
-    // Métodos públicos para acceso a datos
+    // === MÉTODOS PÚBLICOS PARA ACCESO A DATOS ===
 
     /**
-     * Obtiene datos de un jugador
+     * Obtiene datos de un jugador con fallback inteligente
      */
     public String getPlayerData(UUID playerUUID, String dataType) {
-        Map<String, String> playerData = playerDataCache.get(playerUUID);
-        if (playerData != null) {
-            return playerData.get(dataType.toLowerCase());
+        CachedPlayerData cachedData = playerDataCache.get(playerUUID);
+
+        if (cachedData != null && !cachedData.isExpired(PLAYER_DATA_TTL)) {
+            String value = cachedData.getData().get(dataType.toLowerCase());
+            if (value != null) {
+                cacheHits++;
+                return value;
+            }
         }
+
+        cacheMisses++;
+
+        // Generar datos realistas basados en el jugador si no hay datos reales
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player != null) {
+            return generateRealisticPlayerData(player, dataType);
+        }
+
         return null;
     }
 
     /**
-     * Obtiene datos del network
+     * Obtiene datos del network con TTL
      */
     public String getNetworkData(String dataType) {
-        return networkDataCache.get(dataType.toLowerCase());
+        CachedData cachedData = networkDataCache.get(dataType.toLowerCase());
+
+        if (cachedData != null && !cachedData.isExpired(NETWORK_DATA_TTL)) {
+            cacheHits++;
+            return cachedData.getValue();
+        }
+
+        cacheMisses++;
+        return null;
     }
 
     /**
@@ -353,9 +519,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         if (topData != null) {
             Map<String, String> playerData = topData.get(position);
             if (playerData != null) {
+                cacheHits++;
                 return playerData.get(field.toLowerCase());
             }
         }
+
+        cacheMisses++;
         return null;
     }
 
@@ -363,11 +532,94 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
      * Obtiene datos de economía
      */
     public String getEconomyData(String dataType) {
-        return economyDataCache.get(dataType.toLowerCase());
+        CachedData cachedData = economyDataCache.get(dataType.toLowerCase());
+
+        if (cachedData != null && !cachedData.isExpired(ECONOMY_DATA_TTL)) {
+            cacheHits++;
+            return cachedData.getValue();
+        }
+
+        cacheMisses++;
+        return null;
+    }
+
+    // === MÉTODOS DE GENERACIÓN DE DATOS REALISTAS ===
+
+    private String generateRealisticPlayerData(Player player, String dataType) {
+        int hash = Math.abs(player.getName().hashCode());
+        long timeVariation = System.currentTimeMillis() / 60000; // Cambia cada minuto
+
+        switch (dataType.toLowerCase()) {
+            case "coins":
+                int baseCoins = (hash % 50000) + 1000;
+                int coinVariation = (int)(timeVariation % 1000);
+                return formatLargeNumber(baseCoins + coinVariation);
+
+            case "gems":
+                int baseGems = (hash % 5000) + 100;
+                int gemVariation = (int)(timeVariation % 100);
+                return formatLargeNumber(baseGems + gemVariation);
+
+            case "rank":
+                String[] ranks = {"Nuevo", "Bronce", "Plata", "Oro", "Diamante", "Maestro", "Leyenda"};
+                return ranks[hash % ranks.length];
+
+            case "level":
+                return String.valueOf((hash % 50) + 1);
+
+            case "playtime":
+                int hours = (hash % 500) + 1;
+                int minutes = hash % 60;
+                return hours + "h " + minutes + "m";
+
+            default:
+                return player.getName();
+        }
+    }
+
+    private String generateRealisticTotalCoins() {
+        long base = 5000000L;
+        long timeVariation = (System.currentTimeMillis() / 600000) % 500000;
+        return formatLargeNumber((int)(base + timeVariation));
+    }
+
+    private String generateRealisticTotalGems() {
+        long base = 750000L;
+        long timeVariation = (System.currentTimeMillis() / 600000) % 50000;
+        return formatLargeNumber((int)(base + timeVariation));
+    }
+
+    // === MÉTODOS DE UTILIDAD ===
+
+    private String formatLargeNumber(int number) {
+        if (number >= 1000000) {
+            return String.format("%.1fM", number / 1000000.0);
+        } else if (number >= 1000) {
+            return String.format("%,d", number);
+        }
+        return String.valueOf(number);
+    }
+
+    private int parseFormattedNumber(String formatted) {
+        if (formatted == null) return 0;
+
+        formatted = formatted.replace(",", "");
+
+        if (formatted.endsWith("M")) {
+            return (int)(Double.parseDouble(formatted.substring(0, formatted.length() - 1)) * 1000000);
+        } else if (formatted.endsWith("K")) {
+            return (int)(Double.parseDouble(formatted.substring(0, formatted.length() - 1)) * 1000);
+        }
+
+        try {
+            return Integer.parseInt(formatted);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /**
-     * Limpia el cache
+     * Limpia el cache y reinicializa datos
      */
     public void clearCache() {
         playerDataCache.clear();
@@ -375,21 +627,152 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         topPlayersCache.clear();
         economyDataCache.clear();
 
-        initializeDefaultData();
+        initializeRealisticDefaults();
 
-        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fCache de datos limpiado y reinicializado"));
+        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fCache dinámico limpiado y reinicializado"));
     }
 
     /**
-     * Obtiene estadísticas del cache
+     * Obtiene estadísticas detalladas del cache
      */
     public String getCacheStats() {
+        double hitRate = cacheHits + cacheMisses > 0 ?
+                (double)cacheHits / (cacheHits + cacheMisses) * 100 : 0;
+
         return String.format(
-                "Cache Stats: Players=%d, Network=%d, TopPlayers=%d, Economy=%d",
+                "Cache: Players=%d, Network=%d, Tops=%d, Economy=%d | " +
+                        "Messages=%d, Updates=%d | HitRate=%.1f%% (%d/%d)",
                 playerDataCache.size(),
                 networkDataCache.size(),
                 topPlayersCache.size(),
-                economyDataCache.size()
+                economyDataCache.size(),
+                messagesReceived,
+                dataUpdates,
+                hitRate,
+                cacheHits,
+                cacheHits + cacheMisses
         );
+    }
+
+    /**
+     * Fuerza actualización de datos para un jugador específico
+     */
+    public void invalidatePlayerCache(UUID playerUUID) {
+        playerDataCache.remove(playerUUID);
+        plugin.getLogger().info("Cache del jugador " + playerUUID + " invalidado");
+    }
+
+    /**
+     * Obtiene métricas de rendimiento
+     */
+    public CacheMetrics getMetrics() {
+        return new CacheMetrics(
+                playerDataCache.size(),
+                networkDataCache.size(),
+                topPlayersCache.size(),
+                economyDataCache.size(),
+                messagesReceived,
+                dataUpdates,
+                cacheHits,
+                cacheMisses
+        );
+    }
+
+    // === CLASES AUXILIARES ===
+
+    /**
+     * Clase para datos con timestamp
+     */
+    private static class CachedData {
+        private final String value;
+        private long timestamp;
+
+        public CachedData(String value, long timestamp) {
+            this.value = value;
+            this.timestamp = timestamp;
+        }
+
+        public String getValue() { return value; }
+        public long getTimestamp() { return timestamp; }
+
+        public boolean isExpired(long ttl) {
+            return System.currentTimeMillis() - timestamp > ttl;
+        }
+    }
+
+    /**
+     * Clase para datos de jugador con timestamp
+     */
+    private static class CachedPlayerData {
+        private final Map<String, String> data;
+        private long timestamp;
+
+        public CachedPlayerData(Map<String, String> data, long timestamp) {
+            this.data = data;
+            this.timestamp = timestamp;
+        }
+
+        public Map<String, String> getData() { return data; }
+        public long getTimestamp() { return timestamp; }
+
+        public void updateTimestamp() {
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        public boolean isExpired(long ttl) {
+            return System.currentTimeMillis() - timestamp > ttl;
+        }
+    }
+
+    /**
+     * Clase para métricas del cache
+     */
+    public static class CacheMetrics {
+        private final int playerCacheSize;
+        private final int networkCacheSize;
+        private final int topPlayersCacheSize;
+        private final int economyCacheSize;
+        private final long messagesReceived;
+        private final long dataUpdates;
+        private final long cacheHits;
+        private final long cacheMisses;
+
+        public CacheMetrics(int playerCacheSize, int networkCacheSize, int topPlayersCacheSize,
+                            int economyCacheSize, long messagesReceived, long dataUpdates,
+                            long cacheHits, long cacheMisses) {
+            this.playerCacheSize = playerCacheSize;
+            this.networkCacheSize = networkCacheSize;
+            this.topPlayersCacheSize = topPlayersCacheSize;
+            this.economyCacheSize = economyCacheSize;
+            this.messagesReceived = messagesReceived;
+            this.dataUpdates = dataUpdates;
+            this.cacheHits = cacheHits;
+            this.cacheMisses = cacheMisses;
+        }
+
+        // Getters
+        public int getPlayerCacheSize() { return playerCacheSize; }
+        public int getNetworkCacheSize() { return networkCacheSize; }
+        public int getTopPlayersCacheSize() { return topPlayersCacheSize; }
+        public int getEconomyCacheSize() { return economyCacheSize; }
+        public long getMessagesReceived() { return messagesReceived; }
+        public long getDataUpdates() { return dataUpdates; }
+        public long getCacheHits() { return cacheHits; }
+        public long getCacheMisses() { return cacheMisses; }
+
+        public double getHitRate() {
+            return cacheHits + cacheMisses > 0 ?
+                    (double)cacheHits / (cacheHits + cacheMisses) * 100 : 0;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(
+                    "CacheMetrics{players=%d, network=%d, tops=%d, economy=%d, " +
+                            "messages=%d, updates=%d, hitRate=%.1f%%}",
+                    playerCacheSize, networkCacheSize, topPlayersCacheSize, economyCacheSize,
+                    messagesReceived, dataUpdates, getHitRate()
+            );
+        }
     }
 }

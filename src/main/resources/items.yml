@@ -1,121 +1,11 @@
-# ========================================
-#         CONFIGURACIÓN DE ITEMS DE ACCIÓN
-#              LobbyCore Items
-#           Autor: Francisco Fuentes
-# ========================================
-#
-# Este archivo contiene todos los items personalizados del lobby.
-# Cada item tiene acciones específicas y configuraciones únicas.
-#
-# ESTRUCTURA BÁSICA DE UN ITEM:
-# nombre_del_item:
-#   material: MATERIAL_BUKKIT
-#   display-name: "Nombre visible"
-#   lore:
-#     - "Línea 1 del lore"
-#     - "Línea 2 del lore"
-#   slot: 0  # Slot donde se coloca (0-8 hotbar, 9-35 inventario)
-#   amount: 1
-#   flags:
-#     give-on-join: true/false
-#     prevent-drop: true/false
-#     prevent-move: true/false
-#     prevent-inventory-click: true/false
-#     keep-on-death: true/false
-#     replaceable: true/false
-#     hide-minecraft-info: true/false
-#   actions:
-#     right-click: []
-#     left-click: []
-#     shift-right-click: []
-#     shift-left-click: []
-#
-# ========================================
-
-# Item para regresar al lobby principal
-lobby_item:
-  material: FIREWORK_STAR
-  display-name: "&9🏠 &fRegresar al Lobby"
-  lore:
-    - "&8Descripción"
-    - "&7Click derecho para"
-    - "&7teletransportarte al lobby principal"
-    - ""
-    - "&bClick: &fTeletransportarse"
-  slot: 8
-  amount: 1
-  flags:
-    give-on-join: true
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-    hide-flags:
-      - "HIDE_ATTRIBUTES"
-      - "HIDE_DESTROYS"
-      - "HIDE_DYE"
-      - "HIDE_ENCHANTS"
-      - "HIDE_PLACED_ON"
-      - "HIDE_POTION_EFFECTS"
-      - "HIDE_UNBREAKABLE"
-  actions:
-    right-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-      - "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!"
-      - "[CONSOLE]ajqueue:server {PLAYER} lobby"
-    left-click: []
-    shift-right-click:
-      - "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
-    shift-left-click: []
-
-# Item para búsqueda automática de partidas
-automatic_arena:
-  material: ENDER_PEARL
-  display-name: "&f&lBuscar Partida"
-  lore:
-    - "&8Descripción"
-    - "&7Click para buscar"
-    - "&7una partida automáticamente"
-    - ""
-    - "&bClick: &fUnirse a partida"
-    - "&7Sistema inteligente de matchmaking"
-  slot: 4
-  amount: 1
-  flags:
-    give-on-join: true
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-      - "[COMMAND]mm randomjoin"
-    left-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-      - "[COMMAND]mm randomjoin"
-    shift-right-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-      - "[COMMAND]mm randomjoin"
-    shift-left-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2"
-      - "[COMMAND_OP]mm randomjoin"
-
-# Selector de servidores principales
 server_selector:
   material: NETHER_STAR
-  display-name: "&d🌐 &fSelector de Servidores"
+  display-name: '&7Elige una Modalidad...'
   lore:
-    - "&7Click para navegar entre"
-    - "&7los diferentes servidores del network"
-    - ""
-    - "&dClick derecho: &fServidor Survival"
-    - "&dClick izquierdo: &fServidor SkyBlock"
-    - "&dShift + Click: &fVolver al Hub"
+    - '&7Click para navegar entre'
+    - '&7los diferentes servidores'
+    - ''
+    - '&5 | &d&lClickea &fpara interacturar'
   slot: 0
   amount: 1
   flags:
@@ -125,69 +15,22 @@ server_selector:
     prevent-inventory-click: true
     keep-on-death: true
     replaceable: true
-    hide-minecraft-info: true
   actions:
     right-click:
-      - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5"
-      - "[MESSAGE]&d🌐 &f¡Conectando al servidor &eSurvival&f!"
-      - "[SERVER]survival"
+      - '[SOUND]UI_BUTTON_CLICK:0.8:1.0'
+      - '[CONSOLE]dm open server_selector {PLAYER}'
     left-click:
-      - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2"
-      - "[MESSAGE]&d🌐 &f¡Conectando al servidor &bSkyBlock&f!"
-      - "[SERVER]skyblock"
-    shift-right-click:
-      - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.0"
-      - "[MESSAGE]&d🌐 &f¡Regresando al Hub principal!"
-      - "[SERVER]hub"
-    shift-left-click:
-      - "[MESSAGE]&7💡 &fUsa los clics normales para cambiar de servidor"
-
-# Brújula de navegación e información
-compass_navigator:
-  material: COMPASS
-  display-name: "&e🧭 &fNavegador"
-  lore:
-    - "&7Click derecho para abrir"
-    - "&7el menú de navegación avanzado"
-    - ""
-    - "&eClick izquierdo: &fInfo del servidor"
-    - "&7Información en tiempo real"
-  slot: 1
-  amount: 1
-  flags:
-    give-on-join: true
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]UI_BUTTON_CLICK:0.8:1.0"
-      - "[CONSOLE]menu navegacion {PLAYER}"
-    left-click:
-      - "[MESSAGE]&e📊 &fInformación del Servidor:"
-      - "[MESSAGE]&e👤 &fServidor: &b{SERVER}"
-      - "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}"
-      - "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
-      - "[MESSAGE]&e⏰ &fHora del servidor: &7{TIME}"
-    shift-right-click:
-      - "[MESSAGE]&e🧭 &fAbriendo menú de navegación completo..."
-      - "[CONSOLE]menu navegacion {PLAYER}"
-    shift-left-click: []
-
-# Portal directo a servidor de minijuegos
+      - '[SOUND]UI_BUTTON_CLICK:0.8:1.0'
+      - '[CONSOLE]dm open server_selector {PLAYER}'
 minigames_portal:
   material: SLIME_BALL
-  display-name: "&a🎮 &fMinijuegos"
+  display-name: '&a🎮 &fMinijuegos'
   lore:
-    - "&7Portal directo al servidor"
-    - "&7de minijuegos y eventos especiales"
-    - ""
-    - "&a🎮 &fClick: &eConectar"
-    - "&7Incluye: BedWars, SkyWars, PvP"
-    - "&7¡Diversión garantizada!"
+    - '&7Portal directo al servidor'
+    - '&7de minijuegos y eventos'
+    - ''
+    - '&7Incluye: &fMurderMystery, SkyWars, PvP'
+    - '&5 | &d&lClickea &fpara interacturar'
   slot: 2
   amount: 1
   flags:
@@ -197,291 +40,41 @@ minigames_portal:
     prevent-inventory-click: true
     keep-on-death: true
     replaceable: true
-    hide-minecraft-info: true
   actions:
     right-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
-      - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
-      - "[MESSAGE]&7Preparándote para la diversión..."
-      - "[DELAY]20:[SERVER]minigames"
+      - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8'
+      - '[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!'
+      - '[MESSAGE]&7Preparándote para la diversión...'
+      - '[CONSOLE]ajqueue:server {PLAYER} lobbyGames'
     left-click:
-      - "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8"
-      - "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!"
-      - "[SERVER]minigames"
-    shift-right-click:
-      - "[MESSAGE]&a🎮 &fMinijuegos disponibles:"
-      - "[MESSAGE]&7• &fBedWars - Protege tu cama"
-      - "[MESSAGE]&7• &fSkyWars - Batalla en las nubes"
-      - "[MESSAGE]&7• &fPvP Arena - Combate directo"
-      - "[MESSAGE]&7• &fEventos especiales"
-    shift-left-click: []
-
-# Libro de ayuda y guías
+      - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8'
+      - '[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!'
+      - '[MESSAGE]&7Preparándote para la diversión...'
+      - '[CONSOLE]ajqueue:server {PLAYER} lobbyGames'
 help_book:
   material: BOOK
-  display-name: "&a📚 &fGuía de Ayuda"
+  display-name: '&aRedes de Network'
   lore:
-    - "&7Todo lo que necesitas saber"
-    - "&7sobre el servidor y sus funciones"
-    - ""
-    - "&aClick: &fAbrir guía completa"
-    - "&7Comandos, reglas y tips útiles"
-  slot: 6
-  amount: 1
-  flags:
-    give-on-join: true
-    prevent-drop: true
-    prevent-move: false  # Este se puede mover
-    prevent-inventory-click: false
-    keep-on-death: false
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0"
-      - "[MESSAGE]&a📚 &f¡Abriendo guía de ayuda completa!"
-      - "[COMMAND]help"
-    left-click:
-      - "[MESSAGE]&a📚 &fGuía rápida del servidor:"
-      - "[MESSAGE]&7• &f/help &7- Ver todos los comandos"
-      - "[MESSAGE]&7• &f/spawn &7- Regresar al spawn"
-      - "[MESSAGE]&7• &f/menu &7- Abrir menú principal"
-      - "[MESSAGE]&7• &f/rules &7- Leer las reglas"
-      - "[MESSAGE]&7• &f/discord &7- Unirse al Discord"
-    shift-right-click:
-      - "[MESSAGE]&a📚 &fRecursos adicionales:"
-      - "[MESSAGE]&7• &fWeb: &bwww.grivyzom.com"
-      - "[MESSAGE]&7• &fDiscord: &9discord.gg/servidor"
-      - "[MESSAGE]&7• &fSoporte: &e/ticket"
-    shift-left-click: []
-
-# Tienda y economía (opcional)
-shop_emerald:
-  material: EMERALD
-  display-name: "&2💎 &fTienda"
-  lore:
-    - "&7Acceso rápido a la tienda"
-    - "&7del servidor y economía"
-    - ""
-    - "&2Click: &fAbrir tienda"
-    - "&7Compra items, rangos y más"
-  slot: 7
-  amount: 1
-  flags:
-    give-on-join: false  # Solo dar si el servidor tiene economía
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]ENTITY_VILLAGER_YES:1.0:1.0"
-      - "[MESSAGE]&2💎 &f¡Abriendo tienda del servidor!"
-      - "[COMMAND]shop"
-    left-click:
-      - "[SOUND]ENTITY_VILLAGER_YES:1.0:1.0"
-      - "[MESSAGE]&2💎 &f¡Abriendo tienda del servidor!"
-      - "[COMMAND]shop"
-    shift-right-click:
-      - "[MESSAGE]&2💎 &fCategorías de la tienda:"
-      - "[MESSAGE]&7• &fRangos y permisos"
-      - "[MESSAGE]&7• &fItems y herramientas"
-      - "[MESSAGE]&7• &fDecoración y bloques"
-      - "[MESSAGE]&7• &fMascotas y monturas"
-    shift-left-click: []
-
-# Perfil del jugador
-player_head:
-  material: PLAYER_HEAD
-  display-name: "&b👤 &fMi Perfil"
-  lore:
-    - "&7Información sobre tu cuenta"
-    - "&7estadísticas y configuración"
-    - ""
-    - "&bClick: &fVer perfil completo"
-    - "&7Stats, logros y más"
+    - '&8Información'
+    - '&7Todo lo que necesitas'
+    - '&7saber sobre el servidor'
+    - ''
+    - '&2 | &f&lClickea &fAbrir guía'
   slot: 3
   amount: 1
   flags:
     give-on-join: true
     prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]ENTITY_PLAYER_LEVELUP:0.8:1.2"
-      - "[MESSAGE]&b👤 &f¡Abriendo tu perfil!"
-      - "[CONSOLE]profile {PLAYER}"
-    left-click:
-      - "[MESSAGE]&b👤 &fInformación rápida:"
-      - "[MESSAGE]&7• &fNombre: &b{PLAYER}"
-      - "[MESSAGE]&7• &fMundo actual: &e{WORLD}"
-      - "[MESSAGE]&7• &fTiempo en línea: &a{PLAYTIME}"
-    shift-right-click:
-      - "[MESSAGE]&b👤 &fConfiguraciones disponibles:"
-      - "[MESSAGE]&7• &f/settings &7- Ajustes generales"
-      - "[MESSAGE]&7• &f/lang &7- Cambiar idioma"
-      - "[MESSAGE]&7• &f/togglechat &7- Chat público"
-    shift-left-click: []
-
-# Servidor creativo (opcional)
-creative_server:
-  material: GOLDEN_APPLE
-  display-name: "&6🎨 &fServidor Creativo"
-  lore:
-    - "&7Servidor dedicado para"
-    - "&7construcción y creatividad libre"
-    - ""
-    - "&6Click: &fConectar al creativo"
-    - "&7Modo creativo, WorldEdit y más"
-  slot: 5
-  amount: 1
-  flags:
-    give-on-join: false  # Solo dar si el servidor creativo existe
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2"
-      - "[MESSAGE]&6🎨 &f¡Conectando al servidor Creativo!"
-      - "[MESSAGE]&7¡Libera tu imaginación!"
-      - "[SERVER]creative"
-    left-click:
-      - "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.2"
-      - "[MESSAGE]&6🎨 &f¡Conectando al servidor Creativo!"
-      - "[SERVER]creative"
-    shift-right-click:
-      - "[MESSAGE]&6🎨 &fCaracterísticas del servidor creativo:"
-      - "[MESSAGE]&7• &fModo creativo activado"
-      - "[MESSAGE]&7• &fWorldEdit disponible"
-      - "[MESSAGE]&7• &fPlots personales"
-      - "[MESSAGE]&7• &fSin límites de construcción"
-    shift-left-click: []
-
-# ========================================
-#         ITEMS ESPECIALES/ADMIN
-# ========================================
-
-# Servidor staff (solo para administradores)
-staff_server:
-  material: BARRIER
-  display-name: "&c🔧 &fServidor Staff"
-  lore:
-    - "&7Servidor exclusivo para"
-    - "&7miembros del equipo administrativo"
-    - ""
-    - "&c⚠ &fSolo para Staff autorizado"
-    - "&cRequiere permisos especiales"
-  slot: 9  # Slot del inventario principal
-  amount: 1
-  flags:
-    give-on-join: false  # Solo dar manualmente a staff
-    prevent-drop: true
-    prevent-move: true
-    prevent-inventory-click: true
-    keep-on-death: true
-    replaceable: true
-    hide-minecraft-info: true
-  actions:
-    right-click:
-      - "[SOUND]BLOCK_ANVIL_USE:0.8:1.0"
-      - "[MESSAGE]&c🔧 &f¡Conectando al servidor Staff!"
-      - "[MESSAGE]&7Acceso autorizado para personal..."
-      - "[SERVER]staff"
-    left-click:
-      - "[MESSAGE]&c🔧 &fAcceso restringido"
-      - "[MESSAGE]&7Solo miembros del staff pueden acceder"
-    shift-right-click:
-      - "[MESSAGE]&c🔧 &fFunciones del servidor Staff:"
-      - "[MESSAGE]&7• &fPanel de administración"
-      - "[MESSAGE]&7• &fHerramientas de moderación"
-      - "[MESSAGE]&7• &fPruebas de plugins"
-      - "[MESSAGE]&7• &fReuniones del equipo"
-    shift-left-click: []
-
-# Poción de velocidad (ejemplo de consumible)
-speed_potion:
-  material: POTION
-  display-name: "&b⚡ &fPoción de Velocidad"
-  lore:
-    - "&7Una poción mágica que aumenta"
-    - "&7tu velocidad de movimiento"
-    - ""
-    - "&b⚡ &fEfecto: Velocidad II - 30s"
-    - "&7Click para consumir"
-  slot: 10  # Slot del inventario principal
-  amount: 1
-  flags:
-    give-on-join: false  # Solo dar manualmente o como recompensa
-    prevent-drop: false
     prevent-move: false
     prevent-inventory-click: false
     keep-on-death: false
     replaceable: true
-    hide-minecraft-info: false
   actions:
     right-click:
-      - "[SOUND]ENTITY_PLAYER_SPLASH:1.0:1.2"
-      - "[MESSAGE]&b⚡ &f¡Has usado la poción de velocidad!"
-      - "[CONSOLE]effect give {PLAYER} speed 30 1"
-      - "[CONSOLE]clear {PLAYER} potion 1"
+      - '[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0'
+      - '[COMMAND_OP] dm open links {PLAYER}'
+      - '[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!'
     left-click:
-      - "[MESSAGE]&b⚡ &fUsa click derecho para consumir la poción"
-    shift-right-click:
-      - "[MESSAGE]&b⚡ &fEfectos de la poción:"
-      - "[MESSAGE]&7• &fVelocidad II por 30 segundos"
-      - "[MESSAGE]&7• &fPerfecto para explorar rápidamente"
-    shift-left-click: []
-
-# ========================================
-#              DOCUMENTACIÓN
-# ========================================
-
-# TIPOS DE ACCIONES DISPONIBLES:
-# [COMMAND] - Ejecuta comando como jugador
-# [COMMAND_OP] - Ejecuta comando como jugador con OP temporal
-# [CONSOLE] - Ejecuta comando desde consola
-# [MESSAGE] - Envía mensaje al jugador
-# [BROADCAST] - Envía mensaje a todos los jugadores
-# [SOUND] - Reproduce sonido (formato: SONIDO:volumen:pitch)
-# [SERVER] - Conecta a otro servidor del proxy
-# [TELEPORT] - Teletransporta (formato: x:y:z:mundo)
-# [GIVE_ITEM] - Da otro item de acción
-# [CLOSE_INVENTORY] - Cierra el inventario
-# [DELAY] - Ejecuta acción con delay (formato: segundos:acción)
-
-# EJEMPLOS DE CONEXIÓN A SERVIDORES:
-# [SERVER]lobby - Conecta al servidor lobby
-# [SERVER]survival - Conecta al servidor survival
-# [SERVER]skyblock - Conecta al servidor skyblock
-# [SERVER]minigames - Conecta al servidor de minijuegos
-# [SERVER]creative - Conecta al servidor creativo
-# [SERVER]hub - Conecta al hub principal
-# [SERVER]staff - Conecta al servidor de staff
-
-# MATERIALES RECOMENDADOS:
-# NETHER_STAR - Selectors generales
-# ENDER_PEARL - Portales/teletransporte
-# COMPASS - Navegación/información
-# EMERALD - Tiendas/economía
-# BOOK - Ayuda/información
-# BARRIER - Acceso restringido
-# GOLDEN_APPLE - Servidores especiales
-# PLAYER_HEAD - Perfiles/stats
-# FIREWORK_STAR - Lobby/spawn
-# SLIME_BALL - Minijuegos/diversión
-
-# SLOTS RECOMENDADOS:
-# 0-8: Hotbar (items principales)
-# 9-35: Inventario principal (items secundarios)
-# Hotbar slots: 0=izquierda, 8=derecha
-# Slot 4 (centro): Item más importante
+      - '[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0'
+      - '[COMMAND_OP] dm open links {PLAYER}'
+      - '[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!'

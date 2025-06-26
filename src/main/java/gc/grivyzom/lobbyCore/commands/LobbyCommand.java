@@ -696,4 +696,385 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
 
         return Arrays.asList();
     }
+
+    // Agregar estos métodos a tu clase LobbyCommand existente
+
+    /**
+     * Muestra la lista de todos los placeholders disponibles
+     */
+    private void handlePlaceholdersList(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#FFD700▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &e📋 &fPlaceholders Disponibles &aGrivyzomCore",
+                "",
+                "  &b👤 &fDatos del Jugador:",
+                "  &7• &e%grivyzom_player_name% &7- Nombre del jugador",
+                "  &7• &e%grivyzom_coins% &7- Monedas del jugador",
+                "  &7• &e%grivyzom_gems% &7- Gemas del jugador",
+                "  &7• &e%grivyzom_rank% &7- Rango del jugador",
+                "  &7• &e%grivyzom_level% &7- Nivel del jugador",
+                "  &7• &e%grivyzom_playtime% &7- Tiempo de juego",
+                "",
+                "  &b🌐 &fDatos del Network:",
+                "  &7• &e%grivyzom_network_players% &7- Jugadores online totales",
+                "  &7• &e%grivyzom_online% &7- Alias para network_players",
+                "  &7• &e%grivyzom_servers% &7- Servidores activos",
+                "  &7• &e%grivyzom_status% &7- Estado del network",
+                "  &7• &e%grivyzom_connection_status% &7- Estado de conexión (●)",
+                "  &7• &e%grivyzom_connection_latency% &7- Latencia en ms",
+                "  &7• &e%grivyzom_server_name% &7- Nombre del servidor",
+                "  &7• &e%grivyzom_server_uptime% &7- Tiempo activo",
+                "",
+                "  &b🏆 &fTop Players (Monedas):",
+                "  &7• &e%grivyzom_top_coins_1% &7- Nombre #1",
+                "  &7• &e%grivyzom_top_coins_1_amount% &7- Cantidad #1",
+                "  &7• &e%grivyzom_top_coins_2% &7- Nombre #2",
+                "  &7• &e%grivyzom_top_coins_3% &7- Nombre #3",
+                "",
+                "  &b💎 &fTop Players (Gemas):",
+                "  &7• &e%grivyzom_top_gems_1% &7- Nombre #1",
+                "  &7• &e%grivyzom_top_gems_1_amount% &7- Cantidad #1",
+                "  &7• &e%grivyzom_top_gems_2% &7- Nombre #2",
+                "  &7• &e%grivyzom_top_gems_3% &7- Nombre #3",
+                "",
+                "  &b💰 &fEconomía Global:",
+                "  &7• &e%grivyzom_economy_total_coins% &7- Total monedas",
+                "  &7• &e%grivyzom_economy_total_gems% &7- Total gemas",
+                "  &7• &e%grivyzom_economy_circulation% &7- % en circulación",
+                "",
+                "  &b⚡ &fTiempo Real:",
+                "  &7• &e%grivyzom_realtime_players% &7- Jugadores actuales",
+                "  &7• &e%grivyzom_realtime_tps% &7- TPS del servidor",
+                "  &7• &e%grivyzom_realtime_memory% &7- Uso de memoria",
+                "",
+                "  &7Usa &e/lobbycore placeholders test <categoría> &7para probar",
+                "",
+                "&#FFD700▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Fuerza el refresco de todos los placeholders
+     */
+    private void handlePlaceholdersRefresh(Player player) {
+        ColorUtils.sendMessage(player, "&e🔄 &fForzando actualización de placeholders...");
+
+        try {
+            // Limpiar cache del response handler
+            if (plugin.getResponseHandler() != null) {
+                plugin.getResponseHandler().clearCache();
+            }
+
+            // Refrescar placeholders si están disponibles
+            if (plugin.getPlaceholders() != null) {
+                plugin.getPlaceholders().refreshData();
+            }
+
+            // Solicitar datos frescos si GrivyzomCore está disponible
+            if (plugin.getGrivyzomIntegration() != null && plugin.getGrivyzomIntegration().isGrivyzomCoreAvailable()) {
+                plugin.getGrivyzomIntegration().requestNetworkStats();
+                plugin.getGrivyzomIntegration().requestPlayerData(player);
+                plugin.getGrivyzomIntegration().requestTopPlayers("COINS", 5);
+                plugin.getGrivyzomIntegration().requestTopPlayers("GEMS", 5);
+            }
+
+            ColorUtils.sendMessage(player, "&a✅ &fPlaceholders actualizados correctamente");
+            ColorUtils.sendMessage(player, "&7Los nuevos datos estarán disponibles en unos segundos");
+
+        } catch (Exception e) {
+            ColorUtils.sendMessage(player, "&c❌ &fError actualizando placeholders: " + e.getMessage());
+            plugin.getLogger().warning("Error refrescando placeholders: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Muestra estadísticas del sistema de placeholders
+     */
+    private void handlePlaceholdersStats(Player player) {
+        try {
+            String cacheStats = "No disponible";
+            String placeholderStatus = "No disponible";
+            String connectionStatus = "Desconectado";
+
+            // Obtener estadísticas del cache
+            if (plugin.getResponseHandler() != null) {
+                cacheStats = plugin.getResponseHandler().getCacheStats();
+            }
+
+            // Obtener estado de placeholders
+            if (plugin.getPlaceholders() != null) {
+                var stats = plugin.getPlaceholders().getStats();
+                placeholderStatus = stats.toString();
+            }
+
+            // Obtener estado de conexión
+            if (plugin.getGrivyzomIntegration() != null) {
+                if (plugin.getGrivyzomIntegration().isGrivyzomCoreAvailable()) {
+                    connectionStatus = "Conectado";
+                }
+            }
+
+            ColorUtils.sendMessages(player, Arrays.asList(
+                    "",
+                    "&#9B59B6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                    "",
+                    "  &d📊 &fEstadísticas de Placeholders &aGrivyzomCore",
+                    "",
+                    "  &e🔧 &fEstado del Sistema:",
+                    "  &7┃ &fGrivyzomCore: &" + (connectionStatus.equals("Conectado") ? "a" : "c") + connectionStatus,
+                    "  &7┃ &fPlaceholderAPI: &" + (plugin.getPlaceholders() != null ? "a✅ Registrado" : "c❌ No disponible"),
+                    "  &7┃ &fResponse Handler: &" + (plugin.getResponseHandler() != null ? "a✅ Activo" : "c❌ Inactivo"),
+                    "",
+                    "  &e📈 &fEstadísticas de Cache:",
+                    "  &7┃ &f" + cacheStats,
+                    "",
+                    "  &e⚙ &fEstado de Placeholders:",
+                    "  &7┃ &f" + placeholderStatus,
+                    "",
+                    "  &e🕐 &fTiempos de Actualización (TTL):",
+                    "  &7┃ &fDatos de jugador: &a5 minutos",
+                    "  &7┃ &fDatos de network: &a1 minuto",
+                    "  &7┃ &fTop players: &a2 minutos",
+                    "  &7┃ &fEconomía global: &a3 minutos",
+                    "",
+                    "  &7Usa &e/lobbycore placeholders refresh &7para forzar actualización",
+                    "",
+                    "&#9B59B6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                    ""
+            ));
+
+        } catch (Exception e) {
+            ColorUtils.sendMessage(player, "&c❌ &fError obteniendo estadísticas: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Muestra test específico de placeholders del jugador
+     */
+    private void showPlayerPlaceholderTest(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#3498DB▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &b👤 &fTest Placeholders del Jugador",
+                "",
+                "  &e📊 &fDatos Básicos:",
+                "  &7┃ &fNombre: &b" + resolvePlaceholder(player, "%grivyzom_player_name%"),
+                "  &7┃ &fRango: &6" + resolvePlaceholder(player, "%grivyzom_rank%"),
+                "  &7┃ &fNivel: &a" + resolvePlaceholder(player, "%grivyzom_level%"),
+                "",
+                "  &e💰 &fRecursos:",
+                "  &7┃ &fMonedas: &e" + resolvePlaceholder(player, "%grivyzom_coins%"),
+                "  &7┃ &fGemas: &d" + resolvePlaceholder(player, "%grivyzom_gems%"),
+                "",
+                "  &e⏰ &fTiempo:",
+                "  &7┃ &fTiempo jugado: &a" + resolvePlaceholder(player, "%grivyzom_playtime%"),
+                "  &7┃ &fPrimera conexión: &7" + resolvePlaceholder(player, "%grivyzom_player_first_join%"),
+                "  &7┃ &fÚltima conexión: &7" + resolvePlaceholder(player, "%grivyzom_player_last_join%"),
+                "",
+                "  &7💡 &fEstos datos se actualizan cada 5 minutos desde GrivyzomCore",
+                "  &7🔄 &fSi GrivyzomCore no está disponible, se usan datos simulados",
+                "",
+                "&#3498DB▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Muestra test específico de placeholders del network
+     */
+    private void showNetworkPlaceholderTest(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#27AE60▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &a🌐 &fTest Placeholders del Network",
+                "",
+                "  &e📊 &fEstadísticas Generales:",
+                "  &7┃ &fJugadores online: &a" + resolvePlaceholder(player, "%grivyzom_network_players%"),
+                "  &7┃ &fAlias (online): &a" + resolvePlaceholder(player, "%grivyzom_online%"),
+                "  &7┃ &fServidores activos: &a" + resolvePlaceholder(player, "%grivyzom_servers%"),
+                "  &7┃ &fEstado del network: " + resolvePlaceholder(player, "%grivyzom_status%"),
+                "",
+                "  &e🔗 &fConexión:",
+                "  &7┃ &fEstado visual: " + resolvePlaceholder(player, "%grivyzom_connection_status%"),
+                "  &7┃ &fLatencia: &e" + resolvePlaceholder(player, "%grivyzom_connection_latency%"),
+                "",
+                "  &e🖥 &fServidor Actual:",
+                "  &7┃ &fNombre: &b" + resolvePlaceholder(player, "%grivyzom_server_name%"),
+                "  &7┃ &fTipo: &b" + resolvePlaceholder(player, "%grivyzom_server_type%"),
+                "  &7┃ &fTiempo activo: &a" + resolvePlaceholder(player, "%grivyzom_server_uptime%"),
+                "",
+                "  &7💡 &fEstos datos se actualizan cada 1 minuto desde el proxy",
+                "  &7🔄 &fIncluye datos de todos los servidores del network",
+                "",
+                "&#27AE60▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Muestra test específico de placeholders de economía
+     */
+    private void showEconomyPlaceholderTest(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#F39C12▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &6💰 &fTest Placeholders de Economía",
+                "",
+                "  &e📈 &fEconomía Global del Servidor:",
+                "  &7┃ &fTotal monedas: &e" + resolvePlaceholder(player, "%grivyzom_economy_total_coins%"),
+                "  &7┃ &fTotal gemas: &d" + resolvePlaceholder(player, "%grivyzom_economy_total_gems%"),
+                "  &7┃ &fCirculación: &a" + resolvePlaceholder(player, "%grivyzom_economy_circulation%"),
+                "",
+                "  &e👤 &fTus Recursos Personales:",
+                "  &7┃ &fTus monedas: &e" + resolvePlaceholder(player, "%grivyzom_coins%"),
+                "  &7┃ &fTus gemas: &d" + resolvePlaceholder(player, "%grivyzom_gems%"),
+                "",
+                "  &e📊 &fAnálisis:",
+                "  &7┃ &fLa economía total incluye todos los servidores",
+                "  &7┃ &fLos datos se actualizan cada 3 minutos",
+                "  &7┃ &fEl % de circulación indica actividad económica",
+                "",
+                "  &7💡 &fLa economía global crece constantemente con la actividad",
+                "  &7🔄 &fTus recursos se sincronizan con el sistema central",
+                "",
+                "&#F39C12▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Muestra test específico de placeholders de tops
+     */
+    private void showTopPlaceholderTest(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#E74C3C▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &c🏆 &fTest Placeholders de Rankings",
+                "",
+                "  &e👑 &fTop Jugadores por Monedas:",
+                "  &7┃ &f#1: &b" + resolvePlaceholder(player, "%grivyzom_top_coins_1%") +
+                        " &7(&e" + resolvePlaceholder(player, "%grivyzom_top_coins_1_amount%") + "&7)",
+                "  &7┃ &f#2: &b" + resolvePlaceholder(player, "%grivyzom_top_coins_2%") +
+                        " &7(&e" + resolvePlaceholder(player, "%grivyzom_top_coins_2_amount%") + "&7)",
+                "  &7┃ &f#3: &b" + resolvePlaceholder(player, "%grivyzom_top_coins_3%") +
+                        " &7(&e" + resolvePlaceholder(player, "%grivyzom_top_coins_3_amount%") + "&7)",
+                "",
+                "  &e💎 &fTop Jugadores por Gemas:",
+                "  &7┃ &f#1: &b" + resolvePlaceholder(player, "%grivyzom_top_gems_1%") +
+                        " &7(&d" + resolvePlaceholder(player, "%grivyzom_top_gems_1_amount%") + "&7)",
+                "  &7┃ &f#2: &b" + resolvePlaceholder(player, "%grivyzom_top_gems_2%") +
+                        " &7(&d" + resolvePlaceholder(player, "%grivyzom_top_gems_2_amount%") + "&7)",
+                "  &7┃ &f#3: &b" + resolvePlaceholder(player, "%grivyzom_top_gems_3%") +
+                        " &7(&d" + resolvePlaceholder(player, "%grivyzom_top_gems_3_amount%") + "&7)",
+                "",
+                "  &e📊 &fInformación:",
+                "  &7┃ &fLos rankings se actualizan cada 2 minutos",
+                "  &7┃ &fIncluyen datos de todos los servidores del network",
+                "  &7┃ &fLas cantidades varían ligeramente para simular actividad",
+                "",
+                "  &7💡 &f¡Sigue jugando para aparecer en estos rankings!",
+                "  &7🔄 &fLos datos provienen directamente de GrivyzomCore",
+                "",
+                "&#E74C3C▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Muestra test específico de placeholders en tiempo real
+     */
+    private void showRealtimePlaceholderTest(Player player) {
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#8E44AD▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &5⚡ &fTest Placeholders en Tiempo Real",
+                "",
+                "  &e📊 &fDatos del Servidor Actual:",
+                "  &7┃ &fJugadores locales: &a" + resolvePlaceholder(player, "%grivyzom_realtime_players%"),
+                "  &7┃ &fTPS del servidor: &a" + resolvePlaceholder(player, "%grivyzom_realtime_tps%"),
+                "  &7┃ &fUso de memoria: &e" + resolvePlaceholder(player, "%grivyzom_realtime_memory%"),
+                "",
+                "  &e🔄 &fActualización Continua:",
+                "  &7┃ &fEstos datos se actualizan constantemente",
+                "  &7┃ &fNo dependen de GrivyzomCore (datos locales)",
+                "  &7┃ &fPerfectos para scoreboards dinámicos",
+                "",
+                "  &e⚙ &fRendimiento:",
+                "  &7┃ &fTPS > 19.0 = &a✅ Excelente",
+                "  &7┃ &fTPS 18.0-19.0 = &e⚠ Bueno",
+                "  &7┃ &fTPS < 18.0 = &c❌ Problemas",
+                "",
+                "  &e💾 &fMemoria:",
+                "  &7┃ &f< 70% = &a✅ Saludable",
+                "  &7┃ &f70-85% = &e⚠ Vigilar",
+                "  &7┃ &f> 85% = &c❌ Crítico",
+                "",
+                "  &7💡 &fIdeales para TAB, scoreboards y monitores en tiempo real",
+                "",
+                "&#8E44AD▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
+
+    /**
+     * Resuelve un placeholder para testing
+     */
+    private String resolvePlaceholder(Player player, String placeholder) {
+        try {
+            // Si PlaceholderAPI está disponible, usarlo
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                String resolved = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, placeholder);
+
+                // Si el placeholder se resolvió (no devolvió el mismo string)
+                if (!resolved.equals(placeholder)) {
+                    return resolved;
+                }
+            }
+
+            // Fallback manual para testing sin PlaceholderAPI
+            if (plugin.getPlaceholders() != null) {
+                // Extraer el identificador del placeholder
+                String identifier = placeholder.replace("%grivyzom_", "").replace("%", "");
+                return plugin.getPlaceholders().onPlaceholderRequest(player, identifier);
+            }
+
+            // Último fallback
+            return "&c[No disponible]";
+
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error resolviendo placeholder " + placeholder + ": " + e.getMessage());
+            return "&c[Error]";
+        }
+    }
+
+// También necesitas agregar "placeholders" al método onCommand principal:
+// En el switch statement del método onCommand, agrega:
+/*
+case "placeholders":
+    handlePlaceholders(sender, args);
+    break;
+*/
+
+// Y en el método onTabComplete, en la lista de comandos principales, agrega "placeholders":
+/*
+return Arrays.asList("reload", "test", "info", "welcome", "version", "items", "fireworks", "grivyzom", "placeholders")
+*/
+
+// Y en el segundo nivel de tab completion, agrega:
+/*
+case "placeholders":
+    return Arrays.asList("test", "list", "refresh", "stats")
+            .stream()
+            .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+            .collect(Collectors.toList());
+*/
+
 }
