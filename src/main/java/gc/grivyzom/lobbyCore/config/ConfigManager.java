@@ -16,6 +16,7 @@ public class ConfigManager {
     private File itemsFile;
     private FileConfiguration config;
     private FileConfiguration itemsConfig;
+    private boolean firstTimeSetup = false;
 
     public ConfigManager(MainClass plugin) {
         this.plugin = plugin;
@@ -57,14 +58,21 @@ public class ConfigManager {
         itemsFile = new File(plugin.getDataFolder(), "items.yml");
 
         if (!itemsFile.exists()) {
+            firstTimeSetup = true;
             createDefaultItemsConfig();
         }
 
         itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
 
-        // Verificar y añadir items por defecto si no existen
-        addItemsConfigDefaults();
-        saveItemsConfig();
+        // Solo añadir items por defecto si es la primera vez
+        if (firstTimeSetup) {
+            plugin.getLogger().info("§e⚙ §fCreando items por defecto por primera vez...");
+            addItemsConfigDefaults();
+            saveItemsConfig();
+            firstTimeSetup = false;
+        } else {
+            plugin.getLogger().info("§a✓ §fArchivo items.yml cargado - respetando configuración existente");
+        }
     }
 
     /**
@@ -191,86 +199,22 @@ public class ConfigManager {
     }
 
     /**
-     * Añade items por defecto a la configuración de items
+     * Añade items por defecto SOLO la primera vez que se crea el archivo
      */
     private void addItemsConfigDefaults() {
+        plugin.getLogger().info("§e📦 §fCreando items de ejemplo por primera vez...");
+
         // Header del archivo
-        addItemsDefault("# ========================================", null);
-        addItemsDefault("#         CONFIGURACIÓN DE ITEMS", null);
-        addItemsDefault("#              LobbyCore", null);
-        addItemsDefault("# ========================================", null);
+        addItemsComment("# ========================================");
+        addItemsComment("#         CONFIGURACIÓN DE ITEMS");
+        addItemsComment("#              LobbyCore");
+        addItemsComment("# ========================================");
+        addItemsComment("# NOTA: Los items aquí configurados son ejemplos.");
+        addItemsComment("# Puedes eliminar, modificar o añadir nuevos items.");
+        addItemsComment("# Si eliminas un item, NO se volverá a crear automáticamente.");
+        addItemsComment("# ========================================");
 
-        // Item de lobby
-        if (!itemsConfig.contains("lobby_item")) {
-            addItemsDefault("lobby_item.material", "FIREWORK_STAR");
-            addItemsDefault("lobby_item.display-name", "&9Regresar al Lobby");
-            addItemsDefault("lobby_item.lore", Arrays.asList(
-                    "&8Descripción",
-                    "&7Click derecho para",
-                    "&7teletransportarte al lobby",
-                    ""
-            ));
-            addItemsDefault("lobby_item.slot", 8);
-            addItemsDefault("lobby_item.amount", 1);
-            addItemsDefault("lobby_item.flags.give-on-join", true);
-            addItemsDefault("lobby_item.flags.prevent-drop", true);
-            addItemsDefault("lobby_item.flags.prevent-move", true);
-            addItemsDefault("lobby_item.flags.prevent-inventory-click", true);
-            addItemsDefault("lobby_item.flags.keep-on-death", true);
-            addItemsDefault("lobby_item.flags.replaceable", true);
-            addItemsDefault("lobby_item.flags.hide-minecraft-info", true);
-            addItemsDefault("lobby_item.flags.hide-flags", Arrays.asList(
-                    "HIDE_ATTRIBUTES",
-                    "HIDE_DESTROYS",
-                    "HIDE_DYE",
-                    "HIDE_ENCHANTS",
-                    "HIDE_PLACED_ON",
-                    "HIDE_POTION_EFFECTS",
-                    "HIDE_UNBREAKABLE"
-            ));
-            addItemsDefault("lobby_item.actions.right-click", Arrays.asList(
-                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
-                    "[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!",
-                    "[CONSOLE]ajqueue:server {PLAYER} lobby"
-            ));
-            addItemsDefault("lobby_item.actions.left-click", Arrays.asList());
-            addItemsDefault("lobby_item.actions.shift-right-click", Arrays.asList(
-                    "[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby"
-            ));
-            addItemsDefault("lobby_item.actions.shift-left-click", Arrays.asList());
-        }
-
-        // Item de búsqueda automática
-        if (!itemsConfig.contains("automatic_arena")) {
-            addItemsDefault("automatic_arena.material", "ENDER_PEARL");
-            addItemsDefault("automatic_arena.display-name", "&f&lBuscar partida...");
-            addItemsDefault("automatic_arena.lore", Arrays.asList(
-                    "&8Descripción",
-                    "&7Click para buscar",
-                    "&7una partida automáticamente",
-                    "",
-                    "&bClick: &fPara unirte!"
-            ));
-            addItemsDefault("automatic_arena.slot", 4);
-            addItemsDefault("automatic_arena.amount", 1);
-            addItemsDefault("automatic_arena.flags.give-on-join", true);
-            addItemsDefault("automatic_arena.flags.prevent-drop", true);
-            addItemsDefault("automatic_arena.flags.prevent-move", true);
-            addItemsDefault("automatic_arena.flags.prevent-inventory-click", true);
-            addItemsDefault("automatic_arena.flags.keep-on-death", true);
-            addItemsDefault("automatic_arena.flags.replaceable", true);
-            addItemsDefault("automatic_arena.flags.hide-minecraft-info", true);
-            addItemsDefault("automatic_arena.actions.right-click", Arrays.asList(
-                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
-                    "[COMMAND]mm randomjoin"
-            ));
-            addItemsDefault("automatic_arena.actions.left-click", Arrays.asList(
-                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2",
-                    "[COMMAND]mm randomjoin"
-            ));
-        }
-
-        // Selector de servidores
+        // Item de selector de servidores
         if (!itemsConfig.contains("server_selector")) {
             addItemsDefault("server_selector.material", "NETHER_STAR");
             addItemsDefault("server_selector.display-name", "&d🌐 &fSelector de Servidores");
@@ -289,6 +233,7 @@ public class ConfigManager {
             addItemsDefault("server_selector.flags.prevent-inventory-click", true);
             addItemsDefault("server_selector.flags.keep-on-death", true);
             addItemsDefault("server_selector.flags.replaceable", true);
+            addItemsDefault("server_selector.flags.hide-minecraft-info", true);
             addItemsDefault("server_selector.actions.right-click", Arrays.asList(
                     "[SOUND]BLOCK_PORTAL_TRAVEL:0.8:1.5",
                     "[MESSAGE]&d🌐 &f¡Conectando al servidor &eSurvival&f!",
@@ -301,7 +246,7 @@ public class ConfigManager {
             ));
         }
 
-        // Navegador
+        // Item de navegador
         if (!itemsConfig.contains("compass_navigator")) {
             addItemsDefault("compass_navigator.material", "COMPASS");
             addItemsDefault("compass_navigator.display-name", "&e🧭 &fNavegador");
@@ -319,6 +264,7 @@ public class ConfigManager {
             addItemsDefault("compass_navigator.flags.prevent-inventory-click", true);
             addItemsDefault("compass_navigator.flags.keep-on-death", true);
             addItemsDefault("compass_navigator.flags.replaceable", true);
+            addItemsDefault("compass_navigator.flags.hide-minecraft-info", true);
             addItemsDefault("compass_navigator.actions.right-click", Arrays.asList(
                     "[SOUND]UI_BUTTON_CLICK:0.8:1.0",
                     "[CONSOLE]menu navegacion {PLAYER}"
@@ -327,38 +273,6 @@ public class ConfigManager {
                     "[MESSAGE]&e📊 &fServidor: &b{SERVER}",
                     "[MESSAGE]&e👥 &fJugadores: &a{ONLINE}&7/&a{MAX_PLAYERS}",
                     "[MESSAGE]&e🌍 &fMundo: &e{WORLD}"
-            ));
-        }
-
-        // Portal de minijuegos
-        if (!itemsConfig.contains("minigames_portal")) {
-            addItemsDefault("minigames_portal.material", "SLIME_BALL");
-            addItemsDefault("minigames_portal.display-name", "&a🎮 &fMinijuegos");
-            addItemsDefault("minigames_portal.lore", Arrays.asList(
-                    "&7Portal directo al servidor",
-                    "&7de minijuegos y eventos",
-                    "",
-                    "&a🎮 &fClick: &eConectar",
-                    "&7Incluye: BedWars, SkyWars, PvP"
-            ));
-            addItemsDefault("minigames_portal.slot", 2);
-            addItemsDefault("minigames_portal.amount", 1);
-            addItemsDefault("minigames_portal.flags.give-on-join", true);
-            addItemsDefault("minigames_portal.flags.prevent-drop", true);
-            addItemsDefault("minigames_portal.flags.prevent-move", true);
-            addItemsDefault("minigames_portal.flags.prevent-inventory-click", true);
-            addItemsDefault("minigames_portal.flags.keep-on-death", true);
-            addItemsDefault("minigames_portal.flags.replaceable", true);
-            addItemsDefault("minigames_portal.actions.right-click", Arrays.asList(
-                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8",
-                    "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!",
-                    "[MESSAGE]&7Preparándote para la diversión...",
-                    "[DELAY]20:[SERVER]minigames"
-            ));
-            addItemsDefault("minigames_portal.actions.left-click", Arrays.asList(
-                    "[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8",
-                    "[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!",
-                    "[SERVER]minigames"
             ));
         }
 
@@ -372,7 +286,7 @@ public class ConfigManager {
                     "",
                     "&aClick: &fAbrir guía"
             ));
-            addItemsDefault("help_book.slot", 6);
+            addItemsDefault("help_book.slot", 8);
             addItemsDefault("help_book.amount", 1);
             addItemsDefault("help_book.flags.give-on-join", true);
             addItemsDefault("help_book.flags.prevent-drop", true);
@@ -380,6 +294,7 @@ public class ConfigManager {
             addItemsDefault("help_book.flags.prevent-inventory-click", false);
             addItemsDefault("help_book.flags.keep-on-death", false);
             addItemsDefault("help_book.flags.replaceable", true);
+            addItemsDefault("help_book.flags.hide-minecraft-info", false);
             addItemsDefault("help_book.actions.right-click", Arrays.asList(
                     "[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0",
                     "[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!",
@@ -410,6 +325,43 @@ public class ConfigManager {
         if (value != null && !itemsConfig.contains(path)) {
             itemsConfig.set(path, value);
         }
+    }
+
+    /**
+     * Añade un comentario al archivo de items
+     */
+    private void addItemsComment(String comment) {
+        // Los comentarios no se pueden añadir directamente con la API de configuración
+        // pero se añaden al crear el archivo por primera vez
+    }
+
+    /**
+     * Elimina un item específico del archivo de configuración
+     */
+    public boolean removeItem(String itemId) {
+        if (itemsConfig.contains(itemId)) {
+            itemsConfig.set(itemId, null);
+            saveItemsConfig();
+            plugin.getLogger().info("§c✓ §fItem '§e" + itemId + "§f' eliminado del archivo items.yml");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Verifica si un item existe en la configuración
+     */
+    public boolean itemExists(String itemId) {
+        return itemsConfig.contains(itemId);
+    }
+
+    /**
+     * Obtiene la lista de items disponibles
+     */
+    public List<String> getAvailableItems() {
+        return itemsConfig.getKeys(false).stream()
+                .filter(key -> !key.startsWith("#")) // Filtrar comentarios
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
