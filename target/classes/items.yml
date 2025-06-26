@@ -1,0 +1,80 @@
+server_selector:
+  material: NETHER_STAR
+  display-name: '&7Elige una Modalidad...'
+  lore:
+    - '&7Click para navegar entre'
+    - '&7los diferentes servidores'
+    - ''
+    - '&5 | &d&lClickea &fpara interacturar'
+  slot: 0
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: true
+    prevent-inventory-click: true
+    keep-on-death: true
+    replaceable: true
+  actions:
+    right-click:
+      - '[SOUND]UI_BUTTON_CLICK:0.8:1.0'
+      - '[CONSOLE]dm open server_selector {PLAYER}'
+    left-click:
+      - '[SOUND]UI_BUTTON_CLICK:0.8:1.0'
+      - '[CONSOLE]dm open server_selector {PLAYER}'
+minigames_portal:
+  material: SLIME_BALL
+  display-name: '&a🎮 &fMinijuegos'
+  lore:
+    - '&7Portal directo al servidor'
+    - '&7de minijuegos y eventos'
+    - ''
+    - '&7Incluye: &fMurderMystery, SkyWars, PvP'
+    - '&5 | &d&lClickea &fpara interacturar'
+  slot: 2
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: true
+    prevent-inventory-click: true
+    keep-on-death: true
+    replaceable: true
+  actions:
+    right-click:
+      - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8'
+      - '[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!'
+      - '[MESSAGE]&7Preparándote para la diversión...'
+      - '[CONSOLE]ajqueue:server {PLAYER} lobbyGames'
+    left-click:
+      - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:0.8'
+      - '[MESSAGE]&a🎮 &f¡Conectando al servidor de Minijuegos!'
+      - '[MESSAGE]&7Preparándote para la diversión...'
+      - '[CONSOLE]ajqueue:server {PLAYER} lobbyGames'
+help_book:
+  material: BOOK
+  display-name: '&aRedes de Network'
+  lore:
+    - '&8Información'
+    - '&7Todo lo que necesitas'
+    - '&7saber sobre el servidor'
+    - ''
+    - '&2 | &f&lClickea &fAbrir guía'
+  slot: 3
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: false
+    prevent-inventory-click: false
+    keep-on-death: false
+    replaceable: true
+  actions:
+    right-click:
+      - '[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0'
+      - '[COMMAND_OP] dm open links {PLAYER}'
+      - '[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!'
+    left-click:
+      - '[SOUND]ITEM_BOOK_PAGE_TURN:1.0:1.0'
+      - '[COMMAND_OP] dm open links {PLAYER}'
+      - '[MESSAGE]&a📚 &f¡Abriendo guía de ayuda!'

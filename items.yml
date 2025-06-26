@@ -1,0 +1,101 @@
+lobby_item:
+  material: FIREWORK_STAR
+  display-name: '&9Regresar al Lobby'
+  lore:
+  - '&8Descripción'
+  - '&7Click derecho para'
+  - '&7teletransportarte al lobby'
+  - ''
+  slot: 8
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: true
+    prevent-inventory-click: true
+    keep-on-death: true
+    replaceable: true
+    hide-minecraft-info: true
+    hide-flags:
+    - HIDE_ATTRIBUTES
+    - HIDE_DESTROYS
+    - HIDE_DYE
+    - HIDE_ENCHANTS
+    - HIDE_PLACED_ON
+    - HIDE_POTION_EFFECTS
+    - HIDE_UNBREAKABLE
+  actions:
+    right-click:
+    - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+    - '[MESSAGE]&a🏠 &f¡Teletransportándote al lobby!'
+    - '[CONSOLE]ajqueue:server {PLAYER} lobby'
+    left-click: []
+    shift-right-click:
+    - '[MESSAGE]&7💡 &fUsa click derecho normal para ir al lobby'
+    shift-left-click: []
+automatic_arena:
+  material: ENDER_PEARL
+  display-name: '&f&lBuscar partida...'
+  lore:
+  - '&8Descripción'
+  - '&7Click para buscar'
+  - '&7una partida automáticamente'
+  - ''
+  - '&bClick: &fPara unirte!'
+  slot: 1
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: true
+    prevent-inventory-click: true
+    keep-on-death: true
+    replaceable: true
+    hide-minecraft-info: true
+    hide-flags:
+    - HIDE_ATTRIBUTES
+    - HIDE_DESTROYS
+    - HIDE_DYE
+    - HIDE_ENCHANTS
+    - HIDE_PLACED_ON
+    - HIDE_POTION_EFFECTS
+    - HIDE_UNBREAKABLE
+  actions:
+    right-click:
+    - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+    - '[COMMAND]mm randomjoin'
+    left-click:
+    - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+    - '[COMMAND]mm randomjoin'
+map_selector:
+  material: MAP
+  display-name: '&fSelector de Mapas'
+  lore:
+  - '&7Click para navegar entre'
+  - '&7los diferentes mapas'
+  - ''
+  slot: 0
+  amount: 1
+  flags:
+    give-on-join: true
+    prevent-drop: true
+    prevent-move: true
+    prevent-inventory-click: true
+    keep-on-death: true
+    replaceable: true
+    hide-minecraft-info: true
+    hide-flags:
+    - HIDE_ATTRIBUTES
+    - HIDE_DESTROYS
+    - HIDE_DYE
+    - HIDE_ENCHANTS
+    - HIDE_PLACED_ON
+    - HIDE_POTION_EFFECTS
+    - HIDE_UNBREAKABLE
+  actions:
+    right-click:
+    - '[COMMAND_OP]mm arenas'
+    - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
+    left-click:
+    - '[COMMAND_OP]mm arenas'
+    - '[SOUND]ENTITY_ENDERMAN_TELEPORT:1.0:1.2'
