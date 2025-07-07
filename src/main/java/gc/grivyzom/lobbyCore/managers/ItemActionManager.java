@@ -235,11 +235,14 @@ public class ItemActionManager {
                 String processedLine = replacePlaceholders(player, loreLine);
                 lore.add(ColorUtils.translate(processedLine));
             }
+
+            // AGREGAR IDENTIFICADOR OCULTO AL FINAL DEL LORE
+            lore.add("§0§k§l" + actionItem.getItemId()); // Texto oculto negro
+
             meta.setLore(lore);
 
-            // Aplicar hide flags - Versión simplificada
+            // Aplicar hide flags
             if (actionItem.isHideMincraftInfo()) {
-                // Ocultar toda la información de Minecraft
                 meta.addItemFlags(
                         org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
                         org.bukkit.inventory.ItemFlag.HIDE_DESTROYS,
@@ -249,16 +252,6 @@ public class ItemActionManager {
                         org.bukkit.inventory.ItemFlag.HIDE_POTION_EFFECTS,
                         org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE
                 );
-            } else if (!actionItem.getHideFlags().isEmpty()) {
-                // Aplicar flags específicas solo si hide-minecraft-info es false
-                for (String flagName : actionItem.getHideFlags()) {
-                    try {
-                        org.bukkit.inventory.ItemFlag flag = org.bukkit.inventory.ItemFlag.valueOf(flagName.toUpperCase());
-                        meta.addItemFlags(flag);
-                    } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning("Flag inválida para item " + actionItem.getItemId() + ": " + flagName);
-                    }
-                }
             }
 
             itemStack.setItemMeta(meta);
@@ -519,23 +512,45 @@ public class ItemActionManager {
     /**
      * Verifica si un ItemStack es un item de acción
      */
+    /**
+     * Verifica si un ItemStack es un item de acción
+     */
     public ActionItem getActionItemFromItemStack(ItemStack itemStack) {
-        if (itemStack == null || !itemStack.hasItemMeta() || !itemStack.getItemMeta().hasDisplayName()) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
             return null;
         }
 
-        String itemDisplayName = itemStack.getItemMeta().getDisplayName();
+        ItemMeta meta = itemStack.getItemMeta();
+
+        // Buscar el identificador oculto en el lore
+        if (meta.hasLore()) {
+            List<String> lore = meta.getLore();
+            if (!lore.isEmpty()) {
+                String lastLine = lore.get(lore.size() - 1);
+                // El identificador está en formato "§0§k§l{itemId}"
+                if (lastLine.startsWith("§0§k§l")) {
+                    String itemId = lastLine.substring(6); // Remover "§0§k§l"
+                    return actionItems.get(itemId);
+                }
+            }
+        }
+
+        // Fallback al método anterior si no se encuentra el identificador
+        if (!meta.hasDisplayName()) {
+            return null;
+        }
+
+        String itemDisplayName = meta.getDisplayName();
 
         for (ActionItem actionItem : actionItems.values()) {
             String translatedName = ColorUtils.translate(actionItem.getDisplayName());
-            if (itemDisplayName.equals(translatedName)) {
+            if (itemDisplayName.contains(translatedName.replace("{PLAYER}", "").trim())) {
                 return actionItem;
             }
         }
 
         return null;
     }
-
     /**
      * Recarga todos los items de acción
      */
