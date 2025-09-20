@@ -26,6 +26,8 @@ permissions:
       lobbycore.use: true
       lobbycore.admin: true
       lobbycore.server.connect: true
+      lobbycore.antivoid.admin: true
+      lobbycore.antivoid.bypass: true
     default: op
 
   lobbycore.use:
@@ -102,4 +104,58 @@ permissions:
 
   lobbycore.server.connect.staff:
     description: Permite conectar al servidor Staff (restringido)
+    default: op
+  lobbycore.antivoid.*:
+    description: Acceso completo al sistema anti-void
+    children:
+      lobbycore.antivoid.admin: true
+      lobbycore.antivoid.bypass: true
+      lobbycore.antivoid.notifications: true
+    default: op
+
+  lobbycore.antivoid.admin:
+    description: Permite gestionar el sistema anti-void
+    children:
+      lobbycore.antivoid.status: true
+      lobbycore.antivoid.setspawn: true
+      lobbycore.antivoid.setheight: true
+      lobbycore.antivoid.toggle: true
+      lobbycore.antivoid.test: true
+      lobbycore.antivoid.reload: true
+    default: op
+
+  lobbycore.antivoid.status:
+    description: Permite ver el estado del sistema anti-void
+    default: op
+
+  lobbycore.antivoid.setspawn:
+    description: Permite establecer el spawn del anti-void
+    default: op
+
+  lobbycore.antivoid.setheight:
+    description: Permite cambiar la altura del vacío
+    default: op
+
+  lobbycore.antivoid.toggle:
+    description: Permite activar/desactivar el sistema anti-void
+    default: op
+
+  lobbycore.antivoid.test:
+    description: Permite probar el sistema anti-void
+    default: op
+
+  lobbycore.antivoid.reload:
+    description: Permite recargar la configuración del anti-void
+    default: op
+
+  lobbycore.antivoid.bypass:
+    description: Permite a los jugadores ignorar el sistema anti-void
+    default: op
+
+  lobbycore.antivoid.notifications:
+    description: Permite recibir notificaciones del sistema anti-void
+    default: op
+
+  lobbycore.admin.notifications:
+    description: Permite recibir notificaciones administrativas generales
     default: op

@@ -110,6 +110,7 @@ public class ConfigManager {
         addMainDefault("welcome.title.fade-in", 10);
         addMainDefault("welcome.title.stay", 40);
         addMainDefault("welcome.title.fade-out", 10);
+        addAntiVoidConfigDefaults();
 
         // Mensajes de chat
         addMainDefault("welcome.messages", Arrays.asList(
@@ -614,5 +615,451 @@ public class ConfigManager {
     public void closeConnections() {
         // Implementar cierre de conexiones de BD si es necesario
         plugin.getLogger().info("Conexiones cerradas correctamente");
+    }
+
+    private void addAntiVoidConfigDefaults() {
+        // Configuración básica del anti-void
+        addMainDefault("anti-void.enabled", true);
+        addMainDefault("anti-void.void-height", 0.0);
+        addMainDefault("anti-void.teleport-cooldown", 3000);
+
+        // Configuración de spawn por defecto (será actualizada con el comando)
+        addMainDefault("anti-void.spawn-location.world", "world");
+        addMainDefault("anti-void.spawn-location.x", 0.0);
+        addMainDefault("anti-void.spawn-location.y", 64.0);
+        addMainDefault("anti-void.spawn-location.z", 0.0);
+        addMainDefault("anti-void.spawn-location.yaw", 0.0);
+        addMainDefault("anti-void.spawn-location.pitch", 0.0);
+
+        // Configuración de mensajes
+        addMainDefault("anti-void.message.enabled", true);
+        addMainDefault("anti-void.message.text", "&c⚠ &f¡Has sido salvado del vacío! Teletransportado al spawn seguro.");
+
+        // Configuración de sonidos
+        addMainDefault("anti-void.sound.enabled", true);
+        addMainDefault("anti-void.sound.sound", "ENTITY_ENDERMAN_TELEPORT");
+        addMainDefault("anti-void.sound.volume", 1.0);
+        addMainDefault("anti-void.sound.pitch", 1.0);
+
+        // Configuración de efectos
+        addMainDefault("anti-void.effects.particles", true);
+        addMainDefault("anti-void.effects.action-bar.enabled", true);
+        addMainDefault("anti-void.effects.action-bar.message", "&c⚠ ¡Cuidado! Te estás acercando al vacío...");
+
+        // Configuración avanzada
+        addMainDefault("anti-void.advanced.warning-height-offset", 10);
+        addMainDefault("anti-void.advanced.log-events", true);
+        addMainDefault("anti-void.advanced.send-to-grivyzom", true);
+        addMainDefault("anti-void.advanced.detection.only-falling", false);
+        addMainDefault("anti-void.advanced.detection.cancel-movement", true);
+        addMainDefault("anti-void.advanced.detection.active-worlds", Arrays.asList());
+        addMainDefault("anti-void.advanced.detection.disabled-worlds", Arrays.asList());
+        addMainDefault("anti-void.advanced.auto-spawn.use-world-spawn", true);
+        addMainDefault("anti-void.advanced.auto-spawn.use-player-bed", false);
+
+        // Mensajes personalizados
+        addMainDefault("anti-void.messages.system-disabled", "&c❌ &fEl sistema anti-void está deshabilitado.");
+        addMainDefault("anti-void.messages.no-spawn-configured", "&c❌ &fNo hay spawn configurado para el anti-void. Usa &e/lobbycore antivoid setspawn");
+        addMainDefault("anti-void.messages.spawn-set", "&a✅ &fSpawn del anti-void establecido en tu ubicación actual.");
+        addMainDefault("anti-void.messages.height-changed", "&a✅ &fAltura del vacío cambiada a: &e{HEIGHT}");
+        addMainDefault("anti-void.messages.system-enabled", "&a✅ &fSistema anti-void habilitado.");
+        addMainDefault("anti-void.messages.system-disabled-admin", "&c❌ &fSistema anti-void deshabilitado.");
+        addMainDefault("anti-void.messages.cooldown-active", "&e⚠ &fEspera un momento antes del próximo teletransporte.");
+
+        // Notificaciones para administradores
+        addMainDefault("anti-void.admin-notifications.enabled", true);
+        addMainDefault("anti-void.admin-notifications.notify-void-saves", true);
+        addMainDefault("anti-void.admin-notifications.notify-frequent-falls", true);
+        addMainDefault("anti-void.admin-notifications.frequent-falls-threshold", 5);
+        addMainDefault("anti-void.admin-notifications.void-save-notification", "&c🚨 &f{PLAYER} &fha sido salvado del vacío en &e{WORLD} &f(Y: {Y})");
+        addMainDefault("anti-void.admin-notifications.notification-permission", "lobbycore.admin.notifications");
+
+        // Estadísticas
+        addMainDefault("anti-void.statistics.enabled", true);
+        addMainDefault("anti-void.statistics.track-falls", true);
+        addMainDefault("anti-void.statistics.show-in-status", true);
+
+        // Integraciones
+        addMainDefault("anti-void-integrations.worldguard.enabled", true);
+        addMainDefault("anti-void-integrations.worldguard.respect-regions", true);
+        addMainDefault("anti-void-integrations.worldguard.only-in-regions", Arrays.asList());
+        addMainDefault("anti-void-integrations.teleport-plugins.disable-after-teleport", true);
+        addMainDefault("anti-void-integrations.teleport-plugins.disable-duration", 5000);
+        addMainDefault("anti-void-integrations.flight-plugins.ignore-flying-players", true);
+
+        // Debug
+        addMainDefault("anti-void-debug.enabled", false);
+        addMainDefault("anti-void-debug.verbose-logging", false);
+        addMainDefault("anti-void-debug.show-debug-messages", false);
+        addMainDefault("anti-void-debug.log-height-checks", false);
+        addMainDefault("anti-void-debug.debug-particles", false);
+    }
+
+    public boolean isAntiVoidEnabled() {
+        return config.getBoolean("anti-void.enabled", true);
+    }
+
+    /**
+     * Obtiene la altura del vacío
+     */
+    public double getAntiVoidHeight() {
+        return config.getDouble("anti-void.void-height", 0.0);
+    }
+
+    /**
+     * Obtiene el cooldown de teletransporte en milisegundos
+     */
+    public long getAntiVoidCooldown() {
+        return config.getLong("anti-void.teleport-cooldown", 3000);
+    }
+
+    /**
+     * Verifica si los mensajes de anti-void están habilitados
+     */
+    public boolean isAntiVoidMessageEnabled() {
+        return config.getBoolean("anti-void.message.enabled", true);
+    }
+
+    /**
+     * Obtiene el mensaje de teletransporte del anti-void
+     */
+    public String getAntiVoidMessage() {
+        return config.getString("anti-void.message.text", "&c⚠ &f¡Has sido salvado del vacío!");
+    }
+
+    /**
+     * Verifica si los sonidos de anti-void están habilitados
+     */
+    public boolean isAntiVoidSoundEnabled() {
+        return config.getBoolean("anti-void.sound.enabled", true);
+    }
+
+    /**
+     * Obtiene el sonido del anti-void
+     */
+    public String getAntiVoidSound() {
+        return config.getString("anti-void.sound.sound", "ENTITY_ENDERMAN_TELEPORT");
+    }
+
+    /**
+     * Obtiene el volumen del sonido del anti-void
+     */
+    public double getAntiVoidSoundVolume() {
+        return config.getDouble("anti-void.sound.volume", 1.0);
+    }
+
+    /**
+     * Obtiene el pitch del sonido del anti-void
+     */
+    public double getAntiVoidSoundPitch() {
+        return config.getDouble("anti-void.sound.pitch", 1.0);
+    }
+
+    /**
+     * Verifica si las partículas de anti-void están habilitadas
+     */
+    public boolean isAntiVoidParticlesEnabled() {
+        return config.getBoolean("anti-void.effects.particles", true);
+    }
+
+    /**
+     * Verifica si el action bar de anti-void está habilitado
+     */
+    public boolean isAntiVoidActionBarEnabled() {
+        return config.getBoolean("anti-void.effects.action-bar.enabled", true);
+    }
+
+    /**
+     * Obtiene el mensaje del action bar del anti-void
+     */
+    public String getAntiVoidActionBarMessage() {
+        return config.getString("anti-void.effects.action-bar.message", "&c⚠ ¡Cuidado! Te estás acercando al vacío...");
+    }
+
+    /**
+     * Obtiene el offset de altura de advertencia
+     */
+    public int getAntiVoidWarningOffset() {
+        return config.getInt("anti-void.advanced.warning-height-offset", 10);
+    }
+
+    /**
+     * Verifica si se deben registrar eventos de anti-void
+     */
+    public boolean isAntiVoidLogEventsEnabled() {
+        return config.getBoolean("anti-void.advanced.log-events", true);
+    }
+
+    /**
+     * Verifica si se deben enviar eventos a GrivyzomCore
+     */
+    public boolean isAntiVoidSendToGrivyzomEnabled() {
+        return config.getBoolean("anti-void.advanced.send-to-grivyzom", true);
+    }
+
+    /**
+     * Verifica si solo detectar cuando el jugador está cayendo
+     */
+    public boolean isAntiVoidOnlyFalling() {
+        return config.getBoolean("anti-void.advanced.detection.only-falling", false);
+    }
+
+    /**
+     * Verifica si cancelar el movimiento al detectar caída
+     */
+    public boolean isAntiVoidCancelMovement() {
+        return config.getBoolean("anti-void.advanced.detection.cancel-movement", true);
+    }
+
+    /**
+     * Obtiene la lista de mundos activos para anti-void
+     */
+    public List<String> getAntiVoidActiveWorlds() {
+        return config.getStringList("anti-void.advanced.detection.active-worlds");
+    }
+
+    /**
+     * Obtiene la lista de mundos deshabilitados para anti-void
+     */
+    public List<String> getAntiVoidDisabledWorlds() {
+        return config.getStringList("anti-void.advanced.detection.disabled-worlds");
+    }
+
+    /**
+     * Verifica si usar spawn del mundo como fallback
+     */
+    public boolean isAntiVoidUseWorldSpawn() {
+        return config.getBoolean("anti-void.advanced.auto-spawn.use-world-spawn", true);
+    }
+
+    /**
+     * Verifica si usar cama del jugador como spawn
+     */
+    public boolean isAntiVoidUsePlayerBed() {
+        return config.getBoolean("anti-void.advanced.auto-spawn.use-player-bed", false);
+    }
+
+    /**
+     * Verifica si las notificaciones de admin están habilitadas
+     */
+    public boolean isAntiVoidAdminNotificationsEnabled() {
+        return config.getBoolean("anti-void.admin-notifications.enabled", true);
+    }
+
+    /**
+     * Verifica si notificar cuando alguien es salvado del vacío
+     */
+    public boolean isAntiVoidNotifyVoidSaves() {
+        return config.getBoolean("anti-void.admin-notifications.notify-void-saves", true);
+    }
+
+    /**
+     * Verifica si notificar caídas frecuentes
+     */
+    public boolean isAntiVoidNotifyFrequentFalls() {
+        return config.getBoolean("anti-void.admin-notifications.notify-frequent-falls", true);
+    }
+
+    /**
+     * Obtiene el umbral de caídas frecuentes
+     */
+    public int getAntiVoidFrequentFallsThreshold() {
+        return config.getInt("anti-void.admin-notifications.frequent-falls-threshold", 5);
+    }
+
+    /**
+     * Obtiene el mensaje de notificación de salvamento
+     */
+    public String getAntiVoidSaveNotification() {
+        return config.getString("anti-void.admin-notifications.void-save-notification",
+                "&c🚨 &f{PLAYER} &fha sido salvado del vacío en &e{WORLD} &f(Y: {Y})");
+    }
+
+    /**
+     * Obtiene el permiso para recibir notificaciones
+     */
+    public String getAntiVoidNotificationPermission() {
+        return config.getString("anti-void.admin-notifications.notification-permission", "lobbycore.admin.notifications");
+    }
+
+    /**
+     * Verifica si las estadísticas de anti-void están habilitadas
+     */
+    public boolean isAntiVoidStatisticsEnabled() {
+        return config.getBoolean("anti-void.statistics.enabled", true);
+    }
+
+    /**
+     * Verifica si trackear caídas al vacío
+     */
+    public boolean isAntiVoidTrackFalls() {
+        return config.getBoolean("anti-void.statistics.track-falls", true);
+    }
+
+    /**
+     * Verifica si mostrar estadísticas en el status
+     */
+    public boolean isAntiVoidShowInStatus() {
+        return config.getBoolean("anti-void.statistics.show-in-status", true);
+    }
+
+    /**
+     * Verifica si la integración con WorldGuard está habilitada
+     */
+    public boolean isAntiVoidWorldGuardEnabled() {
+        return config.getBoolean("anti-void-integrations.worldguard.enabled", true);
+    }
+
+    /**
+     * Verifica si respetar regiones de WorldGuard
+     */
+    public boolean isAntiVoidRespectRegions() {
+        return config.getBoolean("anti-void-integrations.worldguard.respect-regions", true);
+    }
+
+    /**
+     * Obtiene las regiones donde el anti-void está activo
+     */
+    public List<String> getAntiVoidOnlyInRegions() {
+        return config.getStringList("anti-void-integrations.worldguard.only-in-regions");
+    }
+
+    /**
+     * Verifica si desactivar anti-void después de teletransportes
+     */
+    public boolean isAntiVoidDisableAfterTeleport() {
+        return config.getBoolean("anti-void-integrations.teleport-plugins.disable-after-teleport", true);
+    }
+
+    /**
+     * Obtiene la duración de desactivación después de teletransporte
+     */
+    public long getAntiVoidDisableDuration() {
+        return config.getLong("anti-void-integrations.teleport-plugins.disable-duration", 5000);
+    }
+
+    /**
+     * Verifica si ignorar jugadores volando
+     */
+    public boolean isAntiVoidIgnoreFlyingPlayers() {
+        return config.getBoolean("anti-void-integrations.flight-plugins.ignore-flying-players", true);
+    }
+
+    /**
+     * Verifica si el debug de anti-void está habilitado
+     */
+    public boolean isAntiVoidDebugEnabled() {
+        return config.getBoolean("anti-void-debug.enabled", false);
+    }
+
+    /**
+     * Verifica si el logging verboso está habilitado
+     */
+    public boolean isAntiVoidVerboseLogging() {
+        return config.getBoolean("anti-void-debug.verbose-logging", false);
+    }
+
+    /**
+     * Verifica si mostrar mensajes de debug
+     */
+    public boolean isAntiVoidShowDebugMessages() {
+        return config.getBoolean("anti-void-debug.show-debug-messages", false);
+    }
+
+    /**
+     * Verifica si registrar todas las verificaciones de altura
+     */
+    public boolean isAntiVoidLogHeightChecks() {
+        return config.getBoolean("anti-void-debug.log-height-checks", false);
+    }
+
+    /**
+     * Verifica si mostrar partículas de debug
+     */
+    public boolean isAntiVoidDebugParticles() {
+        return config.getBoolean("anti-void-debug.debug-particles", false);
+    }
+
+    /**
+     * Obtiene un mensaje personalizado del anti-void
+     */
+    public String getAntiVoidCustomMessage(String messageKey) {
+        return config.getString("anti-void.messages." + messageKey, "&7Mensaje no configurado.");
+    }
+
+    /**
+     * Verifica si el anti-void está habilitado en un mundo específico
+     */
+    public boolean isAntiVoidEnabledInWorld(String worldName) {
+        if (!isAntiVoidEnabled()) {
+            return false;
+        }
+
+        List<String> disabledWorlds = getAntiVoidDisabledWorlds();
+        if (disabledWorlds.contains(worldName)) {
+            return false;
+        }
+
+        List<String> activeWorlds = getAntiVoidActiveWorlds();
+        if (!activeWorlds.isEmpty()) {
+            return activeWorlds.contains(worldName);
+        }
+
+        return true; // Habilitado por defecto si no está en listas específicas
+    }
+
+    /**
+     * Establece la configuración de anti-void habilitado/deshabilitado
+     */
+    public void setAntiVoidEnabled(boolean enabled) {
+        config.set("anti-void.enabled", enabled);
+        saveConfig();
+    }
+
+    /**
+     * Establece la altura del vacío
+     */
+    public void setAntiVoidHeight(double height) {
+        config.set("anti-void.void-height", height);
+        saveConfig();
+    }
+
+    /**
+     * Guarda la ubicación de spawn del anti-void
+     */
+    public void setAntiVoidSpawnLocation(org.bukkit.Location location) {
+        if (location != null) {
+            config.set("anti-void.spawn-location.world", location.getWorld().getName());
+            config.set("anti-void.spawn-location.x", location.getX());
+            config.set("anti-void.spawn-location.y", location.getY());
+            config.set("anti-void.spawn-location.z", location.getZ());
+            config.set("anti-void.spawn-location.yaw", location.getYaw());
+            config.set("anti-void.spawn-location.pitch", location.getPitch());
+            saveConfig();
+        }
+    }
+
+    /**
+     * Carga la ubicación de spawn del anti-void
+     */
+    public org.bukkit.Location getAntiVoidSpawnLocation() {
+        try {
+            String worldName = config.getString("anti-void.spawn-location.world");
+            if (worldName == null) return null;
+
+            org.bukkit.World world = plugin.getServer().getWorld(worldName);
+            if (world == null) return null;
+
+            double x = config.getDouble("anti-void.spawn-location.x");
+            double y = config.getDouble("anti-void.spawn-location.y");
+            double z = config.getDouble("anti-void.spawn-location.z");
+            float yaw = (float) config.getDouble("anti-void.spawn-location.yaw");
+            float pitch = (float) config.getDouble("anti-void.spawn-location.pitch");
+
+            return new org.bukkit.Location(world, x, y, z, yaw, pitch);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error cargando ubicación de spawn del anti-void: " + e.getMessage());
+            return null;
+        }
     }
 }

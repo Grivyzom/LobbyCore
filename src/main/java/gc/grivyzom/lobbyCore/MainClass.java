@@ -5,6 +5,7 @@ import gc.grivyzom.lobbyCore.config.ConfigManager;
 import gc.grivyzom.lobbyCore.integration.GrivyzomCoreIntegration;
 import gc.grivyzom.lobbyCore.integration.GrivyzomResponseHandler;
 import gc.grivyzom.lobbyCore.integration.GrivyzomPlaceholders;
+import gc.grivyzom.lobbyCore.listeners.AntiVoidListener;
 import gc.grivyzom.lobbyCore.listeners.ItemActionListener;
 import gc.grivyzom.lobbyCore.listeners.PlayerJoinListener;
 import gc.grivyzom.lobbyCore.managers.FireworksManager;
@@ -28,6 +29,9 @@ public final class MainClass extends JavaPlugin {
     private GrivyzomResponseHandler responseHandler;
     private GrivyzomPlaceholders placeholders;
 
+    // Sistema Anti-Void
+    private AntiVoidListener antiVoidListener;
+
     @Override
     public void onEnable() {
         // Asignar instancia
@@ -44,6 +48,9 @@ public final class MainClass extends JavaPlugin {
 
             // Inicializar gestores principales
             initializeManagers();
+
+            // Inicializar sistema anti-void
+            initializeAntiVoid();
 
             // Inicializar integración con GrivyzomCore
             initializeGrivyzomIntegration();
@@ -134,6 +141,27 @@ public final class MainClass extends JavaPlugin {
     }
 
     /**
+     * Inicializa el sistema anti-void
+     */
+    private void initializeAntiVoid() {
+        try {
+            antiVoidListener = new AntiVoidListener(this);
+            getLogger().info(ColorUtils.translate("&c🚨 &fSistema Anti-void inicializado"));
+
+            // Mostrar configuración actual
+            var stats = antiVoidListener.getStats();
+            getLogger().info(ColorUtils.translate("&e⚙ &fAnti-void: " +
+                    (stats.isEnabled() ? "&aHabilitado" : "&cDeshabilitado") +
+                    " &f| Altura: &e" + stats.getVoidHeight() +
+                    " &f| Spawn: " + (stats.isSpawnConfigured() ? "&aConfigurado" : "&cNo configurado")));
+
+        } catch (Exception e) {
+            getLogger().severe("❌ Error inicializando sistema anti-void: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Inicializa la integración con GrivyzomCore
      */
     private void initializeGrivyzomIntegration() {
@@ -171,6 +199,13 @@ public final class MainClass extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemActionListener(this), this);
+
+        // Registrar anti-void listener
+        if (antiVoidListener != null) {
+            getServer().getPluginManager().registerEvents(antiVoidListener, this);
+            getLogger().info(ColorUtils.translate("&c🚨 &fListener Anti-void registrado"));
+        }
+
         getLogger().info(ColorUtils.translate("&a✓ &fEventos registrados correctamente"));
     }
 
@@ -274,6 +309,7 @@ public final class MainClass extends JavaPlugin {
         welcomeMessageManager = null;
         fireworksManager = null;
         itemActionManager = null;
+        antiVoidListener = null;
         grivyzomIntegration = null;
         responseHandler = null;
         placeholders = null;
@@ -295,6 +331,12 @@ public final class MainClass extends JavaPlugin {
             if (welcomeMessageManager != null) welcomeMessageManager.reload();
             if (fireworksManager != null) fireworksManager.reload();
             if (itemActionManager != null) itemActionManager.reload();
+
+            // Recargar sistema anti-void
+            if (antiVoidListener != null) {
+                antiVoidListener.reload();
+                getLogger().info(ColorUtils.translate("&c🚨 &fAnti-void recargado"));
+            }
 
             // Verificar conexión con GrivyzomCore
             if (grivyzomIntegration != null && !getServer().getOnlinePlayers().isEmpty()) {
@@ -363,6 +405,11 @@ public final class MainClass extends JavaPlugin {
 
     public GrivyzomPlaceholders getPlaceholders() {
         return placeholders;
+    }
+
+    // Getter para el anti-void listener
+    public AntiVoidListener getAntiVoidListener() {
+        return antiVoidListener;
     }
 
     /**

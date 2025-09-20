@@ -4,6 +4,7 @@ import gc.grivyzom.lobbyCore.MainClass;
 import gc.grivyzom.lobbyCore.models.ActionItem;
 import gc.grivyzom.lobbyCore.utils.ColorUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -64,6 +65,10 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 handleGrivyzom(sender, args);
                 break;
 
+            case "antivoid":
+                handleAntiVoid(sender, args);
+                break;
+
             default:
                 sendHelpMessage(sender);
                 break;
@@ -94,6 +99,143 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
             plugin.getLogger().severe("Error al recargar configuración: " + e.getMessage());
         }
     }
+
+    private void handleAntiVoid(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("lobbycore.admin")) {
+            ColorUtils.sendMessage((Player) sender, "&c❌ &fNo tienes permisos para usar este comando.");
+            return;
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Este comando solo puede ser usado por jugadores.");
+            return;
+        }
+
+        Player player = (Player) sender;
+
+        if (args.length < 2) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fUso: /lobbycore antivoid <status|setspawn|setheight|toggle|test|reload>");
+            return;
+        }
+
+        var antiVoidListener = plugin.getAntiVoidListener();
+        if (antiVoidListener == null) {
+            ColorUtils.sendMessage(player, "&c❌ &fSistema Anti-void no está disponible.");
+            return;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "status":
+                handleAntiVoidStatus(player);
+                break;
+
+            case "setspawn":
+                handleAntiVoidSetSpawn(player);
+                break;
+
+            case "setheight":
+                handleAntiVoidSetHeight(player, args);
+                break;
+
+            case "toggle":
+                handleAntiVoidToggle(player);
+                break;
+
+            case "test":
+                handleAntiVoidTest(player);
+                break;
+
+            case "reload":
+                handleAntiVoidReload(player);
+                break;
+
+            default:
+                ColorUtils.sendMessage(player,
+                        "&c❌ &fUso: /lobbycore antivoid <status|setspawn|setheight|toggle|test|reload>");
+                break;
+        }
+    }
+
+    /**
+     * Alterna el estado del anti-void
+     */
+    private void handleAntiVoidToggle(Player player) {
+        var antiVoidListener = plugin.getAntiVoidListener();
+        antiVoidListener.toggleEnabled();
+
+        boolean enabled = antiVoidListener.isEnabled();
+        String status = enabled ? "&ahabilitado" : "&cdeshabilitado";
+
+        ColorUtils.sendMessage(player,
+                "&c🚨 &fSistema Anti-void " + status + "&f.");
+
+        if (enabled) {
+            var stats = antiVoidListener.getStats();
+            if (!stats.isSpawnConfigured()) {
+                ColorUtils.sendMessage(player,
+                        "&e⚠ &fRecuerda configurar un spawn con: &e/lobbycore antivoid setspawn");
+            }
+        }
+    }
+
+    /**
+     * Prueba el sistema anti-void
+     */
+    private void handleAntiVoidTest(Player player) {
+        var antiVoidListener = plugin.getAntiVoidListener();
+        var stats = antiVoidListener.getStats();
+
+        if (!stats.isEnabled()) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fEl sistema anti-void está deshabilitado.");
+            return;
+        }
+
+        if (!stats.isSpawnConfigured()) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fNo hay spawn configurado para el anti-void.");
+            ColorUtils.sendMessage(player,
+                    "&7Usa: &e/lobbycore antivoid setspawn");
+            return;
+        }
+
+        // Simular caída al vacío teletransportando al jugador
+        Location testLocation = player.getLocation().clone();
+        testLocation.setY(antiVoidListener.getVoidHeight() - 1);
+
+        ColorUtils.sendMessage(player,
+                "&e🧪 &fProbando sistema anti-void...");
+        ColorUtils.sendMessage(player,
+                "&7Te teletransportaré bajo el límite del vacío para probar el sistema.");
+
+        // Teletransportar en 3 segundos
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                player.teleport(testLocation);
+                ColorUtils.sendMessage(player,
+                        "&c⚠ &f¡Ahora estás en el vacío! El sistema debería activarse...");
+            }
+        }, 60L); // 3 segundos
+    }
+
+    /**
+     * Recarga el sistema anti-void
+     */
+    private void handleAntiVoidReload(Player player) {
+        var antiVoidListener = plugin.getAntiVoidListener();
+        antiVoidListener.reload();
+
+        ColorUtils.sendMessage(player,
+                "&a✅ &fSistema Anti-void recargado correctamente.");
+
+        // Mostrar nuevo estado
+        var stats = antiVoidListener.getStats();
+        ColorUtils.sendMessage(player,
+                "&7Estado: " + (stats.isEnabled() ? "&aHabilitado" : "&cDeshabilitado") +
+                        " &7| Altura: &e" + stats.getVoidHeight());
+    }
+
 
     /**
      * Maneja los comandos de integración con GrivyzomCore
@@ -149,6 +291,85 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleAntiVoidSetSpawn(Player player) {
+        var antiVoidListener = plugin.getAntiVoidListener();
+        Location playerLocation = player.getLocation();
+
+        boolean success = antiVoidListener.setSpawnLocation(playerLocation);
+
+        if (success) {
+            ColorUtils.sendMessage(player,
+                    "&a✅ &fSpawn del anti-void establecido en tu ubicación actual:");
+            ColorUtils.sendMessage(player,
+                    "&7Mundo: &e" + playerLocation.getWorld().getName() + " &7| " +
+                            "Coords: &e" + String.format("%.1f, %.1f, %.1f",
+                            playerLocation.getX(), playerLocation.getY(), playerLocation.getZ()));
+        } else {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fError al establecer spawn del anti-void.");
+        }
+    }
+
+    private void handleAntiVoidSetHeight(Player player, String[] args) {
+        if (args.length < 3) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fUso: /lobbycore antivoid setheight <altura>");
+            ColorUtils.sendMessage(player,
+                    "&7Ejemplo: &e/lobbycore antivoid setheight 0");
+            return;
+        }
+
+        try {
+            double height = Double.parseDouble(args[2]);
+            var antiVoidListener = plugin.getAntiVoidListener();
+            antiVoidListener.setVoidHeight(height);
+
+            ColorUtils.sendMessage(player,
+                    "&a✅ &fAltura del vacío establecida en: &e" + height);
+            ColorUtils.sendMessage(player,
+                    "&7Los jugadores serán teletransportados si caen por debajo de Y=" + height);
+
+        } catch (NumberFormatException e) {
+            ColorUtils.sendMessage(player,
+                    "&c❌ &fAltura inválida. Usa un número válido.");
+            ColorUtils.sendMessage(player,
+                    "&7Ejemplo: &e/lobbycore antivoid setheight 0");
+        }
+    }
+
+    private void handleAntiVoidStatus(Player player) {
+        var antiVoidListener = plugin.getAntiVoidListener();
+        var stats = antiVoidListener.getStats();
+
+        ColorUtils.sendMessages(player, Arrays.asList(
+                "",
+                "&#E74C3C▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                "",
+                "  &c🚨 &fEstado del Sistema &cAnti-Void",
+                "",
+                "  &7┃ &fEstado: " + (stats.isEnabled() ? "&a✅ Habilitado" : "&c❌ Deshabilitado"),
+                "  &7┃ &fAltura del vacío: &e" + stats.getVoidHeight(),
+                "  &7┃ &fSpawn configurado: " + (stats.isSpawnConfigured() ? "&a✅ Sí" : "&c❌ No"),
+                "  &7┃ &fCooldown: &e" + (stats.getCooldownMs() / 1000) + " &7segundos",
+                "",
+                "  &e📊 &fEstadísticas Actuales:",
+                "  &7┃ &fJugadores en cooldown: &e" + stats.getPlayersInCooldown(),
+                "  &7┃ &fJugadores cayendo: &e" + stats.getPlayersFalling(),
+                "",
+                stats.isSpawnConfigured() ?
+                        "  &a✨ &fSistema completamente configurado y funcional" :
+                        "  &c⚠ &fConfigura un spawn con: &e/lobbycore antivoid setspawn",
+                "",
+                "  &7Comandos disponibles:",
+                "  &e/lobbycore antivoid setspawn &7- Establecer spawn",
+                "  &e/lobbycore antivoid setheight <Y> &7- Establecer altura",
+                "  &e/lobbycore antivoid toggle &7- Activar/desactivar",
+                "  &e/lobbycore antivoid test &7- Probar sistema",
+                "",
+                "&#E74C3C▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+                ""
+        ));
+    }
     /**
      * Envía ping a GrivyzomCore
      */
@@ -588,6 +809,7 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("/lobbycore test [jugador] - Prueba el mensaje de bienvenida");
             sender.sendMessage("/lobbycore items <list|give|reload> - Gestionar items de acción");
             sender.sendMessage("/lobbycore grivyzom <ping|status|stats> - Comandos GrivyzomCore");
+            sender.sendMessage("/lobbycore antivoid <status|setspawn|toggle> - Gestionar anti-void");
             return;
         }
 
@@ -607,6 +829,14 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 "  &e/lobbycore items <list|give|reload> &7- &fGestionar items de acción",
                 "  &e/lobbycore fireworks <enable|disable|test> &7- &fGestionar fuegos artificiales",
                 "",
+                "  &c🚨 &fComandos Anti-Void:",
+                "  &e/lobbycore antivoid status &7- &fVer estado del sistema",
+                "  &e/lobbycore antivoid setspawn &7- &fEstablecer spawn de rescate",
+                "  &e/lobbycore antivoid setheight <Y> &7- &fEstablecer altura del vacío",
+                "  &e/lobbycore antivoid toggle &7- &fActivar/desactivar sistema",
+                "  &e/lobbycore antivoid test &7- &fProbar funcionamiento",
+                "  &e/lobbycore antivoid reload &7- &fRecargar configuración",
+                "",
                 "  &b🔧 &fComandos GrivyzomCore:",
                 "  &e/lobbycore grivyzom ping &7- &fProbar conexión",
                 "  &e/lobbycore grivyzom status &7- &fVer estado de integración",
@@ -622,11 +852,10 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                 ""
         ));
     }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("reload", "test", "info", "welcome", "version", "items", "fireworks", "grivyzom")
+            return Arrays.asList("reload", "test", "info", "welcome", "version", "items", "fireworks", "grivyzom", "antivoid")
                     .stream()
                     .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
@@ -659,6 +888,12 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                             .stream()
                             .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
                             .collect(Collectors.toList());
+
+                case "antivoid":
+                    return Arrays.asList("status", "setspawn", "setheight", "toggle", "test", "reload")
+                            .stream()
+                            .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                            .collect(Collectors.toList());
             }
         }
 
@@ -684,6 +919,13 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
                         .filter(s -> s.startsWith(args[2]))
                         .collect(Collectors.toList());
             }
+
+            if (args[0].equalsIgnoreCase("antivoid") && args[1].equalsIgnoreCase("setheight")) {
+                return Arrays.asList("0", "-10", "-50", "-100")
+                        .stream()
+                        .filter(s -> s.startsWith(args[2]))
+                        .collect(Collectors.toList());
+            }
         }
 
         if (args.length == 4 && args[0].equalsIgnoreCase("items") && args[1].equalsIgnoreCase("give")) {
@@ -696,7 +938,6 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
 
         return Arrays.asList();
     }
-
     // Agregar estos métodos a tu clase LobbyCommand existente
 
     /**
