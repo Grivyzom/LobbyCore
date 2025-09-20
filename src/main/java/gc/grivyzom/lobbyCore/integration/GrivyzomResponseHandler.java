@@ -19,11 +19,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Manejador mejorado de respuestas de GrivyzomCore
- * Procesa mensajes entrantes y mantiene cache dinámico de datos
+ * Procesa mensajes entrantes y mantiene cache dinámico de datos - LOGGING OPTIMIZADO
  */
 public class GrivyzomResponseHandler implements PluginMessageListener {
 
     private final MainClass plugin;
+    private boolean verboseLogging = false;
 
     // Cache de datos con timestamps para TTL
     private final Map<UUID, CachedPlayerData> playerDataCache;
@@ -49,6 +50,8 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
     public GrivyzomResponseHandler(MainClass plugin) {
         this.plugin = plugin;
+        this.verboseLogging = plugin.getConfigManager().getConfig().getBoolean("debug.integration-logging.log-messages", false);
+
         this.playerDataCache = new ConcurrentHashMap<>();
         this.networkDataCache = new ConcurrentHashMap<>();
         this.topPlayersCache = new ConcurrentHashMap<>();
@@ -73,24 +76,24 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
      * Inicializa datos por defecto más realistas
      */
     private void initializeRealisticDefaults() {
-        // Datos del network con variación
         long currentTime = System.currentTimeMillis();
         int baseOnline = Math.max(Bukkit.getOnlinePlayers().size(), 1);
-        int networkOnline = baseOnline + (int)(Math.random() * 100) + 50; // Entre +50 y +150
+        int networkOnline = baseOnline + (int)(Math.random() * 100) + 50;
 
         networkDataCache.put("players", new CachedData(String.valueOf(networkOnline), currentTime));
         networkDataCache.put("servers", new CachedData("5", currentTime));
         networkDataCache.put("status", new CachedData("online", currentTime));
 
-        // Datos de economía con números grandes pero realistas
         economyDataCache.put("total_coins", new CachedData(generateRealisticTotalCoins(), currentTime));
         economyDataCache.put("total_gems", new CachedData(generateRealisticTotalGems(), currentTime));
         economyDataCache.put("circulation", new CachedData("98.7%", currentTime));
 
-        // Top players dinámicos
         initializeRealisticTopPlayers();
 
-        plugin.getLogger().info(ColorUtils.translate("&a✓ &fDatos por defecto realistas inicializados"));
+        // Solo log inicial sin spam
+        if (verboseLogging) {
+            plugin.getLogger().info(ColorUtils.translate("&a✓ &fDatos por defecto realistas inicializados"));
+        }
     }
 
     /**
@@ -110,9 +113,8 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             int nameIndex = (int)((System.currentTimeMillis() / 300000 + i) % playerNames.length);
             playerData.put("name", playerNames[nameIndex]);
 
-            // Generar cantidades que disminuyen por posición pero con variación
-            int baseAmount = 100000 - (i * 15000); // Base decreciente
-            int variation = (int)(Math.random() * 10000); // Variación aleatoria
+            int baseAmount = 100000 - (i * 15000);
+            int variation = (int)(Math.random() * 10000);
             playerData.put("coins", formatLargeNumber(baseAmount + variation));
 
             topCoins.put(i, playerData);
@@ -155,29 +157,27 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
         long currentTime = System.currentTimeMillis();
         final AtomicInteger removedEntries = new AtomicInteger(0);
 
-        // Limpiar datos de jugadores expirados
         playerDataCache.entrySet().removeIf(entry -> {
             boolean expired = currentTime - entry.getValue().getTimestamp() > PLAYER_DATA_TTL;
             if (expired) removedEntries.incrementAndGet();
             return expired;
         });
 
-        // Limpiar datos de network expirados
         networkDataCache.entrySet().removeIf(entry -> {
             boolean expired = currentTime - entry.getValue().getTimestamp() > NETWORK_DATA_TTL;
             if (expired) removedEntries.incrementAndGet();
             return expired;
         });
 
-        // Limpiar datos de economía expirados
         economyDataCache.entrySet().removeIf(entry -> {
             boolean expired = currentTime - entry.getValue().getTimestamp() > ECONOMY_DATA_TTL;
             if (expired) removedEntries.incrementAndGet();
             return expired;
         });
 
+        // Solo log de limpieza si es significativo
         int finalRemovedEntries = removedEntries.get();
-        if (finalRemovedEntries > 0) {
+        if (finalRemovedEntries > 10 && verboseLogging) {
             plugin.getLogger().info(ColorUtils.translate(
                     "&e🧹 &fCache limpiado: " + finalRemovedEntries + " entradas expiradas removidas"));
         }
@@ -189,22 +189,19 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
     private void updateDynamicData() {
         long currentTime = System.currentTimeMillis();
 
-        // Actualizar jugadores online con variación realista
         int baseOnline = Math.max(Bukkit.getOnlinePlayers().size(), 1);
-        int variation = (int)(Math.sin(currentTime / 300000.0) * 20); // Variación sinusoidal
+        int variation = (int)(Math.sin(currentTime / 300000.0) * 20);
         int networkOnline = Math.max(baseOnline + 50 + variation, baseOnline);
 
         networkDataCache.put("players", new CachedData(String.valueOf(networkOnline), currentTime));
 
-        // Actualizar economía global con crecimiento simulado
         String totalCoins = generateRealisticTotalCoins();
         String totalGems = generateRealisticTotalGems();
 
         economyDataCache.put("total_coins", new CachedData(totalCoins, currentTime));
         economyDataCache.put("total_gems", new CachedData(totalGems, currentTime));
 
-        // Actualizar top players ocasionalmente (cada 5 minutos)
-        if (currentTime % 300000 < 60000) { // Los primeros 60 segundos de cada período de 5 minutos
+        if (currentTime % 300000 < 60000) {
             updateTopPlayersWithVariation();
         }
     }
@@ -213,21 +210,18 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
      * Actualiza top players con variaciones realistas
      */
     private void updateTopPlayersWithVariation() {
-        // Actualizar top coins con pequeñas variaciones
         Map<Integer, Map<String, String>> topCoins = topPlayersCache.get("coins");
         if (topCoins != null) {
             for (Map.Entry<Integer, Map<String, String>> entry : topCoins.entrySet()) {
                 Map<String, String> playerData = entry.getValue();
                 String currentCoins = playerData.get("coins");
 
-                // Aplicar pequeña variación (±5%)
                 int coins = parseFormattedNumber(currentCoins);
                 int variation = (int)(coins * 0.05 * (Math.random() - 0.5) * 2);
                 playerData.put("coins", formatLargeNumber(Math.max(coins + variation, 1000)));
             }
         }
 
-        // Actualizar top gems con pequeñas variaciones
         Map<Integer, Map<String, String>> topGems = topPlayersCache.get("gems");
         if (topGems != null) {
             for (Map.Entry<Integer, Map<String, String>> entry : topGems.entrySet()) {
@@ -253,9 +247,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String messageType = in.readUTF();
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&e📨 &fMensaje recibido - Canal: &b" + channel + "&f, Tipo: &e" + messageType
-            ));
+            // Solo log de mensajes importantes o si verbose está habilitado
+            if (verboseLogging || isImportantMessage(messageType)) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&e📨 &fMensaje recibido - Canal: &b" + channel + "&f, Tipo: &e" + messageType
+                ));
+            }
 
             switch (messageType) {
                 case "PONG":
@@ -284,15 +281,26 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
                     break;
 
                 default:
-                    plugin.getLogger().info(ColorUtils.translate(
-                            "&e⚠ &fTipo de mensaje desconocido: &e" + messageType
-                    ));
+                    if (verboseLogging) {
+                        plugin.getLogger().info(ColorUtils.translate(
+                                "&e⚠ &fTipo de mensaje desconocido: &e" + messageType
+                        ));
+                    }
                     break;
             }
 
         } catch (Exception e) {
             plugin.getLogger().severe("Error procesando mensaje de GrivyzomCore: " + e.getMessage());
         }
+    }
+
+    /**
+     * Determina si un mensaje es importante para el log
+     */
+    private boolean isImportantMessage(String messageType) {
+        return "PONG".equals(messageType) ||
+                messageType.contains("ERROR") ||
+                messageType.contains("UPDATE");
     }
 
     /**
@@ -308,11 +316,14 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             }
 
             long latency = System.currentTimeMillis() - timestamp;
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a🏓 &fPONG recibido de &b" + serverName + " &f(Latencia: &e" + latency + "ms&f)"
-            ));
 
-            // Actualizar estado de conexión
+            // Solo log del primer PONG o si hay problemas de latencia
+            if (!plugin.getGrivyzomIntegration().isGrivyzomCoreAvailable() || latency > 1000) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a🏓 &fPONG recibido de &b" + serverName + " &f(Latencia: &e" + latency + "ms&f)"
+                ));
+            }
+
             networkDataCache.put("latency", new CachedData(latency + "ms", System.currentTimeMillis()));
 
         } catch (Exception e) {
@@ -336,13 +347,15 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             playerData.put("level", in.readUTF());
             playerData.put("playtime", in.readUTF());
 
-            // Guardar en cache con timestamp
             playerDataCache.put(uuid, new CachedPlayerData(playerData, System.currentTimeMillis()));
             dataUpdates++;
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a📊 &fDatos reales actualizados para jugador: &b" + playerData.get("name")
-            ));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a📊 &fDatos actualizados para: &b" + playerData.get("name")
+                ));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando datos del jugador: " + e.getMessage());
@@ -369,9 +382,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             topPlayersCache.put(type, topData);
             dataUpdates++;
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a🏆 &fTop " + count + " jugadores por " + type + " actualizado (datos reales)"
-            ));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a🏆 &fTop " + count + " actualizado: " + type
+                ));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando top players: " + e.getMessage());
@@ -393,10 +409,14 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
             networkDataCache.put("status", new CachedData(status, currentTime));
             dataUpdates++;
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a📈 &fEstadísticas reales del network actualizadas: &e" + totalPlayers +
-                            " &fjugadores, &e" + totalServers + " &fservidores"
-            ));
+            // Solo log si hay cambios significativos
+            int currentPlayers = Bukkit.getOnlinePlayers().size();
+            if (Math.abs(totalPlayers - currentPlayers) > 10 || verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a📈 &fNetwork actualizado: &e" + totalPlayers +
+                                " &fjugadores, &e" + totalServers + " &fservidores"
+                ));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando estadísticas del network: " + e.getMessage());
@@ -419,7 +439,6 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
                 cachedData.getData().put(updateType.toLowerCase(), newValue);
                 cachedData.updateTimestamp();
             } else {
-                // Crear nueva entrada si no existe
                 Map<String, String> playerData = new HashMap<>();
                 playerData.put(updateType.toLowerCase(), newValue);
                 playerDataCache.put(uuid, new CachedPlayerData(playerData, System.currentTimeMillis()));
@@ -427,9 +446,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
             dataUpdates++;
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a💰 &fActualización de economía real: &e" + updateType + " &f= &e" + newValue
-            ));
+            // Solo log para actualizaciones importantes (administrativas)
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a💰 &fActualización de economía: &e" + updateType + " &f= &e" + newValue
+                ));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando actualización de economía: " + e.getMessage());
@@ -460,9 +482,12 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
             dataUpdates++;
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a💎 &f" + currencyType.toUpperCase() + " reales actualizadas: &e" + newValue
-            ));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a💎 &f" + currencyType.toUpperCase() + " actualizadas: &e" + newValue
+                ));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error procesando actualización de " + messageType + ": " + e.getMessage());
@@ -487,7 +512,6 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
         cacheMisses++;
 
-        // Generar datos realistas basados en el jugador si no hay datos reales
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null) {
             return generateRealisticPlayerData(player, dataType);
@@ -547,7 +571,7 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
     private String generateRealisticPlayerData(Player player, String dataType) {
         int hash = Math.abs(player.getName().hashCode());
-        long timeVariation = System.currentTimeMillis() / 60000; // Cambia cada minuto
+        long timeVariation = System.currentTimeMillis() / 60000;
 
         switch (dataType.toLowerCase()) {
             case "coins":
@@ -629,7 +653,8 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
 
         initializeRealisticDefaults();
 
-        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fCache dinámico limpiado y reinicializado"));
+        // Log importante de limpieza manual
+        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fCache limpiado y reinicializado manualmente"));
     }
 
     /**
@@ -659,7 +684,9 @@ public class GrivyzomResponseHandler implements PluginMessageListener {
      */
     public void invalidatePlayerCache(UUID playerUUID) {
         playerDataCache.remove(playerUUID);
-        plugin.getLogger().info("Cache del jugador " + playerUUID + " invalidado");
+        if (verboseLogging) {
+            plugin.getLogger().info("Cache del jugador " + playerUUID + " invalidado");
+        }
     }
 
     /**

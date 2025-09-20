@@ -15,7 +15,7 @@ import java.util.UUID;
 
 /**
  * Clase para integrar LobbyCore con GrivyzomCore
- * Obtiene datos EN TIEMPO REAL del network
+ * Obtiene datos EN TIEMPO REAL del network - LOGGING OPTIMIZADO
  */
 public class GrivyzomCoreIntegration implements Listener {
 
@@ -23,6 +23,7 @@ public class GrivyzomCoreIntegration implements Listener {
     private boolean grivyzomCoreAvailable = false;
     private long lastStatsRequest = 0;
     private long lastPingTime = 0;
+    private boolean verboseLogging = false; // Control de logging detallado
 
     // Canales de comunicación con GrivyzomCore
     private static final String GRIVYZOM_CHANNEL = "grivyzom:core";
@@ -36,6 +37,8 @@ public class GrivyzomCoreIntegration implements Listener {
 
     public GrivyzomCoreIntegration(MainClass plugin) {
         this.plugin = plugin;
+        // Verificar si el logging detallado está habilitado
+        this.verboseLogging = plugin.getConfigManager().getConfig().getBoolean("debug.integration-logging.enabled", false);
         setupIntegration();
     }
 
@@ -53,8 +56,8 @@ public class GrivyzomCoreIntegration implements Listener {
             // Registrar listener para eventos
             plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
+            // Solo mostrar en startup
             plugin.getLogger().info(ColorUtils.translate("&a✓ &fIntegración con GrivyzomCore configurada"));
-            plugin.getLogger().info(ColorUtils.translate("&e📡 &fCanales registrados: &b4 canales activos"));
 
             // Iniciar monitoreo automático
             startAutomaticMonitoring();
@@ -71,7 +74,7 @@ public class GrivyzomCoreIntegration implements Listener {
      * Inicia el monitoreo automático de GrivyzomCore
      */
     private void startAutomaticMonitoring() {
-        // Ping automático cada 30 segundos
+        // Ping automático cada 30 segundos (sin log repetitivo)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -81,9 +84,9 @@ public class GrivyzomCoreIntegration implements Listener {
                     lastPingTime = currentTime;
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 60L, 600L); // Después de 3s, cada 30s
+        }.runTaskTimerAsynchronously(plugin, 60L, 600L);
 
-        // Solicitud automática de estadísticas cada 15 segundos
+        // Solicitud automática de estadísticas cada 15 segundos (sin log repetitivo)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -91,9 +94,7 @@ public class GrivyzomCoreIntegration implements Listener {
                     requestNetworkStatsIfNeeded();
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 100L, 300L); // Después de 5s, cada 15s
-
-        plugin.getLogger().info(ColorUtils.translate("&a✓ &fMonitoreo automático iniciado"));
+        }.runTaskTimerAsynchronously(plugin, 100L, 300L);
     }
 
     /**
@@ -106,7 +107,7 @@ public class GrivyzomCoreIntegration implements Listener {
             public void run() {
                 sendPingToGrivyzomCore();
             }
-        }.runTaskLater(plugin, 40L); // 2 segundos después del inicio
+        }.runTaskLater(plugin, 40L);
     }
 
     /**
@@ -115,7 +116,10 @@ public class GrivyzomCoreIntegration implements Listener {
     public void sendPingToGrivyzomCore() {
         try {
             if (!canSendMessage()) {
-                plugin.getLogger().warning(ColorUtils.translate("&e⚠ &fNo hay jugadores conectados para enviar ping a GrivyzomCore"));
+                // Solo mostrar warning si el logging verboso está habilitado
+                if (verboseLogging) {
+                    plugin.getLogger().warning("No hay jugadores conectados para enviar ping a GrivyzomCore");
+                }
                 scheduleRetryPing();
                 return;
             }
@@ -128,7 +132,10 @@ public class GrivyzomCoreIntegration implements Listener {
             Player anyPlayer = getAnyPlayer();
             anyPlayer.sendPluginMessage(plugin, GRIVYZOM_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate("&e📡 &fPing enviado a GrivyzomCore..."));
+            // Solo log de ping si es verbose o es el primer ping exitoso
+            if (verboseLogging || !grivyzomCoreAvailable) {
+                plugin.getLogger().info(ColorUtils.translate("&e📡 &fPing enviado a GrivyzomCore..."));
+            }
             lastPingTime = System.currentTimeMillis();
 
         } catch (Exception e) {
@@ -146,10 +153,8 @@ public class GrivyzomCoreIntegration implements Listener {
             public void run() {
                 if (canSendMessage()) {
                     sendPingToGrivyzomCore();
-                } else if (this.isCancelled()) {
-                    return;
-                } else {
-                    // Reintentar en 10 segundos
+                } else if (!this.isCancelled()) {
+                    // Reintentar en 10 segundos (sin log repetitivo)
                     new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -158,7 +163,7 @@ public class GrivyzomCoreIntegration implements Listener {
                     }.runTaskLater(plugin, 200L);
                 }
             }
-        }.runTaskLater(plugin, 200L); // 10 segundos
+        }.runTaskLater(plugin, 200L);
     }
 
     /**
@@ -182,7 +187,7 @@ public class GrivyzomCoreIntegration implements Listener {
                     }
                 }
             }
-        }.runTaskLater(plugin, 20L); // 1 segundo después
+        }.runTaskLater(plugin, 20L);
     }
 
     /**
@@ -201,8 +206,11 @@ public class GrivyzomCoreIntegration implements Listener {
 
             player.sendPluginMessage(plugin, GRIVYZOM_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a📨 &fNotificado a GrivyzomCore: " + player.getName() + " se unió al lobby"));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a📨 &fNotificado a GrivyzomCore: " + player.getName() + " se unió al lobby"));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error notificando conexión a lobby: " + e.getMessage());
@@ -234,7 +242,10 @@ public class GrivyzomCoreIntegration implements Listener {
             Player anyPlayer = getAnyPlayer();
             anyPlayer.sendPluginMessage(plugin, GRIVYZOM_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate("&e📈 &fSolicitando estadísticas del network"));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate("&e📈 &fSolicitando estadísticas del network"));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error solicitando estadísticas: " + e.getMessage());
@@ -251,12 +262,15 @@ public class GrivyzomCoreIntegration implements Listener {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("REQUEST_PLAYER_DATA");
             out.writeUTF(player.getUniqueId().toString());
-            out.writeUTF("COINS,GEMS,RANK,LEVEL,PLAYTIME"); // Datos que queremos obtener
+            out.writeUTF("COINS,GEMS,RANK,LEVEL,PLAYTIME");
 
             player.sendPluginMessage(plugin, GRIVYZOM_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&e📊 &fSolicitando datos de " + player.getName() + " a GrivyzomCore"));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&e📊 &fSolicitando datos de " + player.getName() + " a GrivyzomCore"));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error solicitando datos del jugador: " + e.getMessage());
@@ -277,8 +291,9 @@ public class GrivyzomCoreIntegration implements Listener {
 
             player.sendPluginMessage(plugin, ECONOMY_CHANNEL, out.toByteArray());
 
+            // Solo log para acciones administrativas importantes
             plugin.getLogger().info(ColorUtils.translate(
-                    "&e💰 &fActualizando monedas de " + player.getName() + " a " + newAmount));
+                    "&e💰 &fAdmin actualiza monedas de " + player.getName() + " a " + newAmount));
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error actualizando monedas: " + e.getMessage());
@@ -299,8 +314,9 @@ public class GrivyzomCoreIntegration implements Listener {
 
             player.sendPluginMessage(plugin, ECONOMY_CHANNEL, out.toByteArray());
 
+            // Solo log para acciones administrativas importantes
             plugin.getLogger().info(ColorUtils.translate(
-                    "&d💎 &fActualizando gemas de " + player.getName() + " a " + newAmount));
+                    "&d💎 &fAdmin actualiza gemas de " + player.getName() + " a " + newAmount));
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error actualizando gemas: " + e.getMessage());
@@ -329,8 +345,11 @@ public class GrivyzomCoreIntegration implements Listener {
             Player anyPlayer = getAnyPlayer();
             anyPlayer.sendPluginMessage(plugin, ECONOMY_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&e🏆 &fSolicitando top " + limit + " jugadores por " + type));
+            // Solo log si es verbose
+            if (verboseLogging) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&e🏆 &fSolicitando top " + limit + " jugadores por " + type));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error solicitando top de jugadores: " + e.getMessage());
@@ -355,8 +374,11 @@ public class GrivyzomCoreIntegration implements Listener {
             Player anyPlayer = getAnyPlayer();
             anyPlayer.sendPluginMessage(plugin, GRIVYZOM_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&a🎉 &fEvento de lobby notificado: " + eventType));
+            // Solo log para eventos importantes
+            if ("VOID_SAVE".equals(eventType) || "ADMIN_ACTION".equals(eventType)) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&a🎉 &fEvento de lobby: " + eventType + " - " + String.join(", ", data)));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error notificando evento de lobby: " + e.getMessage());
@@ -377,8 +399,9 @@ public class GrivyzomCoreIntegration implements Listener {
 
             player.sendPluginMessage(plugin, RANKUP_CHANNEL, out.toByteArray());
 
+            // Solo log para acciones administrativas importantes
             plugin.getLogger().info(ColorUtils.translate(
-                    "&b🏅 &fActualizando rango de " + player.getName() + " a " + newRank));
+                    "&b🏅 &fAdmin actualiza rango de " + player.getName() + " a " + newRank));
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error actualizando rango: " + e.getMessage());
@@ -400,8 +423,11 @@ public class GrivyzomCoreIntegration implements Listener {
 
             player.sendPluginMessage(plugin, PVP_CHANNEL, out.toByteArray());
 
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&c⚔ &fActualizando stats PvP de " + player.getName() + ": " + statType + " = " + value));
+            // Solo log si es un cambio significativo o sospechoso
+            if (value > 100 || (value > 10 && "KILLS".equals(statType))) {
+                plugin.getLogger().info(ColorUtils.translate(
+                        "&c⚔ &fActividad PvP intensa de " + player.getName() + ": " + statType + " = " + value));
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Error actualizando stats PvP: " + e.getMessage());
@@ -412,19 +438,18 @@ public class GrivyzomCoreIntegration implements Listener {
      * Obtiene el número real de jugadores conectados en el network
      */
     public int getRealNetworkPlayerCount() {
-        // Si tenemos conexión con GrivyzomCore, usar los datos del response handler
         if (grivyzomCoreAvailable && plugin.getResponseHandler() != null) {
             String networkPlayers = plugin.getResponseHandler().getNetworkData("players");
             if (networkPlayers != null && !networkPlayers.equals("127")) {
                 try {
                     return Integer.parseInt(networkPlayers);
                 } catch (NumberFormatException e) {
-                    plugin.getLogger().warning("Datos de network inválidos: " + networkPlayers);
+                    if (verboseLogging) {
+                        plugin.getLogger().warning("Datos de network inválidos: " + networkPlayers);
+                    }
                 }
             }
         }
-
-        // Fallback: usar jugadores del servidor actual como mínimo
         return Bukkit.getOnlinePlayers().size();
     }
 
@@ -432,19 +457,18 @@ public class GrivyzomCoreIntegration implements Listener {
      * Obtiene el número real de servidores activos en el network
      */
     public int getRealNetworkServerCount() {
-        // Si tenemos conexión con GrivyzomCore, usar los datos del response handler
         if (grivyzomCoreAvailable && plugin.getResponseHandler() != null) {
             String networkServers = plugin.getResponseHandler().getNetworkData("servers");
             if (networkServers != null && !networkServers.equals("5")) {
                 try {
                     return Integer.parseInt(networkServers);
                 } catch (NumberFormatException e) {
-                    plugin.getLogger().warning("Datos de servidores inválidos: " + networkServers);
+                    if (verboseLogging) {
+                        plugin.getLogger().warning("Datos de servidores inválidos: " + networkServers);
+                    }
                 }
             }
         }
-
-        // Fallback: contar desde configuración local
         return getConfiguredServerCount();
     }
 
@@ -458,9 +482,11 @@ public class GrivyzomCoreIntegration implements Listener {
                 return serversSection.getKeys(false).size();
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Error contando servidores desde config: " + e.getMessage());
+            if (verboseLogging) {
+                plugin.getLogger().warning("Error contando servidores desde config: " + e.getMessage());
+            }
         }
-        return 1; // Al menos este servidor existe
+        return 1;
     }
 
     /**
@@ -468,13 +494,11 @@ public class GrivyzomCoreIntegration implements Listener {
      */
     public String getServerName() {
         try {
-            // Método 1: Desde configuración específica
             String configName = plugin.getConfigManager().getConfig().getString("server.name");
             if (configName != null && !configName.isEmpty()) {
                 return configName;
             }
 
-            // Método 2: Desde MOTD limpio
             String motd = Bukkit.getServer().getMotd();
             if (motd != null && !motd.isEmpty()) {
                 String cleanMotd = motd.replaceAll("§[0-9a-fk-or]", "").trim();
@@ -483,7 +507,6 @@ public class GrivyzomCoreIntegration implements Listener {
                 }
             }
 
-            // Método 3: Basado en puerto
             int port = Bukkit.getServer().getPort();
             return switch (port) {
                 case 25565 -> "Hub";
@@ -495,7 +518,9 @@ public class GrivyzomCoreIntegration implements Listener {
             };
 
         } catch (Exception e) {
-            plugin.getLogger().warning("Error obteniendo nombre del servidor: " + e.getMessage());
+            if (verboseLogging) {
+                plugin.getLogger().warning("Error obteniendo nombre del servidor: " + e.getMessage());
+            }
             return "Lobby";
         }
     }
@@ -518,16 +543,14 @@ public class GrivyzomCoreIntegration implements Listener {
      * Fuerza una reconexión con GrivyzomCore
      */
     public void forceReconnect() {
-        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fForzando reconexión con GrivyzomCore..."));
+        plugin.getLogger().info(ColorUtils.translate("&e🔄 &fAdmin fuerza reconexión con GrivyzomCore"));
 
         setGrivyzomCoreAvailable(false);
 
-        // Limpiar cache de respuestas
         if (plugin.getResponseHandler() != null) {
             plugin.getResponseHandler().clearCache();
         }
 
-        // Reintento después de 3 segundos
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -588,10 +611,10 @@ public class GrivyzomCoreIntegration implements Listener {
         boolean wasAvailable = this.grivyzomCoreAvailable;
         this.grivyzomCoreAvailable = available;
 
+        // Solo mostrar cambios de estado importantes
         if (available && !wasAvailable) {
-            plugin.getLogger().info(ColorUtils.translate("&a✅ &fGrivyzomCore detectado y disponible"));
+            plugin.getLogger().info(ColorUtils.translate("&a✅ &fGrivyzomCore conectado y disponible"));
 
-            // Solicitar estadísticas iniciales inmediatamente
             new BukkitRunnable() {
                 @Override
                 public void run() {

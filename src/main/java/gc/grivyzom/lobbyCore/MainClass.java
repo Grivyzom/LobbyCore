@@ -37,7 +37,7 @@ public final class MainClass extends JavaPlugin {
         // Asignar instancia
         instance = this;
 
-        // Mensaje de inicio colorido
+        // MENSAJE DE INICIO - SIEMPRE MOSTRAR
         sendStartupMessage();
 
         try {
@@ -65,6 +65,7 @@ public final class MainClass extends JavaPlugin {
             // Tareas de inicialización tardía
             schedulePostInitTasks();
 
+            // MENSAJE DE ÉXITO - SIEMPRE MOSTRAR
             getLogger().info(ColorUtils.translate("&a✓ &fLobbyCore ha sido habilitado correctamente"));
             getLogger().info(ColorUtils.translate("&a========================================"));
 
@@ -77,13 +78,13 @@ public final class MainClass extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // MENSAJE DE CIERRE - SIEMPRE MOSTRAR
         getLogger().info(ColorUtils.translate("&c========================================"));
         getLogger().info(ColorUtils.translate("&c» &fDeshabilitando LobbyCore..."));
 
         try {
             // Cancelar tareas programadas
             Bukkit.getScheduler().cancelTasks(this);
-            getLogger().info(ColorUtils.translate("&c✓ &fTareas programadas canceladas"));
 
             // Desregistrar placeholders
             if (placeholders != null && placeholders.isWorking()) {
@@ -94,12 +95,12 @@ public final class MainClass extends JavaPlugin {
             // Cerrar conexiones de base de datos si existen
             if (configManager != null) {
                 configManager.closeConnections();
-                getLogger().info(ColorUtils.translate("&c✓ &fConexiones cerradas"));
             }
 
             // Limpiar instancias
             cleanupInstances();
 
+            // MENSAJE DE ÉXITO - SIEMPRE MOSTRAR
             getLogger().info(ColorUtils.translate("&c✓ &fLobbyCore ha sido deshabilitado correctamente"));
             getLogger().info(ColorUtils.translate("&c========================================"));
 
@@ -109,7 +110,7 @@ public final class MainClass extends JavaPlugin {
     }
 
     /**
-     * Envía el mensaje de inicio con arte ASCII
+     * Envía el mensaje de inicio con arte ASCII - SIEMPRE MOSTRAR
      */
     private void sendStartupMessage() {
         getLogger().info(ColorUtils.translate("&a========================================"));
@@ -131,13 +132,10 @@ public final class MainClass extends JavaPlugin {
      */
     private void initializeManagers() {
         welcomeMessageManager = new WelcomeMessageManager(this);
-        getLogger().info(ColorUtils.translate("&a✓ &fGestor de mensajes de bienvenida inicializado"));
-
         fireworksManager = new FireworksManager(this);
-        getLogger().info(ColorUtils.translate("&a✓ &fGestor de fuegos artificiales inicializado"));
-
         itemActionManager = new ItemActionManager(this);
-        getLogger().info(ColorUtils.translate("&a✓ &fGestor de items de acción inicializado"));
+
+        getLogger().info(ColorUtils.translate("&a✓ &fGestores principales inicializados"));
     }
 
     /**
@@ -146,14 +144,12 @@ public final class MainClass extends JavaPlugin {
     private void initializeAntiVoid() {
         try {
             antiVoidListener = new AntiVoidListener(this);
-            getLogger().info(ColorUtils.translate("&c🚨 &fSistema Anti-void inicializado"));
 
-            // Mostrar configuración actual
+            // Solo mostrar configuración importante al inicio
             var stats = antiVoidListener.getStats();
-            getLogger().info(ColorUtils.translate("&e⚙ &fAnti-void: " +
+            getLogger().info(ColorUtils.translate("&c🚨 &fSistema Anti-void: " +
                     (stats.isEnabled() ? "&aHabilitado" : "&cDeshabilitado") +
-                    " &f| Altura: &e" + stats.getVoidHeight() +
-                    " &f| Spawn: " + (stats.isSpawnConfigured() ? "&aConfigurado" : "&cNo configurado")));
+                    " &f| Altura: &e" + stats.getVoidHeight()));
 
         } catch (Exception e) {
             getLogger().severe("❌ Error inicializando sistema anti-void: " + e.getMessage());
@@ -170,11 +166,9 @@ public final class MainClass extends JavaPlugin {
         try {
             // Inicializar manejador de respuestas
             responseHandler = new GrivyzomResponseHandler(this);
-            getLogger().info(ColorUtils.translate("&a✓ &fManejador de respuestas GrivyzomCore inicializado"));
 
             // Inicializar integración principal
             grivyzomIntegration = new GrivyzomCoreIntegration(this);
-            getLogger().info(ColorUtils.translate("&a✓ &fIntegración con GrivyzomCore inicializada"));
 
             // Inicializar placeholders si PlaceholderAPI está disponible
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -185,7 +179,7 @@ public final class MainClass extends JavaPlugin {
                 getLogger().warning(ColorUtils.translate("&e⚠ &fPlaceholderAPI no encontrado - Placeholders limitados"));
             }
 
-            getLogger().info(ColorUtils.translate("&a✅ &fIntegración GrivyzomCore completada exitosamente"));
+            getLogger().info(ColorUtils.translate("&a✅ &fIntegración GrivyzomCore completada"));
 
         } catch (Exception e) {
             getLogger().severe("❌ Error inicializando integración GrivyzomCore: " + e.getMessage());
@@ -203,7 +197,6 @@ public final class MainClass extends JavaPlugin {
         // Registrar anti-void listener
         if (antiVoidListener != null) {
             getServer().getPluginManager().registerEvents(antiVoidListener, this);
-            getLogger().info(ColorUtils.translate("&c🚨 &fListener Anti-void registrado"));
         }
 
         getLogger().info(ColorUtils.translate("&a✓ &fEventos registrados correctamente"));
@@ -227,19 +220,15 @@ public final class MainClass extends JavaPlugin {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info(ColorUtils.translate("&a✓ &fPlaceholderAPI encontrado"));
         } else {
-            getLogger().warning(ColorUtils.translate("&e⚠ &fPlaceholderAPI no encontrado - Placeholders limitados"));
+            getLogger().warning(ColorUtils.translate("&e⚠ &fPlaceholderAPI no encontrado"));
         }
 
         // Verificar Vault
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
             getLogger().info(ColorUtils.translate("&a✓ &fVault encontrado"));
         } else {
-            getLogger().warning(ColorUtils.translate("&e⚠ &fVault no encontrado - Funciones de economía limitadas"));
+            getLogger().warning(ColorUtils.translate("&e⚠ &fVault no encontrado"));
         }
-
-        // Mostrar información de integración
-        getLogger().info(ColorUtils.translate("&e🌐 &fIntegración GrivyzomCore: &b" +
-                (grivyzomIntegration != null ? "Activa" : "Inactiva")));
     }
 
     /**
@@ -254,9 +243,9 @@ public final class MainClass extends JavaPlugin {
                     checkGrivyzomCoreConnection();
                 }
             }
-        }.runTaskLater(this, 60L); // 3 segundos
+        }.runTaskLater(this, 60L);
 
-        // Sincronización automática de datos cada 5 minutos
+        // Sincronización automática de datos cada 5 minutos (SIN LOG REPETITIVO)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -264,40 +253,29 @@ public final class MainClass extends JavaPlugin {
                     grivyzomIntegration.requestNetworkStats();
                 }
             }
-        }.runTaskTimer(this, 100L, 6000L); // Cada 5 minutos
+        }.runTaskTimer(this, 100L, 6000L);
     }
 
     /**
-     * Verifica la conexión con GrivyzomCore
+     * Verifica la conexión con GrivyzomCore - SOLO LOG INICIAL
      */
     private void checkGrivyzomCoreConnection() {
         if (grivyzomIntegration != null && grivyzomIntegration.isGrivyzomCoreAvailable()) {
             getLogger().info(ColorUtils.translate("&a✅ &fConexión con GrivyzomCore establecida"));
 
-            // Mostrar información de funciones disponibles
-            getLogger().info(ColorUtils.translate("&e📋 &fFunciones disponibles:"));
-            getLogger().info(ColorUtils.translate("&7  • &fSincronización de datos de jugadores"));
-            getLogger().info(ColorUtils.translate("&7  • &fActualizaciones de economía en tiempo real"));
-            getLogger().info(ColorUtils.translate("&7  • &fEstadísticas del network"));
-            getLogger().info(ColorUtils.translate("&7  • &fPlaceholders integrados"));
-            getLogger().info(ColorUtils.translate("&7  • &fEventos y notificaciones"));
-
         } else {
-            getLogger().warning(ColorUtils.translate("&c⚠ &fNo se pudo establecer conexión con GrivyzomCore"));
-            getLogger().warning(ColorUtils.translate("&7Funcionando con datos por defecto para demostración"));
+            getLogger().warning(ColorUtils.translate("&c⚠ &fGrivyzomCore no disponible - usando datos simulados"));
 
-            // Reintentar conexión en 30 segundos
+            // Reintentar conexión en 30 segundos (SIN LOG REPETITIVO)
             if (grivyzomIntegration != null) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
                         if (grivyzomIntegration != null && !getServer().getOnlinePlayers().isEmpty()) {
                             grivyzomIntegration.sendPingToGrivyzomCore();
-                        } else {
-                            getLogger().info(ColorUtils.translate("&e⚠ &fReintento de conexión pospuesto - sin jugadores online"));
                         }
                     }
-                }.runTaskLater(this, 600L); // 30 segundos
+                }.runTaskLater(this, 600L);
             }
         }
     }
@@ -318,7 +296,7 @@ public final class MainClass extends JavaPlugin {
     }
 
     /**
-     * Recarga toda la configuración y componentes
+     * Recarga toda la configuración y componentes - CON LOG DE ADMIN
      */
     public void reloadAll() {
         try {
@@ -335,7 +313,6 @@ public final class MainClass extends JavaPlugin {
             // Recargar sistema anti-void
             if (antiVoidListener != null) {
                 antiVoidListener.reload();
-                getLogger().info(ColorUtils.translate("&c🚨 &fAnti-void recargado"));
             }
 
             // Verificar conexión con GrivyzomCore
@@ -348,6 +325,7 @@ public final class MainClass extends JavaPlugin {
                 responseHandler.clearCache();
             }
 
+            // LOG DE ÉXITO PARA ADMIN - SIEMPRE MOSTRAR
             getLogger().info(ColorUtils.translate("&a✅ &fRecarga completa finalizada"));
 
         } catch (Exception e) {

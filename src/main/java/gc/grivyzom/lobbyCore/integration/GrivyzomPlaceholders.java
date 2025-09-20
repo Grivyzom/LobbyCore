@@ -11,7 +11,7 @@ import java.lang.management.ManagementFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Expansión de PlaceholderAPI para GrivyzomCore con datos dinámicos
+ * Expansión de PlaceholderAPI para GrivyzomCore con datos dinámicos - LOGGING OPTIMIZADO
  * Proporciona placeholders que se actualizan automáticamente
  */
 public class GrivyzomPlaceholders extends PlaceholderExpansion {
@@ -19,6 +19,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
     private final MainClass plugin;
     private final GrivyzomResponseHandler responseHandler;
     private final AtomicLong lastDataRequest = new AtomicLong(0);
+    private boolean verboseLogging = false;
 
     // Configuración de actualización automática
     private static final long DATA_REFRESH_INTERVAL = 30000; // 30 segundos
@@ -27,6 +28,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
     public GrivyzomPlaceholders(MainClass plugin, GrivyzomResponseHandler responseHandler) {
         this.plugin = plugin;
         this.responseHandler = responseHandler;
+        this.verboseLogging = plugin.getConfigManager().getConfig().getBoolean("debug.placeholder-logging.log-resolutions", false);
         startAutoRefresh();
     }
 
@@ -61,7 +63,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
             return "";
         }
 
-        // Solicitar datos frescos si es necesario
+        // Solicitar datos frescos si es necesario (sin log repetitivo)
         requestFreshDataIfNeeded(player, params);
 
         // Procesar placeholders
@@ -200,7 +202,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
     }
 
     /**
-     * Solicita datos frescos si es necesario
+     * Solicita datos frescos si es necesario (SIN LOG REPETITIVO)
      */
     private void requestFreshDataIfNeeded(Player player, String params) {
         long currentTime = System.currentTimeMillis();
@@ -229,7 +231,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
         // Actualizar timestamp
         lastDataRequest.set(currentTime);
 
-        // Realizar solicitudes asíncronas
+        // Realizar solicitudes asíncronas (SIN LOG)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -247,14 +249,16 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
                         plugin.getGrivyzomIntegration().requestNetworkStats();
                     }
                 } catch (Exception e) {
-                    plugin.getLogger().warning("Error solicitando datos frescos: " + e.getMessage());
+                    if (verboseLogging) {
+                        plugin.getLogger().warning("Error solicitando datos frescos: " + e.getMessage());
+                    }
                 }
             }
         }.runTaskAsynchronously(plugin);
     }
 
     /**
-     * Inicia el sistema de actualización automática
+     * Inicia el sistema de actualización automática (SIN LOG REPETITIVO)
      */
     private void startAutoRefresh() {
         new BukkitRunnable() {
@@ -268,7 +272,7 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
                         return;
                     }
 
-                    // Solicitar datos generales
+                    // Solicitar datos generales (sin log)
                     plugin.getGrivyzomIntegration().requestNetworkStats();
                     plugin.getGrivyzomIntegration().requestTopPlayers("COINS", 5);
                     plugin.getGrivyzomIntegration().requestTopPlayers("GEMS", 5);
@@ -278,16 +282,21 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
                         plugin.getGrivyzomIntegration().requestPlayerData(player);
                     }
 
-                    plugin.getLogger().info("§e🔄 §fPlaceholders actualizados automáticamente");
+                    // Solo log si es verbose y cada 5 minutos
+                    if (verboseLogging && (System.currentTimeMillis() / 300000) % 10 == 0) {
+                        plugin.getLogger().info("§e🔄 §fPlaceholders actualizados automáticamente");
+                    }
 
                 } catch (Exception e) {
-                    plugin.getLogger().warning("Error en actualización automática de placeholders: " + e.getMessage());
+                    if (verboseLogging) {
+                        plugin.getLogger().warning("Error en actualización automática de placeholders: " + e.getMessage());
+                    }
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 100L, DATA_REFRESH_INTERVAL / 50); // Cada 30 segundos
     }
 
-    // === MÉTODOS DE DATOS ===
+    // === MÉTODOS DE DATOS (SIN CAMBIOS EN LÓGICA) ===
 
     private String getPlayerData(Player player, String dataType, String defaultValue) {
         if (responseHandler == null) {
@@ -325,27 +334,21 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
         return value != null ? value : defaultValue;
     }
 
-    // === GENERADORES DE DATOS REALISTAS ===
+    // === GENERADORES DE DATOS REALISTAS (SIN CAMBIOS) ===
 
     private String generateRealisticCoins(Player player) {
-        // Generar basado en el hash del nombre del jugador para consistencia
         int hash = Math.abs(player.getName().hashCode());
-        int baseCoins = (hash % 50000) + 1000; // Entre 1,000 y 51,000
-
-        // Añadir variación basada en tiempo para simular actividad
-        long timeVariation = (System.currentTimeMillis() / 60000) % 1000; // Cambia cada minuto
+        int baseCoins = (hash % 50000) + 1000;
+        long timeVariation = (System.currentTimeMillis() / 60000) % 1000;
         int finalCoins = baseCoins + (int)timeVariation;
-
         return formatNumber(finalCoins);
     }
 
     private String generateRealisticGems(Player player) {
         int hash = Math.abs(player.getName().hashCode());
-        int baseGems = (hash % 5000) + 100; // Entre 100 y 5,100
-
-        long timeVariation = (System.currentTimeMillis() / 120000) % 100; // Cambia cada 2 minutos
+        int baseGems = (hash % 5000) + 100;
+        long timeVariation = (System.currentTimeMillis() / 120000) % 100;
         int finalGems = baseGems + (int)timeVariation;
-
         return formatNumber(finalGems);
     }
 
@@ -357,13 +360,13 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
 
     private String generateRealisticLevel(Player player) {
         int hash = Math.abs(player.getName().hashCode());
-        int level = (hash % 50) + 1; // Entre 1 y 50
+        int level = (hash % 50) + 1;
         return String.valueOf(level);
     }
 
     private String generateRealisticPlaytime(Player player) {
         int hash = Math.abs(player.getName().hashCode());
-        int hours = (hash % 500) + 1; // Entre 1 y 500 horas
+        int hours = (hash % 500) + 1;
         int minutes = hash % 60;
 
         if (hours > 24) {
@@ -377,13 +380,8 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
 
     private int generateRealisticOnlinePlayers() {
         int currentOnline = Bukkit.getOnlinePlayers().size();
-
-        // Simular jugadores en otros servidores del network
-        int baseNetwork = currentOnline * 4; // Multiplicador para simular network
-
-        // Añadir variación temporal
-        long timeVariation = (System.currentTimeMillis() / 30000) % 50; // Cambia cada 30 segundos
-
+        int baseNetwork = currentOnline * 4;
+        long timeVariation = (System.currentTimeMillis() / 30000) % 50;
         return Math.max(currentOnline, baseNetwork + (int)timeVariation);
     }
 
@@ -393,58 +391,45 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
                 "EmeraldQueen", "NetherLord", "EndWalker", "SkyMaster"
         };
 
-        // Usar posición y tiempo para seleccionar nombres consistentes pero que cambien
-        long timeIndex = (System.currentTimeMillis() / 300000) % names.length; // Cambia cada 5 minutos
+        long timeIndex = (System.currentTimeMillis() / 300000) % names.length;
         int nameIndex = ((int)timeIndex + position - 1) % names.length;
-
         return names[nameIndex];
     }
 
     private String generateTopCoinsAmount(int position) {
-        // Generar cantidades realistas que disminuyen por posición
         int[] baseAmounts = {75000, 65000, 55000, 45000, 35000};
         int baseAmount = baseAmounts[Math.min(position - 1, baseAmounts.length - 1)];
-
-        // Añadir variación
-        long timeVariation = (System.currentTimeMillis() / 180000) % 5000; // Cambia cada 3 minutos
+        long timeVariation = (System.currentTimeMillis() / 180000) % 5000;
         int finalAmount = baseAmount + (int)timeVariation;
-
         return formatNumber(finalAmount);
     }
 
     private String generateTopGemsAmount(int position) {
         int[] baseAmounts = {8500, 7200, 6000, 4800, 3600};
         int baseAmount = baseAmounts[Math.min(position - 1, baseAmounts.length - 1)];
-
-        long timeVariation = (System.currentTimeMillis() / 240000) % 500; // Cambia cada 4 minutos
+        long timeVariation = (System.currentTimeMillis() / 240000) % 500;
         int finalAmount = baseAmount + (int)timeVariation;
-
         return formatNumber(finalAmount);
     }
 
     private String generateTotalCoins() {
-        // Simular economía total del servidor
-        long baseTotal = 5000000L; // 5 millones base
-        long timeVariation = (System.currentTimeMillis() / 600000) % 500000; // Cambia cada 10 minutos
-
+        long baseTotal = 5000000L;
+        long timeVariation = (System.currentTimeMillis() / 600000) % 500000;
         return formatNumber((int)(baseTotal + timeVariation));
     }
 
     private String generateTotalGems() {
-        long baseTotal = 750000L; // 750k base
-        long timeVariation = (System.currentTimeMillis() / 600000) % 50000; // Cambia cada 10 minutos
-
+        long baseTotal = 750000L;
+        long timeVariation = (System.currentTimeMillis() / 600000) % 50000;
         return formatNumber((int)(baseTotal + timeVariation));
     }
 
     private String generateRealisticLatency() {
-        // Simular latencia realista entre 15-45ms
-        long variation = (System.currentTimeMillis() / 5000) % 30; // Cambia cada 5 segundos
+        long variation = (System.currentTimeMillis() / 5000) % 30;
         return String.valueOf(15 + variation);
     }
 
     private String generateServerUptime() {
-        // Usar ManagementFactory para obtener el uptime real del JVM
         long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
         long hours = uptimeMs / (1000 * 60 * 60);
         long minutes = (uptimeMs % (1000 * 60 * 60)) / (1000 * 60);
@@ -459,26 +444,21 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
     }
 
     private String generateRealisticTPS() {
-        // Simular TPS realista entre 19.5-20.0
         double baseTPS = 19.8;
-        double variation = ((System.currentTimeMillis() / 10000) % 5) * 0.04; // Pequeña variación
-
+        double variation = ((System.currentTimeMillis() / 10000) % 5) * 0.04;
         return String.format("%.1f", baseTPS + variation);
     }
 
     private String getMemoryUsage() {
         Runtime runtime = Runtime.getRuntime();
-        long maxMemory = runtime.maxMemory() / 1024 / 1024; // MB
-        long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024; // MB
-
+        long maxMemory = runtime.maxMemory() / 1024 / 1024;
+        long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024;
         double percentage = (double) usedMemory / maxMemory * 100;
-
         return String.format("%dMB/%dMB (%.1f%%)", usedMemory, maxMemory, percentage);
     }
 
     private int generateDaysAgo() {
-        // Generar días aleatorios pero consistentes por jugador
-        return 30 + (int)((System.currentTimeMillis() / 86400000) % 365); // Entre 30 y 395 días
+        return 30 + (int)((System.currentTimeMillis() / 86400000) % 365);
     }
 
     private String formatNumber(int number) {
@@ -490,27 +470,18 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
         return String.valueOf(number);
     }
 
-    // === MÉTODOS DE GESTIÓN ===
+    // === MÉTODOS DE GESTIÓN (LOGGING OPTIMIZADO) ===
 
     @Override
     public boolean register() {
         boolean success = super.register();
         if (success) {
+            // Solo log de registro exitoso
             plugin.getLogger().info("§a✓ §fPlaceholders GrivyzomCore registrados con sistema dinámico");
-            logAvailablePlaceholders();
         } else {
             plugin.getLogger().warning("§c❌ §fError al registrar placeholders GrivyzomCore");
         }
         return success;
-    }
-
-    private void logAvailablePlaceholders() {
-        plugin.getLogger().info("§e📋 §fPlaceholders dinámicos disponibles:");
-        plugin.getLogger().info("§b🧑 §fJugador: %grivyzom_coins%, %grivyzom_gems%, %grivyzom_rank%");
-        plugin.getLogger().info("§e🌐 §fNetwork: %grivyzom_online%, %grivyzom_servers%, %grivyzom_status%");
-        plugin.getLogger().info("§d🏆 §fTops: %grivyzom_top_coins_1%, %grivyzom_top_gems_1%");
-        plugin.getLogger().info("§a💰 §fEconomía: %grivyzom_economy_total_coins%, %grivyzom_economy_total_gems%");
-        plugin.getLogger().info("§c⚡ §fTiempo real: %grivyzom_realtime_players%, %grivyzom_realtime_tps%");
     }
 
     public boolean isWorking() {
@@ -519,7 +490,9 @@ public class GrivyzomPlaceholders extends PlaceholderExpansion {
 
     public void refreshData() {
         lastDataRequest.set(0); // Forzar actualización en la próxima solicitud
-        plugin.getLogger().info("§e🔄 §fForzando actualización de placeholders");
+
+        // Solo log para refrescos manuales
+        plugin.getLogger().info("§e🔄 §fPlaceholders refrescados manualmente");
     }
 
     public PlaceholderStats getStats() {
