@@ -680,3 +680,197 @@ features: ["Dynamic Placeholders", "Real-time Data", "Smart Caching", "GrivyzomC
 # * Optimización general de rendimiento
 # * Mejor manejo de errores y reconexión
 # * Documentación expandida y ejemplos
+
+
+
+
+# ========================================
+#           SISTEMA ANTI-VOID
+#          PROTECCIÓN CONTRA CAÍDAS
+# ========================================
+
+anti-void:
+  # ¿Habilitar el sistema anti-void?
+  enabled: true
+
+  # Altura en Y donde se considera "vacío" (jugadores por debajo de esta altura serán teletransportados)
+  # Valores típicos: 0 (nivel del mar), -10, -50, -100
+  void-height: 0.0
+
+  # Ubicación de spawn donde teletransportar a los jugadores rescatados
+  # Esta ubicación se establece automáticamente con /lobbycore antivoid setspawn
+  spawn-location:
+    world: "world"     # Nombre del mundo
+    x: 0.0             # Coordenada X
+    y: 64.0            # Coordenada Y (altura)
+    z: 0.0             # Coordenada Z
+    yaw: 0.0           # Rotación horizontal
+    pitch: 0.0         # Rotación vertical
+
+  # Configuración de mensajes
+  message:
+    enabled: true
+    # Mensaje que se envía al jugador cuando es salvado del vacío
+    # Placeholders disponibles: {PLAYER}
+    text: "&c⚠ &f¡Has sido salvado del vacío! Teletransportado al spawn seguro."
+
+  # Configuración de sonidos
+  sound:
+    enabled: true
+    # Sonido que se reproduce al teletransportar
+    # Sonidos disponibles: ENTITY_ENDERMAN_TELEPORT, ENTITY_PLAYER_LEVELUP, BLOCK_PORTAL_TRAVEL
+    sound: "ENTITY_ENDERMAN_TELEPORT"
+    volume: 1.0        # Volumen del sonido (0.0 - 2.0)
+    pitch: 1.0         # Tono del sonido (0.5 - 2.0)
+
+  # Efectos visuales
+  effects:
+    # ¿Mostrar partículas al teletransportar?
+    particles: true
+
+    # Configuración de action bar (mensaje en la barra de acción)
+    action-bar:
+      enabled: true
+      # Mensaje que aparece cuando el jugador se acerca al vacío
+      message: "&c⚠ ¡Cuidado! Te estás acercando al vacío..."
+
+  # Cooldown entre teletransportes (en milisegundos)
+  # Evita spam de teletransportes si el jugador cae repetidamente
+  teleport-cooldown: 3000  # 3 segundos
+
+  # Configuración avanzada
+  advanced:
+    # Altura de advertencia (Y + este valor = donde empezar a mostrar warning)
+    warning-height-offset: 10
+
+    # ¿Registrar eventos de anti-void en logs?
+    log-events: true
+
+    # ¿Enviar eventos a GrivyzomCore para estadísticas?
+    send-to-grivyzom: true
+
+    # Configuración de detección
+    detection:
+      # ¿Verificar solo cuando el jugador se mueve hacia abajo?
+      only-falling: false
+
+      # ¿Cancelar el evento de movimiento para evitar lag?
+      cancel-movement: true
+
+      # Mundos donde el anti-void está activo
+      # Lista vacía = todos los mundos
+      active-worlds: []
+      # Ejemplo:
+      # active-worlds:
+      #   - "world"
+      #   - "lobby"
+
+      # Mundos donde el anti-void está deshabilitado
+      disabled-worlds: []
+      # Ejemplo:
+      # disabled-worlds:
+      #   - "creative"
+      #   - "minigames"
+
+    # Configuración de spawn automático
+    auto-spawn:
+      # ¿Usar spawn del mundo si no hay spawn configurado?
+      use-world-spawn: true
+
+      # ¿Usar punto de spawn del jugador si está disponible?
+      use-player-bed: false
+
+  # Mensajes personalizados para diferentes situaciones
+  messages:
+    # Cuando el sistema está deshabilitado pero un admin intenta usarlo
+    system-disabled: "&c❌ &fEl sistema anti-void está deshabilitado."
+
+    # Cuando no hay spawn configurado
+    no-spawn-configured: "&c❌ &fNo hay spawn configurado para el anti-void. Usa &e/lobbycore antivoid setspawn"
+
+    # Cuando se establece un nuevo spawn
+    spawn-set: "&a✅ &fSpawn del anti-void establecido en tu ubicación actual."
+
+    # Cuando se cambia la altura del vacío
+    height-changed: "&a✅ &fAltura del vacío cambiada a: &e{HEIGHT}"
+
+    # Cuando el sistema se habilita/deshabilita
+    system-enabled: "&a✅ &fSistema anti-void habilitado."
+    system-disabled-admin: "&c❌ &fSistema anti-void deshabilitado."
+
+    # Cuando un jugador está en cooldown
+    cooldown-active: "&e⚠ &fEspera un momento antes del próximo teletransporte."
+
+  # Configuración de notificaciones para administradores
+  admin-notifications:
+    enabled: true
+
+    # ¿Notificar a admins cuando alguien cae al vacío?
+    notify-void-saves: true
+
+    # ¿Notificar cuando hay muchas caídas en poco tiempo? (posible griefing)
+    notify-frequent-falls: true
+    frequent-falls-threshold: 5  # Número de caídas en 1 minuto
+
+    # Mensaje para admins cuando alguien cae al vacío
+    void-save-notification: "&c🚨 &f{PLAYER} &fha sido salvado del vacío en &e{WORLD} &f(Y: {Y})"
+
+    # Permisos para recibir notificaciones
+    notification-permission: "lobbycore.admin.notifications"
+
+  # Estadísticas y métricas
+  statistics:
+    enabled: true
+
+    # ¿Guardar estadísticas de caídas al vacío?
+    track-falls: true
+
+    # ¿Mostrar estadísticas en /lobbycore antivoid status?
+    show-in-status: true
+
+# ========================================
+#       INTEGRACIÓN CON OTROS PLUGINS
+# ========================================
+
+anti-void-integrations:
+  # Integración con WorldGuard (si está disponible)
+  worldguard:
+    enabled: true
+    # ¿Respetar las regiones de WorldGuard?
+    respect-regions: true
+    # ¿Solo activar anti-void en regiones específicas?
+    only-in-regions: []
+    # Ejemplo:
+    # only-in-regions:
+    #   - "spawn"
+    #   - "lobby"
+
+  # Integración con otros plugins de teletransporte
+  teleport-plugins:
+    # ¿Desactivar anti-void temporalmente después de teletransportes?
+    disable-after-teleport: true
+    disable-duration: 5000  # 5 segundos
+
+  # Integración con plugins de vuelo
+  flight-plugins:
+    # ¿Desactivar anti-void para jugadores volando?
+    ignore-flying-players: true
+
+# ========================================
+#         CONFIGURACIÓN DE DEBUGGING
+# ========================================
+
+anti-void-debug:
+  enabled: false
+
+  # ¿Mostrar información detallada en consola?
+  verbose-logging: false
+
+  # ¿Mostrar mensajes de debug a admins en el juego?
+  show-debug-messages: false
+
+  # ¿Registrar todas las verificaciones de altura?
+  log-height-checks: false
+
+  # ¿Mostrar partículas de debug en los límites del vacío?
+  debug-particles: false
