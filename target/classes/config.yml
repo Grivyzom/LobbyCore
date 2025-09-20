@@ -687,6 +687,7 @@ features: ["Dynamic Placeholders", "Real-time Data", "Smart Caching", "GrivyzomC
 # ========================================
 #           SISTEMA ANTI-VOID
 #          PROTECCIÓN CONTRA CAÍDAS
+#              VERSIÓN CORREGIDA
 # ========================================
 
 anti-void:
@@ -717,9 +718,8 @@ anti-void:
   # Configuración de sonidos
   sound:
     enabled: true
-    # Sonido que se reproduce al teletransportar
-    # Sonidos disponibles: ENTITY_ENDERMAN_TELEPORT, ENTITY_PLAYER_LEVELUP, BLOCK_PORTAL_TRAVEL
-    sound: "ENTITY_ENDERMAN_TELEPORT"
+    # Sonido que se reproduce al teletransportar - CAMBIADO A CHICKEN EGG
+    sound: "ENTITY_CHICKEN_EGG"
     volume: 1.0        # Volumen del sonido (0.0 - 2.0)
     pitch: 1.0         # Tono del sonido (0.5 - 2.0)
 
@@ -760,17 +760,9 @@ anti-void:
       # Mundos donde el anti-void está activo
       # Lista vacía = todos los mundos
       active-worlds: []
-      # Ejemplo:
-      # active-worlds:
-      #   - "world"
-      #   - "lobby"
 
       # Mundos donde el anti-void está deshabilitado
       disabled-worlds: []
-      # Ejemplo:
-      # disabled-worlds:
-      #   - "creative"
-      #   - "minigames"
 
     # Configuración de spawn automático
     auto-spawn:
@@ -780,94 +772,20 @@ anti-void:
       # ¿Usar punto de spawn del jugador si está disponible?
       use-player-bed: false
 
-  # Mensajes personalizados para diferentes situaciones
-  messages:
-    # Cuando el sistema está deshabilitado pero un admin intenta usarlo
-    system-disabled: "&c❌ &fEl sistema anti-void está deshabilitado."
-
-    # Cuando no hay spawn configurado
-    no-spawn-configured: "&c❌ &fNo hay spawn configurado para el anti-void. Usa &e/lobbycore antivoid setspawn"
-
-    # Cuando se establece un nuevo spawn
-    spawn-set: "&a✅ &fSpawn del anti-void establecido en tu ubicación actual."
-
-    # Cuando se cambia la altura del vacío
-    height-changed: "&a✅ &fAltura del vacío cambiada a: &e{HEIGHT}"
-
-    # Cuando el sistema se habilita/deshabilita
-    system-enabled: "&a✅ &fSistema anti-void habilitado."
-    system-disabled-admin: "&c❌ &fSistema anti-void deshabilitado."
-
-    # Cuando un jugador está en cooldown
-    cooldown-active: "&e⚠ &fEspera un momento antes del próximo teletransporte."
-
-  # Configuración de notificaciones para administradores
-  admin-notifications:
-    enabled: true
-
-    # ¿Notificar a admins cuando alguien cae al vacío?
-    notify-void-saves: true
-
-    # ¿Notificar cuando hay muchas caídas en poco tiempo? (posible griefing)
-    notify-frequent-falls: true
-    frequent-falls-threshold: 5  # Número de caídas en 1 minuto
-
-    # Mensaje para admins cuando alguien cae al vacío
-    void-save-notification: "&c🚨 &f{PLAYER} &fha sido salvado del vacío en &e{WORLD} &f(Y: {Y})"
-
-    # Permisos para recibir notificaciones
-    notification-permission: "lobbycore.admin.notifications"
-
-  # Estadísticas y métricas
-  statistics:
-    enabled: true
-
-    # ¿Guardar estadísticas de caídas al vacío?
-    track-falls: true
-
-    # ¿Mostrar estadísticas en /lobbycore antivoid status?
-    show-in-status: true
-
-# ========================================
-#       INTEGRACIÓN CON OTROS PLUGINS
-# ========================================
-
-anti-void-integrations:
-  # Integración con WorldGuard (si está disponible)
-  worldguard:
-    enabled: true
-    # ¿Respetar las regiones de WorldGuard?
-    respect-regions: true
-    # ¿Solo activar anti-void en regiones específicas?
-    only-in-regions: []
-    # Ejemplo:
-    # only-in-regions:
-    #   - "spawn"
-    #   - "lobby"
-
-  # Integración con otros plugins de teletransporte
-  teleport-plugins:
-    # ¿Desactivar anti-void temporalmente después de teletransportes?
-    disable-after-teleport: true
-    disable-duration: 5000  # 5 segundos
-
-  # Integración con plugins de vuelo
-  flight-plugins:
-    # ¿Desactivar anti-void para jugadores volando?
-    ignore-flying-players: true
-
 # ========================================
 #         CONFIGURACIÓN DE DEBUGGING
+#              ANTI-VOID
 # ========================================
 
 anti-void-debug:
-  enabled: false
+  # ¿Habilitar debug del anti-void? (ÚTIL PARA TESTING)
+  enabled: true
 
   # ¿Mostrar información detallada en consola?
-  verbose-logging: false
+  verbose-logging: true
 
   # ¿Mostrar mensajes de debug a admins en el juego?
-  show-debug-messages: false
+  show-debug-messages: true
 
   # ¿Registrar todas las verificaciones de altura?
   log-height-checks: false

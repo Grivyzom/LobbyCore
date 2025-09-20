@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Listener para prevenir caídas al vacío
+ * Listener para prevenir caídas al vacío - VERSIÓN CORREGIDA
  * Detecta cuando un jugador cae por debajo de cierta altura y lo teletransporta al spawn
  */
 public class AntiVoidListener implements Listener {
@@ -57,7 +57,7 @@ public class AntiVoidListener implements Listener {
         this.enabled = config.getBoolean("anti-void.enabled", true);
         this.voidHeight = config.getDouble("anti-void.void-height", 0.0);
         this.soundEnabled = config.getBoolean("anti-void.sound.enabled", true);
-        this.soundName = config.getString("anti-void.sound.sound", "ENTITY_ENDERMAN_TELEPORT");
+        this.soundName = config.getString("anti-void.sound.sound", "ENTITY_CHICKEN_EGG"); // Cambiado a chicken egg
         this.soundVolume = (float) config.getDouble("anti-void.sound.volume", 1.0);
         this.soundPitch = (float) config.getDouble("anti-void.sound.pitch", 1.0);
         this.messageEnabled = config.getBoolean("anti-void.message.enabled", true);
@@ -96,7 +96,7 @@ public class AntiVoidListener implements Listener {
                 if (world != null) {
                     this.spawnLocation = new Location(world, x, y, z, yaw, pitch);
                     plugin.getLogger().info(ColorUtils.translate(
-                            "&a✓ &fSpawn de anti-void cargado en mundo: &b" + worldName));
+                            "&a✓ &fSpawn de anti-void cargado: X=" + x + ", Y=" + y + ", Z=" + z + " en mundo: &b" + worldName));
                 } else {
                     plugin.getLogger().warning(ColorUtils.translate(
                             "&e⚠ &fMundo del spawn no encontrado: &c" + worldName));
@@ -107,19 +107,25 @@ public class AntiVoidListener implements Listener {
                 this.spawnLocation = null;
             }
         } else {
-            // Usar spawn por defecto del mundo
-            this.spawnLocation = plugin.getServer().getWorlds().get(0).getSpawnLocation();
-            plugin.getLogger().info(ColorUtils.translate(
-                    "&e⚠ &fUsando spawn por defecto del mundo para anti-void"));
+            plugin.getLogger().warning(ColorUtils.translate(
+                    "&e⚠ &fNo hay spawn configurado para anti-void. Usa /lobbycore antivoid setspawn"));
+            this.spawnLocation = null;
         }
     }
 
     /**
      * Maneja el movimiento del jugador para detectar caídas al vacío
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (!enabled || spawnLocation == null) return;
+        if (!enabled) {
+            return;
+        }
+
+        if (spawnLocation == null) {
+            plugin.getLogger().warning("AntiVoid: No hay spawn configurado");
+            return;
+        }
 
         Player player = event.getPlayer();
         Location to = event.getTo();
@@ -129,8 +135,14 @@ public class AntiVoidListener implements Listener {
         UUID playerId = player.getUniqueId();
         double playerY = to.getY();
 
-        // Verificar si el jugador está en el mismo mundo que el spawn
-        if (!to.getWorld().equals(spawnLocation.getWorld())) {
+        // Debug: Log de la posición del jugador si debug está habilitado
+        if (plugin.getConfigManager().getConfig().getBoolean("anti-void-debug.enabled", false)) {
+            plugin.getLogger().info("AntiVoid Debug: " + player.getName() + " en Y=" + playerY +
+                    ", límite=" + voidHeight + ", mundo=" + to.getWorld().getName());
+        }
+
+        // Verificar si el jugador está en un mundo donde el anti-void está habilitado
+        if (!isAntiVoidEnabledInWorld(to.getWorld().getName())) {
             return;
         }
 
@@ -154,11 +166,39 @@ public class AntiVoidListener implements Listener {
             playerFalling.remove(playerId);
         }
 
-        // Detectar caída al vacío
+        // Detectar caída al vacío - ESTA ES LA PARTE CRÍTICA
         if (playerY <= voidHeight) {
+            plugin.getLogger().info(ColorUtils.translate(
+                    "&c🚨 &fJugador &b" + player.getName() + " &fha caído al vacío (Y=" + playerY +
+                            "). Teletransportando al spawn..."
+            ));
+
+            // Cancelar el movimiento
             event.setCancelled(true);
+
+            // Teletransportar al jugador de inmediato
             teleportPlayerToSafety(player);
         }
+    }
+
+    /**
+     * Verifica si el anti-void está habilitado en un mundo específico
+     */
+    private boolean isAntiVoidEnabledInWorld(String worldName) {
+        var config = plugin.getConfigManager().getConfig();
+
+        // Verificar mundos deshabilitados
+        if (config.getStringList("anti-void.advanced.detection.disabled-worlds").contains(worldName)) {
+            return false;
+        }
+
+        // Verificar mundos activos específicos
+        var activeWorlds = config.getStringList("anti-void.advanced.detection.active-worlds");
+        if (!activeWorlds.isEmpty()) {
+            return activeWorlds.contains(worldName);
+        }
+
+        return true; // Habilitado por defecto
     }
 
     /**
@@ -196,7 +236,7 @@ public class AntiVoidListener implements Listener {
     }
 
     /**
-     * Teletransporta al jugador a seguridad
+     * Teletransporta al jugador a seguridad - MÉTODO CORREGIDO
      */
     private void teleportPlayerToSafety(Player player) {
         UUID playerId = player.getUniqueId();
@@ -205,49 +245,83 @@ public class AntiVoidListener implements Listener {
         lastTeleportTime.put(playerId, System.currentTimeMillis());
         playerFalling.remove(playerId);
 
-        // Teletransportar al jugador
-        player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-        // Efectos de teletransporte
-        playTeleportEffects(player);
-
-        // Mensaje de teletransporte
-        if (messageEnabled) {
-            String message = teleportMessage.replace("{PLAYER}", player.getName());
-            ColorUtils.sendMessage(player, message);
+        // Verificar que el spawn location no sea null
+        if (spawnLocation == null) {
+            plugin.getLogger().severe("Error: No hay spawn configurado para anti-void!");
+            ColorUtils.sendMessage(player, "&c❌ &fError: No hay spawn configurado para el anti-void.");
+            return;
         }
 
-        // Log del evento
-        plugin.getLogger().info(ColorUtils.translate(
-                "&c🚨 &fJugador &b" + player.getName() + " &fsalvado del vacío (Y=" +
-                        String.format("%.1f", player.getLocation().getY()) + ")"
-        ));
-
-        // Enviar datos de evento a GrivyzomCore si está disponible
-        if (plugin.getGrivyzomIntegration() != null &&
-                plugin.getGrivyzomIntegration().isGrivyzomCoreAvailable()) {
-            plugin.getGrivyzomIntegration().notifyLobbyEvent(
-                    "VOID_SAVE",
-                    player.getName(),
-                    String.valueOf(player.getLocation().getY()),
-                    spawnLocation.getWorld().getName()
-            );
+        // Verificar que el mundo del spawn exista
+        if (spawnLocation.getWorld() == null) {
+            plugin.getLogger().severe("Error: El mundo del spawn anti-void no existe!");
+            ColorUtils.sendMessage(player, "&c❌ &fError: El mundo del spawn no existe.");
+            return;
         }
+
+        // Teletransportar al jugador SÍNCRONAMENTE
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    // Teletransporte seguro
+                    boolean success = player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                    if (success) {
+                        plugin.getLogger().info(ColorUtils.translate(
+                                "&a✅ &fJugador &b" + player.getName() + " &fteletransportado exitosamente al spawn anti-void"
+                        ));
+
+                        // Efectos de teletransporte
+                        playTeleportEffects(player);
+
+                        // Mensaje de teletransporte
+                        if (messageEnabled) {
+                            String message = teleportMessage.replace("{PLAYER}", player.getName());
+                            ColorUtils.sendMessage(player, message);
+                        }
+
+                        // Log del evento
+                        plugin.getLogger().info(ColorUtils.translate(
+                                "&c🚨 &fJugador &b" + player.getName() + " &fsalvado del vacío y teletransportado al spawn"
+                        ));
+
+                        // Enviar datos de evento a GrivyzomCore si está disponible
+                        if (plugin.getGrivyzomIntegration() != null &&
+                                plugin.getGrivyzomIntegration().isGrivyzomCoreAvailable()) {
+                            plugin.getGrivyzomIntegration().notifyLobbyEvent(
+                                    "VOID_SAVE",
+                                    player.getName(),
+                                    String.valueOf(voidHeight),
+                                    spawnLocation.getWorld().getName()
+                            );
+                        }
+                    } else {
+                        plugin.getLogger().severe("Error: Fallo el teletransporte de " + player.getName());
+                        ColorUtils.sendMessage(player, "&c❌ &fError al teletransportar. Contacta a un administrador.");
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().severe("Error crítico teletransportando " + player.getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }.runTask(plugin); // Ejecutar en el hilo principal
     }
 
     /**
-     * Reproduce efectos de teletransporte
+     * Reproduce efectos de teletransporte - MÉTODO CORREGIDO
      */
     private void playTeleportEffects(Player player) {
-        // Sonido de teletransporte
+        // Sonido de teletransporte - CAMBIADO A CHICKEN EGG
         if (soundEnabled) {
             try {
                 Sound sound = Sound.valueOf(soundName.toUpperCase());
                 player.playSound(player.getLocation(), sound, soundVolume, soundPitch);
+                plugin.getLogger().info("Reproduciendo sonido: " + soundName + " para " + player.getName());
             } catch (IllegalArgumentException e) {
-                plugin.getLogger().warning("Sonido de anti-void inválido: " + soundName);
-                // Sonido por defecto
-                player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, soundVolume, soundPitch);
+                plugin.getLogger().warning("Sonido de anti-void inválido: " + soundName + ". Usando sonido por defecto.");
+                // Sonido por defecto: chicken egg
+                player.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, soundVolume, soundPitch);
             }
         }
 
@@ -260,27 +334,31 @@ public class AntiVoidListener implements Listener {
 
                     Location loc = player.getLocation();
 
-                    // Partículas de portal
-                    loc.getWorld().spawnParticle(
-                            org.bukkit.Particle.PORTAL,
-                            loc.add(0, 1, 0),
-                            30,  // cantidad
-                            0.5, // offset X
-                            1.0, // offset Y
-                            0.5, // offset Z
-                            0.1  // velocidad
-                    );
+                    try {
+                        // Partículas de portal
+                        loc.getWorld().spawnParticle(
+                                org.bukkit.Particle.PORTAL,
+                                loc.add(0, 1, 0),
+                                30,  // cantidad
+                                0.5, // offset X
+                                1.0, // offset Y
+                                0.5, // offset Z
+                                0.1  // velocidad
+                        );
 
-                    // Partículas de end rod para efecto de rescate
-                    loc.getWorld().spawnParticle(
-                            org.bukkit.Particle.END_ROD,
-                            loc,
-                            10,
-                            0.3,
-                            0.5,
-                            0.3,
-                            0.05
-                    );
+                        // Partículas de end rod para efecto de rescate
+                        loc.getWorld().spawnParticle(
+                                org.bukkit.Particle.END_ROD,
+                                loc,
+                                10,
+                                0.3,
+                                0.5,
+                                0.3,
+                                0.05
+                        );
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("Error reproduciendo partículas: " + e.getMessage());
+                    }
                 }
             }.runTaskLater(plugin, 1L);
         }
@@ -307,7 +385,8 @@ public class AntiVoidListener implements Listener {
 
         plugin.getLogger().info(ColorUtils.translate(
                 "&a✓ &fNueva ubicación de spawn para anti-void establecida en: &b" +
-                        String.format("%.1f, %.1f, %.1f", location.getX(), location.getY(), location.getZ())
+                        String.format("%.1f, %.1f, %.1f", location.getX(), location.getY(), location.getZ()) +
+                        " &fen mundo: &e" + location.getWorld().getName()
         ));
 
         return true;
